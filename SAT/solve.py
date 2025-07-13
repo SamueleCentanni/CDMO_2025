@@ -9,6 +9,7 @@ from opt_base import STS_Optimized_Model
 from opt_sb import STS_Optimized_Model_SB
 from opt_sb_encoding import STS_Optimized_Model_SB_Encodings
 from opt_sb_enc_solver import STS_Optimized_Model_SB_Solver
+from opt_sb_heule import STS_Optimized_Model_SB_Heule
 logger = logging.getLogger(__name__)
 
 
@@ -63,8 +64,9 @@ def solve(instance, instance_number, timeout, cache={}, random_seed=42, models_f
     models = {
         'base-bw-seq': STS_Optimized_Model,
         'sb-bw-seq': STS_Optimized_Model_SB,
-        'sb-heule-seq': STS_Optimized_Model_SB_Encodings,
-        'sb-heule-seq-solver': STS_Optimized_Model_SB_Solver,
+        'sb-seq-seq': STS_Optimized_Model_SB_Encodings,
+        'sb-seq-seq-solver': STS_Optimized_Model_SB_Solver,
+        'sb-heule-seq-solver': STS_Optimized_Model_SB_Heule
     }
 
     results = {}

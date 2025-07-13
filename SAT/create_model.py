@@ -4,7 +4,7 @@ from z3 import *
 # This function will set up the core STS constraints and variables.
 # It returns the solver, games_vars, home_counts, away_counts, diff_values, total_objective
 # to be used in the solve method.
-def create_sts_model(n, exactly_one_encoding, at_most_k_encoding, symmetry_breaking=False):
+def create_sts_model(n, exactly_one_encoding, at_most_k_encoding, symmetry_breaking=False, custom_solver=None):
     NUM_TEAMS = n
     NUM_WEEKS = NUM_TEAMS - 1
     NUM_PERIODS_PER_WEEK = n // 2
@@ -13,6 +13,8 @@ def create_sts_model(n, exactly_one_encoding, at_most_k_encoding, symmetry_break
         raise ValueError(f"Error: The number of teams (n={NUM_TEAMS}) must be an even number.")
 
     solver_sts = Solver()
+    # solver_sts = custom_solver if custom_solver is not None else Solver() # TORNA ALLA RIGA SOPRA SE OPTIMIZER NON FUNZION
+    
 
     # --- Decision Variables ---
     games_vars = {}

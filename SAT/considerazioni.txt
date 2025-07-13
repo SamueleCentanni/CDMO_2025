@@ -1,0 +1,35 @@
+L'approccio che sto seguendo è:
+- file più importante è 'create_model' che gestisce la logica del modello, con i vincoli e la gestione 
+della soluzione ottima (bilanciamento tra partite fuori casa e in casa)
+- classi che partono da create_model e iterativamente cercano di trovare la soluzione ottima
+    - 'opt_base': encoding di base, no breaking constraints
+    - 'opt_sb': encoding di base, si breaking constraints
+    - 'opt_sb_encoding': encoding avanzati (heule e at_most_k sequential), si breaking constraints
+    - 'opt_sb_enc_solver': encoding avanzati, si breaking constraints, si opzioni opt_sb_enc_solver
+
+- Considerazioni:
+    - n=6:
+        - 
+    - n=8:
+        - 'opt_base': 16 sec
+        - 'opt_sb': 5.2 sec -> usare breaking constraints molto meglio di opt_base
+        - 'opt_sb_encoding': 1.5 sec -> encoding avanzati migliorano tantissimo
+        - 'opt_sb_enc_solver': 50 sec -> sembra che le opzioni del solver peggiorano, da valutare meglio
+            - avevo usato le opzioni 
+                - self.solver.set("phase_selection", 0) 
+                - self.solver.set("restart_factor", 1.2)
+                - self.solver.set("restart_strategy", 1)
+            - AGGIORNAMENTO: 1.7 sec -> usando le opzioni sotto, migliora di molto rispetto alla versione di partenza 
+                - self.solver.set("phase_selection", 0) -> opzione migliore. Anche provando con 1 e 2 ci mette 6.8 e 4 sec
+                - self.solver.set("restart_strategy", 0)
+    - n=10:
+        - 'base-bw-seq' e 'sb-bw-seq' funzionano decisamente meglio degli ultimi due, che in teoria dovrebbero essere i migliori
+            - in particolare l'unica differenza tra i due è il SB:
+                - con base-bw-seq arrivo a obj=22, mentre con sb-bw-seq arrivo a obj=12, quindi i symmetry breaking sono essenziali!
+        - potrebbe esserci un problema negli encoding heule e at_most_k sequential
+        - mettendo exactly_one_seq al posto di heule almeno una soluzione la si trova, obj=16
+        - in questo caso, usando sia 'sb-heule-seq-solver' che 'sb-seq-seq-solver' con le opzioni sotto, arrivo a obj=12 in 15secondi!!
+            - self.solver.set("phase_selection", 2) 
+            - self.solver.set("restart_factor", 1.2)
+            - self.solver.set("restart_strategy", 1)
+    - n=12: non funziona nulla

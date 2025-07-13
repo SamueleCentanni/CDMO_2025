@@ -6,7 +6,7 @@ from encoding_utils import heule_exactly_one, exactly_k_np, exactly_one_seq, exa
 
 # With SYMMETRY BREAKING SB and best encoding (heule + sequential)
 class STS_Optimized_Model_SB_Solver:
-    def __init__(self, n, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq):
+    def __init__(self, n, exactly_one_encoding=exactly_one_seq, at_most_k_encoding=at_most_k_seq):
         self.n = n
         self.NUM_TEAMS = n
         self.NUM_WEEKS = self.NUM_TEAMS - 1
@@ -25,10 +25,14 @@ class STS_Optimized_Model_SB_Solver:
         if random_seed is not None:
             self.solver.set("random_seed", random_seed)
             
-        self.solver.set("phase_selection", 0) # 0: Preferenza per polarità binarie. Prova anche 1 o 2.
+        if(self.n <= 8):
+            self.solver.set("phase_selection", 0)
+            self.solver.set("restart_strategy", 0)
+        elif(self.n >= 10):
+            self.solver.set("phase_selection", 2) # 0: Preferenza per polarità binarie. Prova anche 1 o 2.
+            self.solver.set("restart_factor", 1.2)
+            self.solver.set("restart_strategy", 1) # 0: GEOMETRIC, 1: LUBY 
 
-        self.solver.set("restart_factor", 1.2)
-        self.solver.set("restart_strategy", 1) # 0: GEOMETRIC, 1: LUBY.
 
         # Init for iterative optimization
         optimal_objective_value = None

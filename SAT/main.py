@@ -5,10 +5,13 @@ import math
 from utils import print_weekly_schedule
 
 # ---- MANUAL TEST
-from encoding_utils import heule_exactly_one, exactly_k_np, exactly_one_seq, exactly_one_bw, exactly_one_np, at_most_k_np, at_most_k_seq
+from encoding_utils import at_most_k_totalizer, heule_exactly_one, exactly_k_np, exactly_one_seq, exactly_one_bw, exactly_one_np, at_most_k_np, at_most_k_seq
 from opt_base import STS_Optimized_Model
 from opt_sb import STS_Optimized_Model_SB
 from opt_sb_encoding import STS_Optimized_Model_SB_Encodings
+from opt_sb_enc_solver import STS_Optimized_Model_SB_Solver
+from opt_sb_heule import STS_Optimized_Model_SB_Heule
+from opt_sb_optimizer import STS_Optimized_Model_SB_Heule_Optimize
 
 # ---- AUTOMATIC TEST
 from solve import solve as solve_model
@@ -47,11 +50,12 @@ if __name__ == '__main__':
     # main(n_teams=8, exactly_one_encoding=exactly_one_np, at_most_k_encoding=at_most_k_np, model_class=STS_Optimized_Model) -> TOO MUCH TIME 
     # main(n_teams=8, exactly_one_encoding=exactly_one_np, at_most_k_encoding=at_most_k_np, model_class=STS_Optimized_Model_SB) -> TOO MUCH TIME
     
-    n_teams = 6
+    n_teams = 8
     
     ### DA USARE UNO DEI DUE TRA BENCHMARK AUTOMATICO OPPURE TEST MANUALE
     
     ### BENCHMARK AUTOMATICO (solve)
+    '''
     results = solve_model(
         instance=n_teams,
         instance_number=1,
@@ -71,12 +75,17 @@ if __name__ == '__main__':
     '''
     ### TEST MANUALE     
     # STS_Optimized_Model
-    main(n_teams=n_teams, exactly_one_encoding=exactly_one_bw, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model)
+    #main(n_teams=n_teams, exactly_one_encoding=exactly_one_bw, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model)
     print("-------------------------------------------\n")
     # STS_Optimized_Model_SB
-    main(n_teams=n_teams, exactly_one_encoding=exactly_one_bw, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB)
+    #main(n_teams=n_teams, exactly_one_encoding=exactly_one_bw, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB)
     print("-------------------------------------------\n")
     # STS_Optimized_Model_SB_Encoding
-    main(n_teams=n_teams, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Encodings)
-    '''
+    #main(n_teams=n_teams, exactly_one_encoding=exactly_one_seq, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Encodings)
+    print("-------------------------------------------\n")
+    #main(n_teams=n_teams, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Solver)
+    main(n_teams=n_teams, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Heule)
+    
+    
+    #'''
     

@@ -6,7 +6,7 @@ from encoding_utils import heule_exactly_one, exactly_k_np, exactly_one_seq, exa
 
 # With SYMMETRY BREAKING SB and best encoding (heule + sequential)
 class STS_Optimized_Model_SB_Encodings:
-    def __init__(self, n, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq):
+    def __init__(self, n, exactly_one_encoding=exactly_one_seq, at_most_k_encoding=at_most_k_seq):
         self.n = n
         self.NUM_TEAMS = n
         self.NUM_WEEKS = self.NUM_TEAMS - 1
