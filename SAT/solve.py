@@ -5,11 +5,13 @@ import logging
 import traceback
 from functools import partial # serve per precompilare una funzione o classe con alcuni argomenti già fissati in anticipo
 from encoding_utils import exactly_one_np, at_most_k_np, heule_exactly_one, at_most_k_seq
-from opt_base import STS_Optimized_Model
-from opt_sb import STS_Optimized_Model_SB
-from opt_sb_encoding import STS_Optimized_Model_SB_Encodings
-from opt_sb_enc_solver import STS_Optimized_Model_SB_Solver
-from opt_sb_heule import STS_Optimized_Model_SB_Heule
+from inutilities.opt_base import STS_Optimized_Model
+from inutilities.opt_sb import STS_Optimized_Model_SB
+from inutilities.opt_sb_encoding import STS_Optimized_Model_SB_Encodings
+from inutilities.opt_sb_enc_solver import STS_Optimized_Model_SB_Solver
+from inutilities.opt_sb_heule import STS_Optimized_Model_SB_Heule
+from inutilities.opt_sb_heule_2 import STS_Optimized_Model_SB_Heule_2
+from opt_sb_heule_3 import STS_Optimized_Model_SB_Heule_3
 logger = logging.getLogger(__name__)
 
 
@@ -62,11 +64,13 @@ def modelRunner(ModelClass, instance, timeout, random_seed, queue):
 def solve(instance, instance_number, timeout, cache={}, random_seed=42, models_filter=None, **kwargs):
     
     models = {
-        'base-bw-seq': STS_Optimized_Model,
-        'sb-bw-seq': STS_Optimized_Model_SB,
-        'sb-seq-seq': STS_Optimized_Model_SB_Encodings,
-        'sb-seq-seq-solver': STS_Optimized_Model_SB_Solver,
-        'sb-heule-seq-solver': STS_Optimized_Model_SB_Heule
+        #'base-bw-seq': STS_Optimized_Model,
+        #'sb-bw-seq': STS_Optimized_Model_SB,
+        #'sb-seq-seq': STS_Optimized_Model_SB_Encodings,
+        #'sb-seq-seq-solver': STS_Optimized_Model_SB_Solver,
+        #'sb-heule-seq-solver': STS_Optimized_Model_SB_Heule,
+        #'sb-heule-seq-solver2':STS_Optimized_Model_SB_Heule_2,
+        'sb-heule-seq-solver3': STS_Optimized_Model_SB_Heule_3,
     }
 
     results = {}

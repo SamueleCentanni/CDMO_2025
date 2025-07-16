@@ -3,10 +3,11 @@ import time
 import math
 from create_model import create_sts_model
 from encoding_utils import heule_exactly_one, exactly_k_np, exactly_one_seq, exactly_one_bw, exactly_one_np, at_most_k_np, at_most_k_seq
+from create_model_2 import create_sts_model_compact
 
-# With SYMMETRY BREAKING SB and best encoding (heule + sequential)
-class STS_Optimized_Model_SB_Solver:
-    def __init__(self, n, exactly_one_encoding=exactly_one_seq, at_most_k_encoding=at_most_k_seq):
+# Model base, no symmetry breaking and standard encoding (naive)
+class STS_Optimized_Model:
+    def __init__(self, n, exactly_one_encoding=exactly_one_bw, at_most_k_encoding=at_most_k_seq):
         self.n = n
         self.NUM_TEAMS = n
         self.NUM_WEEKS = self.NUM_TEAMS - 1
@@ -16,23 +17,16 @@ class STS_Optimized_Model_SB_Solver:
         
         # in this way i can change the encodings as i prefer
         self.solver, self.games_vars, self.home_counts, self.away_counts, self.diff_values, self.total_objective = create_sts_model(n, 
-                                                                                                                                    self.exactly_one_encoding, 
-                                                                                                                                    self.at_most_k_encoding,
-                                                                                                                                    symmetry_breaking=True)
+                                                                                                                                self.exactly_one_encoding, 
+                                                                                                                                self.at_most_k_encoding,
+                                                                                                                                )
 
+        
     def solve(self, timeout_seconds, random_seed=None):
-        set_option("sat.local_search", True) # As in their code
+        set_option("sat.local_search", True) 
         if random_seed is not None:
             self.solver.set("random_seed", random_seed)
             
-        if(self.n <= 8):
-            self.solver.set("phase_selection", 0)
-            self.solver.set("restart_strategy", 0)
-        elif(self.n >= 10):
-            self.solver.set("phase_selection", 2) # 0: Preferenza per polarità binarie. Prova anche 1 o 2.
-            self.solver.set("restart_factor", 1.2)
-            self.solver.set("restart_strategy", 1) # 0: GEOMETRIC, 1: LUBY 
-
 
         # Init for iterative optimization
         optimal_objective_value = None
@@ -49,10 +43,10 @@ class STS_Optimized_Model_SB_Solver:
                 print("  Overall timeout reached. Breaking optimization loop.")
                 break # Overall timeout for the solve method
 
-            self.solver.set("timeout", remaining_time * 1000) # Timeout for current check call in milliseconds
-            self.solver.push() # Save state for back-tracking if current objective fails
+            self.solver.set("timeout", remaining_time * 1000) 
+            self.solver.push() 
 
-            # Add constraint to find a strictly better solution
+            # constraint to find a strictly better solution
             if optimal_objective_value is not None:
                 self.solver.add(self.total_objective < optimal_objective_value)
                 print(f"  Searching for solution with total difference < {optimal_objective_value} (Remaining overall time: {remaining_time}s)...")
@@ -88,9 +82,6 @@ class STS_Optimized_Model_SB_Solver:
                         print(f"      Team {i+1}: Home = {h_count}, Away = {a_count}, Diff = {d_val} (Calculated: {calculated_diff})")
 
                 else:
-                    # This case should ideally not happen if a strict inequality constraint was added
-                    # and status is SAT. It might indicate a timeout on the *inner* check call
-                    # that yielded a solution not strictly better than the global best.
                     print("    Found solution, but it's not strictly better than the current best. Optimization complete.")
                     self.solver.pop() # Pop the last constraint to revert
                     break # Exit loop as no better solution found
@@ -101,16 +92,12 @@ class STS_Optimized_Model_SB_Solver:
                 break
 
             elif status == unknown:
-                print(f"  Solver returned 'unknown' (likely timeout within iteration or unhandled theory).")
+                print(f"  Solver returned 'unknown' (likely timeout within iteration).")
                 break # Cannot guarantee optimality, so stop
 
             self.solver.pop() # Remove the specific objective constraint for the last iteration
             # Loop continues to search for better solution (if 'sat' was returned)
 
-        # Collect statistics after optimization loop finishes
-        # Note: Statistics are for the *last* check call. To get statistics for
-        # the entire process, you'd need to aggregate them.
-        # This part mimics their statistics collection, which gets stats for the LAST check.
         stat = self.solver.statistics()
         final_stats = {
             'restarts': stat.get_key_value('restarts') if 'restarts' in stat.keys() else 0,
@@ -126,8 +113,7 @@ class STS_Optimized_Model_SB_Solver:
         for k, v in final_stats.items():
             print(f"    {k}: {v}")
 
-        # il metodo solve() del file solve.py vuole: 
-        # "objective, solution, optimality, solve_time, restart, max_memory, mk_bool_var, conflicts = def_model.solve(...)"
+
         if best_solution_schedule:
             print(f"  Number of active matches in best solution: {len(best_solution_schedule)}")
             return (optimal_objective_value,               # objective
@@ -148,3 +134,4 @@ class STS_Optimized_Model_SB_Solver:
                     final_stats['max_memory'],             # max_memory
                     final_stats['mk_bool_var'],            # mk_bool_var
                     final_stats['conflicts'])              # conflicts
+

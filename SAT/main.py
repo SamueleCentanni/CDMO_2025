@@ -4,14 +4,17 @@ import time
 import math
 from utils import print_weekly_schedule
 
+
 # ---- MANUAL TEST
-from encoding_utils import at_most_k_totalizer, heule_exactly_one, exactly_k_np, exactly_one_seq, exactly_one_bw, exactly_one_np, at_most_k_np, at_most_k_seq
-from opt_base import STS_Optimized_Model
-from opt_sb import STS_Optimized_Model_SB
-from opt_sb_encoding import STS_Optimized_Model_SB_Encodings
-from opt_sb_enc_solver import STS_Optimized_Model_SB_Solver
-from opt_sb_heule import STS_Optimized_Model_SB_Heule
-from opt_sb_optimizer import STS_Optimized_Model_SB_Heule_Optimize
+from encoding_utils import exactly_one_totalizer, at_most_k_totalizer, heule_exactly_one, exactly_k_np, exactly_one_seq, exactly_one_bw, exactly_one_np, at_most_k_np, at_most_k_seq
+from inutilities.opt_base import STS_Optimized_Model
+from inutilities.opt_sb import STS_Optimized_Model_SB
+from inutilities.opt_sb_encoding import STS_Optimized_Model_SB_Encodings
+from inutilities.opt_sb_enc_solver import STS_Optimized_Model_SB_Solver
+from inutilities.opt_sb_heule import STS_Optimized_Model_SB_Heule
+from inutilities.opt_sb_optimizer import STS_Optimized_Model_SB_Heule_Optimize
+from opt_sb_heule_3 import STS_Optimized_Model_SB_Heule_3
+from inutilities.opt_sb_heule_2 import STS_Optimized_Model_SB_Heule_2
 
 # ---- AUTOMATIC TEST
 from solve import solve as solve_model
@@ -29,33 +32,27 @@ def main(n_teams,
         print(f"Attempting to solve STS with Home/Away balance optimization for {n_teams} teams...")
 
     sts_model = model_class(n_teams, exactly_one_encoding, at_most_k_encoding)
-    match_list, stats, final_model = sts_model.solve(timeout_seconds, random_seed=42)
+    (objective, solution, optimality, solve_time, restarts, max_memory, mk_bool_var, conflicts) = sts_model.solve(timeout_seconds=timeout_seconds, random_seed=42)
 
-    if match_list:
-        print_weekly_schedule(match_list, n_teams)
+    if verbose and solution:
+        print(f"\nSchedule (n={n_teams}, Total Difference: {objective}):")
+        print_weekly_schedule(solution, n_teams)
+        print("\nFinal Stats:")
+        print(f"  Optimality: {optimality}")
+        print(f"  Solve Time: {solve_time:.2f}s")
+        print(f"  Restarts: {restarts}, Conflicts: {conflicts}, Bool Vars: {mk_bool_var}, Max Memory: {max_memory:.2f} MB")
 
-        # Home/Away verification -> USELESS
-        if(verbose):
-            print("\nVerifying Home/Away balance for the final schedule:")
-            for team_idx in range(n_teams):
-                h_count = a_count = 0
-                for (i, j, w, p) in match_list:
-                    if i - 1 == team_idx:
-                        h_count += 1
-                    elif j - 1 == team_idx:
-                        a_count += 1
-                print(f"  Team {team_idx+1}: Home Games = {h_count}, Away Games = {a_count}, Difference = {abs(h_count - a_count)}")
+    # Ritorna tutto come richiesto
+    return objective, solution, optimality, solve_time, restarts, max_memory, mk_bool_var, conflicts
+
+    
 
 if __name__ == '__main__':
-    # main(n_teams=8, exactly_one_encoding=exactly_one_np, at_most_k_encoding=at_most_k_np, model_class=STS_Optimized_Model) -> TOO MUCH TIME 
-    # main(n_teams=8, exactly_one_encoding=exactly_one_np, at_most_k_encoding=at_most_k_np, model_class=STS_Optimized_Model_SB) -> TOO MUCH TIME
+    n_teams = 12
     
-    n_teams = 8
-    
-    ### DA USARE UNO DEI DUE TRA BENCHMARK AUTOMATICO OPPURE TEST MANUALE
     
     ### BENCHMARK AUTOMATICO (solve)
-    '''
+    #'''
     results = solve_model(
         instance=n_teams,
         instance_number=1,
@@ -69,23 +66,30 @@ if __name__ == '__main__':
         print(f"Optimal: {result['optimal']}")
         print(f"Time: {result['time']}s")
         print(f"Solution: {result['sol']}")
-        # Aggiungi stampa calendario opzionalmente
     
     
     '''
     ### TEST MANUALE     
+    
     # STS_Optimized_Model
-    #main(n_teams=n_teams, exactly_one_encoding=exactly_one_bw, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model)
-    print("-------------------------------------------\n")
+    # main(n_teams=n_teams, exactly_one_encoding=exactly_one_bw, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model)
+    
     # STS_Optimized_Model_SB
-    #main(n_teams=n_teams, exactly_one_encoding=exactly_one_bw, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB)
-    print("-------------------------------------------\n")
+    # main(n_teams=n_teams, exactly_one_encoding=exactly_one_bw, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB)
+
     # STS_Optimized_Model_SB_Encoding
-    #main(n_teams=n_teams, exactly_one_encoding=exactly_one_seq, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Encodings)
-    print("-------------------------------------------\n")
-    #main(n_teams=n_teams, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Solver)
-    main(n_teams=n_teams, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Heule)
+    # main(n_teams=n_teams, exactly_one_encoding=exactly_one_seq, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Encodings)
     
+    # main(n_teams=n_teams, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Solver)
+
+    # main(n_teams=n_teams, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Heule)
+
+    # main(n_teams=n_teams, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Heule_3)
+
+    # main(n_teams=n_teams, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq, model_class=STS_Optimized_Model_SB_Heule_2)
+
+    # main(n_teams=n_teams, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_totalizer, model_class=STS_Optimized_Model_SB_Heule_3)
+
+    # grid_search(n_teams, at_most_k_encoding=at_most_k_totalizer)
     
-    #'''
-    
+    '''

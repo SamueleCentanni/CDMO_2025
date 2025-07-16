@@ -81,54 +81,26 @@ def exactly_one_seq(bool_vars, name=''):
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# --- Heule Encoding Approach (from the other group's code) ---
+# --- Heule Encoding Approach  ---
 # This will be used specifically for exactly_one in the STS problem.
-# The original `at_most_one_he` in your code was different.
-global_most_counter = 0 # Renamed to avoid conflict with potential local vars
+
+global_most_counter = 0 
 
 def heule_at_most_one(bool_vars):
-    # This is the recursive Heule AMO used by the other group
     if len(bool_vars) <= 4: # Base case: use pairwise encoding
         return And([Not(And(pair[0], pair[1])) for pair in combinations(bool_vars, 2)])
     else:
         global global_most_counter
         global_most_counter += 1
-        aux_var = Bool(f'y_amo_{global_most_counter}') # Using a distinct name for auxiliary vars
+        aux_var = Bool(f'y_amo_{global_most_counter}') 
 
-        # This recursive decomposition is the core of their Heule encoding
-        # It splits into roughly 1/4 and 3/4, with an auxiliary variable
+        # split into roughly 1/4 and 3/4, with an auxiliary variable
         return And(heule_at_most_one(bool_vars[:3] + [aux_var]), heule_at_most_one([Not(aux_var)] + bool_vars[3:]))
     
-    
-def heule_at_most_one_iter(bool_vars, name=''):
-    if len(bool_vars) <= 4:
-        return And([Not(And(p, q)) for p, q in combinations(bool_vars, 2)])
-
-    constraints = []
-    queue = [(bool_vars, 0)]  # (vars, depth)
-    aux_counter = 0
-
-    while queue:
-        current_vars, depth = queue.pop(0)
-
-        if len(current_vars) <= 4:
-            constraints.extend([Not(And(p, q)) for p, q in combinations(current_vars, 2)])
-        else:
-            mid = len(current_vars) // 2
-            aux = Bool(f"y_{name}_{aux_counter}")
-            aux_counter += 1
-
-            left = current_vars[:mid] + [aux]
-            right = [Not(aux)] + current_vars[mid:]
-
-            queue.append((left, depth + 1))
-            queue.append((right, depth + 1))
-
-    return And(constraints)
 
 def heule_exactly_one(bool_vars, name=''):
     # Uses the Heule AMO and the simple at_least_one
-    return And(heule_at_most_one(bool_vars), at_least_one_np(bool_vars)) # Using your at_least_one_np
+    return And(heule_at_most_one(bool_vars), at_least_one_np(bool_vars))
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # --------------------------------------------------------------
@@ -182,40 +154,30 @@ def exactly_k_seq(bool_vars, k, name=''):
     return And(at_most_k_seq(bool_vars, k, name), at_least_k_seq(bool_vars, k, name))
 
 
-
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
 # Totalizer Encoding
 def totalizer_merge(left_sum, right_sum, name_prefix, depth, constraints):
-    merged = []
-    for i in range(len(left_sum) + len(right_sum)):
-        merged.append(Bool(f"{name_prefix}_s_{depth}_{i}"))
-
+    merged = [Bool(f"{name_prefix}_s_{depth}_{i}") for i in range(len(left_sum) + len(right_sum))]
+    
     for i in range(len(left_sum)):
         constraints.append(Implies(left_sum[i], merged[i]))
-
     for i in range(len(right_sum)):
         constraints.append(Implies(right_sum[i], merged[i]))
-
     for i in range(len(left_sum)):
         for j in range(len(right_sum)):
             if i + j + 1 < len(merged):
                 constraints.append(Implies(And(left_sum[i], right_sum[j]), merged[i + j + 1]))
-
     return merged
 
 def at_most_k_totalizer(bool_vars, k, name=''):
     constraints = []
     n = len(bool_vars)
-
     if k >= n: return BoolVal(True)
     if k < 0: return BoolVal(False)
     if n == 0: return BoolVal(True)
 
-    # Step 1: wrap each variable into a singleton list
     current_level = [[v] for v in bool_vars]
     depth = 0
-
-    # Step 2: build tree bottom-up
     while len(current_level) > 1:
         next_level = []
         for i in range(0, len(current_level), 2):
@@ -229,7 +191,6 @@ def at_most_k_totalizer(bool_vars, k, name=''):
                 depth += 1
         current_level = next_level
 
-    # Step 3: final sum (unary count) is in current_level[0]
     total_sum = current_level[0]
     for i in range(k, len(total_sum)):
         constraints.append(Not(total_sum[i]))
@@ -237,58 +198,15 @@ def at_most_k_totalizer(bool_vars, k, name=''):
     return And(constraints)
 
 def at_least_k_totalizer(bool_vars, k, name=''):
-    # Reuse the same tree but flip the vars and transform k accordingly
     return at_most_k_totalizer([Not(v) for v in bool_vars], len(bool_vars) - k, name + "_neg")
 
 def exactly_k_totalizer(bool_vars, k, name=''):
-    return And(at_most_k_totalizer(bool_vars, k, name), at_least_k_totalizer(bool_vars, k, name))
+    return And(
+        at_most_k_totalizer(bool_vars, k, name),
+        at_least_k_totalizer(bool_vars, k, name)
+    )
+
+def exactly_one_totalizer(bool_vars, name=''):
+    return exactly_k_totalizer(bool_vars, 1, name)
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# --- Heule Encoding Approach (from the other group's code) ---
-# This will be used specifically for exactly_one in the STS problem.
-# The original `at_most_one_he` in your code was different.
-global_most_counter = 0 # Renamed to avoid conflict with potential local vars
-
-def heule_at_most_one(bool_vars):
-    # This is the recursive Heule AMO used by the other group
-    if len(bool_vars) <= 4: # Base case: use pairwise encoding
-        return And([Not(And(pair[0], pair[1])) for pair in combinations(bool_vars, 2)])
-    else:
-        global global_most_counter
-        global_most_counter += 1
-        aux_var = Bool(f'y_amo_{global_most_counter}') # Using a distinct name for auxiliary vars
-
-        # This recursive decomposition is the core of their Heule encoding
-        # It splits into roughly 1/4 and 3/4, with an auxiliary variable
-        return And(heule_at_most_one(bool_vars[:3] + [aux_var]), heule_at_most_one([Not(aux_var)] + bool_vars[3:]))
-    
-    
-def heule_at_most_one_iter(bool_vars, name=''):
-    if len(bool_vars) <= 4:
-        return And([Not(And(p, q)) for p, q in combinations(bool_vars, 2)])
-
-    constraints = []
-    queue = [(bool_vars, 0)]  # (vars, depth)
-    aux_counter = 0
-
-    while queue:
-        current_vars, depth = queue.pop(0)
-
-        if len(current_vars) <= 4:
-            constraints.extend([Not(And(p, q)) for p, q in combinations(current_vars, 2)])
-        else:
-            mid = len(current_vars) // 2
-            aux = Bool(f"y_{name}_{aux_counter}")
-            aux_counter += 1
-
-            left = current_vars[:mid] + [aux]
-            right = [Not(aux)] + current_vars[mid:]
-
-            queue.append((left, depth + 1))
-            queue.append((right, depth + 1))
-
-    return And(constraints)
-
-def heule_exactly_one(bool_vars, name=''):
-    # Uses the Heule AMO and the simple at_least_one
-    return And(heule_at_most_one(bool_vars), at_least_one_np(bool_vars)) # Using your at_least_one_np

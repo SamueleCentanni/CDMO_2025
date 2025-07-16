@@ -10,7 +10,7 @@ della soluzione ottima (bilanciamento tra partite fuori casa e in casa)
 - Considerazioni:
     - n=6:
         - 
-    - n=8:
+    - n=8: SE USO create_model
         - 'opt_base': 16 sec
         - 'opt_sb': 5.2 sec -> usare breaking constraints molto meglio di opt_base
         - 'opt_sb_encoding': 1.5 sec -> encoding avanzati migliorano tantissimo
@@ -22,6 +22,7 @@ della soluzione ottima (bilanciamento tra partite fuori casa e in casa)
             - AGGIORNAMENTO: 1.7 sec -> usando le opzioni sotto, migliora di molto rispetto alla versione di partenza 
                 - self.solver.set("phase_selection", 0) -> opzione migliore. Anche provando con 1 e 2 ci mette 6.8 e 4 sec
                 - self.solver.set("restart_strategy", 0)
+        - USANDO LA FUNZIONE create_model_2 CI METTE MOLTO DI PIU A TROVARE LA SOLUZIONE CORRETTA
     - n=10:
         - 'base-bw-seq' e 'sb-bw-seq' funzionano decisamente meglio degli ultimi due, che in teoria dovrebbero essere i migliori
             - in particolare l'unica differenza tra i due è il SB:
@@ -29,7 +30,105 @@ della soluzione ottima (bilanciamento tra partite fuori casa e in casa)
         - potrebbe esserci un problema negli encoding heule e at_most_k sequential
         - mettendo exactly_one_seq al posto di heule almeno una soluzione la si trova, obj=16
         - in questo caso, usando sia 'sb-heule-seq-solver' che 'sb-seq-seq-solver' con le opzioni sotto, arrivo a obj=12 in 15secondi!!
+            ma NON ARRIVA MAI A OBJ=10!!!
             - self.solver.set("phase_selection", 2) 
             - self.solver.set("restart_factor", 1.2)
             - self.solver.set("restart_strategy", 1)
-    - n=12: non funziona nulla
+        - USANDO LA FUNZIONE create_model_2 OTTENGO OBJ=10 in 66sec!!
+
+    - n=12: non funziona nulla usando create_model
+        - cambiando approccio funziona, con create_model_2, arrivo ad obj=24
+
+
+
+
+Per ora:
+    - per n=6,8 la scelta migliore è 'create_model' con encodings heule, seq
+    - per n=10,12 la scelta migliore è 'create_model_2' con encodings heule, seq
+        - per n=10: --- base-bw-seq ---
+                    Objective: 10
+                    Optimal: True
+                    Time: 258.89367294311523s
+
+                    --- sb-bw-seq ---
+                    Objective: 10
+                    Optimal: True
+                    Time: 91.16586709022522s
+
+                    --- sb-seq-seq ---
+                    Objective: 10
+                    Optimal: True
+                    Time: 123.36905026435852s
+
+                    --- sb-seq-seq-solver ---
+                    Objective: 10
+                    Optimal: True
+                    Time: 230.62356305122375s
+
+                    --- sb-heule-seq-solver ---
+                    Objective: 10
+                    Optimal: True
+                    Time: 66.80108094215393s
+
+            - per n=10 con create_model_3 (heule, totalizer) ottengo: Final Stats: obj=10
+                                                    Optimality: True
+                                                    Solve Time: 183.12s
+                                                    Restarts: 825, Conflicts: 457601, Bool Vars: 603184, Max Memory: 311.72 MB
+            - per n=10 con create_model_3 (heule, seq) ottengo: Final Stats:
+                                                                Optimality: True
+                                                                Solve Time: 61.01s
+                                                                Restarts: 466, Conflicts: 180781, Bool Vars: 250044, Max Memory: 135.24 MB
+
+
+        - per n=12: --- base-bw-seq ---
+                    Objective: 20
+                    Optimal: True
+                    Time: 299.06177830696106s
+
+                    --- sb-bw-seq ---
+                    Objective: None
+                    Optimal: False
+                    Time: 300s
+                    Solution: None
+
+                    --- sb-seq-seq ---
+                    Objective: None
+                    Optimal: False
+                    Time: 300s
+                    Solution: None
+
+                    --- sb-seq-seq-solver ---
+                    Objective: 20
+                    Optimal: True
+                    Time: 299.1967828273773s
+
+                    --- sb-heule-seq-solver ---
+                    Objective: 24
+                    Optimal: True
+                    Time: 299.7212669849396s
+
+        - per n=12 con create_model_3 (heule, totalizer) ottengo: Final Stats: obj=16 -> BEST UP TO NOW
+                                                Optimality: True
+                                                Solve Time: 299.14s
+                                                Restarts: 700, Conflicts: 424960, Bool Vars: 1036330, Max Memory: 681.23 MB
+        - per n=12 con create_model_3 (heule, seq) ottengo: Final Stats: obj=20
+                                                            Optimality: True
+                                                            Solve Time: 299.97s
+                                                            Restarts: 827, Conflicts: 511193, Bool Vars: 613533, Max Memory: 279.49 MB
+
+    - risultati finali per n=12 usando sempre heule e seq ma con i 3 create_model diversi:
+        --- sb-heule-seq-solver ---
+        Objective: None
+        Optimal: False
+        Time: 300s
+        Solution: None
+
+        --- sb-heule-seq-solver2 ---
+        Objective: 24
+        Optimal: True
+        Time: 299.0686960220337s
+
+        --- sb-heule-seq-solver3 ---
+        Objective: 20
+        Optimal: True
+        Time: 299.1336450576782s

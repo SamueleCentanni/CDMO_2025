@@ -2,11 +2,12 @@ from z3 import *
 import time
 import math
 from create_model import create_sts_model
+from create_model_2 import create_sts_model_compact
 from encoding_utils import heule_exactly_one, exactly_k_np, exactly_one_seq, exactly_one_bw, exactly_one_np, at_most_k_np, at_most_k_seq
 
-# With SYMMETRY BREAKING SB and standard encoding (naive)
-class STS_Optimized_Model_SB:
-    def __init__(self, n, exactly_one_encoding=exactly_one_bw, at_most_k_encoding=at_most_k_seq):
+# With SYMMETRY BREAKING SB and best encoding (heule + sequential)
+class STS_Optimized_Model_SB_Heule_2:
+    def __init__(self, n, exactly_one_encoding=heule_exactly_one, at_most_k_encoding=at_most_k_seq):
         self.n = n
         self.NUM_TEAMS = n
         self.NUM_WEEKS = self.NUM_TEAMS - 1
@@ -15,20 +16,30 @@ class STS_Optimized_Model_SB:
         self.at_most_k_encoding = at_most_k_encoding
         
         # in this way i can change the encodings as i prefer
-        self.solver, self.games_vars, self.home_counts, self.away_counts, self.diff_values, self.total_objective = create_sts_model(n, 
-                                                                                                                                    self.exactly_one_encoding, 
-                                                                                                                                    self.at_most_k_encoding, 
-                                                                                                                                    symmetry_breaking=True)
+        
+        create_model = ''
+        if(self.n<=8):
+            create_model = create_sts_model
+        else:
+            create_model = create_sts_model_compact 
+            
+        self.solver, self.games_vars, self.home_counts, self.away_counts, self.diff_values, self.total_objective = create_model(n, 
+                                                                                                                                self.exactly_one_encoding, 
+                                                                                                                                self.at_most_k_encoding,
+                                                                                                                                symmetry_breaking=True)
 
     def solve(self, timeout_seconds, random_seed=None):
         set_option("sat.local_search", True) # As in their code
         if random_seed is not None:
             self.solver.set("random_seed", random_seed)
-            
-        #self.solver.set("phase_selection", 0) # 0: Preferenza per polarità binarie. Prova anche 1 o 2.
-
-        #self.solver.set("restart_factor", 1.2)
-        #self.solver.set("restart_strategy", 1) # 0: GEOMETRIC, 1: LUBY.
+        
+        if(self.n <= 8):
+            self.solver.set("phase_selection", 0)
+            self.solver.set("restart_strategy", 0)
+        else:
+            self.solver.set("phase_selection", 2) # 0: Preferenza per polarità binarie. Prova anche 1 o 2.
+            self.solver.set("restart_factor", 1.2)
+            self.solver.set("restart_strategy", 1) # 0: GEOMETRIC, 1: LUBY 
 
         # Init for iterative optimization
         optimal_objective_value = None
@@ -97,7 +108,7 @@ class STS_Optimized_Model_SB:
                 break
 
             elif status == unknown:
-                print(f"  Solver returned 'unknown' (likely timeout within iteration or unhandled theory).")
+                print(f"  Solver returned 'unknown' (likely timeout within iteration).")
                 break # Cannot guarantee optimality, so stop
 
             self.solver.pop() # Remove the specific objective constraint for the last iteration
