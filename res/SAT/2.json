@@ -1,0 +1,67 @@
+{
+ "sb-np-np-std-opt": {
+  "time": 0,
+  "optimal": true,
+  "obj": 2,
+  "sol": [
+   [
+    [
+     1,
+     2
+    ]
+   ]
+  ]
+ },
+ "heule-seq-model-matrix-std-opt": {
+  "time": 0,
+  "optimal": true,
+  "obj": 2,
+  "sol": [
+   [
+    [
+     1,
+     2
+    ]
+   ]
+  ]
+ },
+ "heule-seq-model-light-std-opt-NO-SB": {
+  "time": 0,
+  "optimal": true,
+  "obj": 2,
+  "sol": [
+   [
+    [
+     1,
+     2
+    ]
+   ]
+  ]
+ },
+ "heule-seq-model-light-std-opt-SB": {
+  "time": 0,
+  "optimal": true,
+  "obj": 2,
+  "sol": [
+   [
+    [
+     1,
+     2
+    ]
+   ]
+  ]
+ },
+ "sb-heule-seq-diff-opt": {
+  "time": 0,
+  "optimal": true,
+  "obj": 1,
+  "sol": [
+   [
+    [
+     1,
+     2
+    ]
+   ]
+  ]
+ }
+}

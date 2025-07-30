@@ -1,0 +1,14 @@
+{
+  "glucose4": {
+    "time": 300
+  },
+  "minisat": {
+    "time": 2
+  },
+  "glucose3": {
+    "time": 300
+  },
+  "sb-heule-seq-decisional": {
+    "time": 113
+  }
+}

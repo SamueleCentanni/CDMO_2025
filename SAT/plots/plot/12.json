@@ -1,0 +1,32 @@
+{
+ "sb-np-np-std-opt": {
+  "time": 17,
+  "conflicts": 99213,
+  "max_memory": 41.17,
+  "mk_bool_var": 117061
+ },
+ "heule-seq-model-matrix-std-opt": {
+  "time": 300,
+  "conflicts": 1098781,
+  "max_memory": 258.44,
+  "mk_bool_var": 288430
+ },
+ "heule-seq-model-light-std-opt-NO-SB": {
+  "time": 59,
+  "conflicts": 368372,
+  "max_memory": 42.2,
+  "mk_bool_var": 146675
+ },
+ "heule-seq-model-light-std-opt-SB": {
+  "time": 6,
+  "conflicts": 69277,
+  "max_memory": 37.4,
+  "mk_bool_var": 99000
+ },
+ "sb-heule-seq-diff-opt": {
+  "time": 2,
+  "conflicts": 21633,
+  "max_memory": 38.07,
+  "mk_bool_var": 89449
+ }
+}
