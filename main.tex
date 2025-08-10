@@ -182,18 +182,18 @@ Table~\ref{tab:smt-opt-results} reports the total solving time (in seconds) for 
 
 \begin{table}[h!]
 \centering
-\caption{Runtime in seconds for SMT (optimization version), Z3 solver, with and without symmetry breaking (SB).}
+\caption{Runtime in seconds for SMT (optimization version), Z3 solver, with and without symmetry breaking (SB). The objective function, $\max_{t}\mathit{abs_diff}_t$, in every case was optimal, and the value is shown in bold.}
 \label{tab:smt-opt-results}
 \begin{tabular}{|c|c|c|}
 \hline
 \textbf{Number of Teams} & \textbf{SB Enabled} & \textbf{SB Disabled} \\
 \hline
-10 & 0.23 & 0.41 \\
-12 & 1.25 & 1.13 \\
-14 & 6.57 & 5.35 \\
-16 & 50.75 & 53.23 \\
-18 & 73.31 & 171.56 \\
-20 & 130.75 & 260.65 \\
+10 & 0.23\textbar\textbf{1} & 0.41\textbar\textbf{1} \\
+12 & 1.25\textbar\textbf{1} & 1.13\textbar\textbf{1} \\
+14 & 6.57\textbar\textbf{1} & 5.35\textbar\textbf{1} \\
+16 & 50.75\textbar\textbf{1} & 53.23\textbar\textbf{1} \\
+18 & 73.31\textbar\textbf{1} & 171.56\textbar\textbf{1} \\
+20 & 130.75\textbar\textbf{1} & 260.65\textbar\textbf{1} \\
 \hline
 \end{tabular}
 \end{table}
