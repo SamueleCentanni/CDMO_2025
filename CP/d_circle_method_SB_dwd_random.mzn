@@ -21,14 +21,9 @@ constraint forall(i,j in Teams where i<j) (home[j,i] == 1- home[i,j]);
 
 % Each team plays at most twice in the same period
 constraint forall(t in Teams, s in Slots)(count_geq([slot[t,j] | j in Teams], s, 2));
-
-% Here I tried also global_cardinality
    
 % Consistent fil between week and slot - each week exactly n/2 matches
 constraint forall(w in 1..num_weeks, s in 1..num_slots )(   sum([bool2int(week[i,j] == w /\ slot[i,j] == s) | i,j in Teams where i < j]) = 1);
-
-% Using all_different worsens the performance
-%constraint forall(w in 1..num_weeks) (alldifferent([slot[i,j] | i,j in Teams where i<j /\ week[i,j] == w]));
 
 % SYMMETRY BREAKING
 % fix slots of the first team
@@ -41,8 +36,5 @@ constraint forall(w in 1..(num_teams div 2)) (
 constraint forall(w in ((num_teams div 2) + 1)..num_teams-1) (
   home[1, w + 1] == 0
 );
-
-% Better without
-%constraint decreasing(imbalance);
 
 solve :: int_search([slot[i,j] | i,j in Teams where i<j] ++ [home[i,j] | i,j in Teams where i<j], dom_w_deg, indomain_random) satisfy;
