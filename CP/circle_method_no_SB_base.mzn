@@ -29,7 +29,7 @@ constraint forall(t in Teams, s in Slots)(count_geq([slot[t,j] | j in Teams], s,
 % Consistent fil between week and slot - each week exactly n/2 matches.
 constraint forall(w in 1..num_weeks, s in 1..num_slots )(   sum([bool2int(week[i,j] == w /\ slot[i,j] == s) | i,j in Teams where i < j]) = 1);
 
-%Alldifferent worsenes the performance
+%Alldifferent worsens the performance
 %constraint forall(w in 1..num_weeks) (alldifferent([slot[i,j] | i,j in Teams where i<j /\ week[i,j] == w]));
 
 

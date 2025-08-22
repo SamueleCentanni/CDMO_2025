@@ -153,7 +153,7 @@ def run_minizinc(n, dzn_file, model_file, solver, timeout, init_time):
     instance = Instance(solver, model)
     instance.add_file(dzn_file)
     remaining_time = timeout - (time.perf_counter() - init_time)
-    results = instance.solve(timeout=timedelta(seconds=remaining_time))
+    results = instance.solve(timeout=timedelta(seconds=remaining_time), random_seed=42)
     return results, matchings
 
 def solve_cp_decisional(n, timeout, solver, search_strategy="base", symmetry_breaking='N'):
@@ -265,10 +265,10 @@ def main():
     parser.add_argument(
         "-ss", "--search_strategy",
         type=str,
-        choices=["base", "dwd_random", "dwd_r_Luby", "dwd_r_rr"],
+        choices=["base", "dwd_random", "dwd_r_Luby", "dwd_r_rr", "ff_split", "ro_luby"],
         default="base",
         nargs="+",
-        help="The search strategy to use (base, dwd_random, dwd_r_Luby, dwd_r_rr)."
+        help="The search strategy to use (base, dwd_random, dwd_r_Luby, dwd_r_rr, ff_split, ro_luby)."
     )
     parser.add_argument(
         "--all",
@@ -311,10 +311,10 @@ def main():
         return
     
     if args.solver == "chuffed":
-        if args.search_strategy != "base":
-            print("Error: Chuffed solver only supports 'base' search strategy.")
+        if args.search_strategy != "base" and args.search_strategy != "ff_split" and args.search_strategy != "ro_Luby":
+            print("Error: Chuffed solver only supports 'base', 'ff_split', and 'ro_Luby' search strategies.")
             parser.print_help()
-            return
+            return 
 
     allowed_combinations = [("gecode", "base", "Y"),
                             ("gecode", "base", "N"),
@@ -322,7 +322,9 @@ def main():
                             ("gecode", "dwd_r_Luby", "Y"),
                             ("gecode", "dwd_r_rr", "Y"),
                             ("chuffed", "base", "Y"),
-                            ("chuffed", "base", "N")]
+                            ("chuffed", "base", "N"),
+                            ("chuffed", "ff_split", "Y"),
+                            ("chuffed", "ro_Luby", "Y"),]
     if args.all:
         solving_combinations = allowed_combinations
     else:

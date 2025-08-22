@@ -82,5 +82,29 @@
   "optimal": true,
   "obj": null,
   "sol": []
+ },
+ "d_chuffed_SB_ff_split": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "d_chuffed_SB_ro_Luby": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_chuffed_SB_ff_split": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_chuffed_SB_ro_Luby": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
  }
 }

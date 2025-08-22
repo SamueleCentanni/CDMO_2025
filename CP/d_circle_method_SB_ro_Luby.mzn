@@ -1,4 +1,5 @@
 include "globals.mzn";
+include "chuffed.mzn";
 
 int: num_teams;
 int: num_weeks;
@@ -21,10 +22,14 @@ constraint forall(i,j in Teams where i<j) (home[j,i] == 1- home[i,j]);
 
 % Each team plays at most twice in the same period
 constraint forall(t in Teams, s in Slots)(count_geq([slot[t,j] | j in Teams], s, 2));
+
+% Here I tried also global_cardinality
    
 % Consistent fil between week and slot - each week exactly n/2 matches
 constraint forall(w in 1..num_weeks, s in 1..num_slots )(   sum([bool2int(week[i,j] == w /\ slot[i,j] == s) | i,j in Teams where i < j]) = 1);
 
+% Using all_different worsens the performance
+%constraint forall(w in 1..num_weeks) (alldifferent([slot[i,j] | i,j in Teams where i<j /\ week[i,j] == w]));
 
 % SYMMETRY BREAKING
 % fix slots of the first team
@@ -38,21 +43,7 @@ constraint forall(w in ((num_teams div 2) + 1)..num_teams-1) (
   home[1, w + 1] == 0
 );
 
-% OPTIMIZATION
-array[Teams] of var 0..num_weeks: home_count;
-array[Teams] of var 0..num_weeks: away_count;
 
-constraint forall(t in Teams) (
-    home_count[t] = sum([bool2int(home[t,j] == 1) | j in Teams where j != t]));
-constraint forall(t in Teams)(
-    away_count[t] = sum([bool2int(home[t,j] == 0) | j in Teams where j != t])
-  );
-  
-array[Teams] of var 0..num_weeks: imbalance;
-constraint forall(t in Teams) (imbalance[t] = abs(home_count[t] - away_count[t]));
-
-var int: total_imbalance = max(imbalance);
-constraint total_imbalance >= 1;
-constraint total_imbalance <= num_teams;
-
-solve :: int_search([slot[i,j] | i,j in Teams where i<j]++ [home[i,j]| i,j in Teams where i<j], dom_w_deg, indomain_random)::relax_and_reconstruct([slot[i,j] | i,j in Teams where i<j] ++ [home[i,j]| i,j in Teams where i<j], 85) minimize total_imbalance;
+solve::seq_search([
+  int_search([slot[i,j] | i,j in Teams where i<j], random_order, indomain_split), 
+  int_search([home[i,j] | i,j in Teams where i<j], random_order, indomain_split)]) :: restart_luby(50) satisfy;

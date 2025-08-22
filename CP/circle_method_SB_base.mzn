@@ -63,7 +63,3 @@ constraint total_imbalance >= 1;
 constraint total_imbalance <= num_teams;
 
 solve minimize total_imbalance;
-
-output [
-  "Tournament Schedule:\n"
-] ++ [show2d(week)] ++ ["\n"] ++ [show2d(slot)]++["\n"] ++ [show2d(home)];
