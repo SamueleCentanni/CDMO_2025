@@ -79,7 +79,7 @@ We implemented this constraint using the global constraint \texttt{count\_geq}, 
 where $M$ is the set of all the possible matches: \[
 M \;=\; \bigl\{\,(i,j) \;:\; i,j \in T,\; i<j \,\bigr\}.
 \]
-We tried to tackle this constraint using the global constraint \texttt{alldifferent} but it weakened the performance on basically all instances.
+We tried to tackle this constraint using the global constraint \texttt{alldifferent} but it weakened the performance on basically all instances, which is why we didn't implement this constraint using the available global one.
 
 Additional constraints were required due to the way we defined the decision variables. Specifically, we allowed the slot variable to take the value $0$, even though it does not correspond to a valid slot in which teams can play. Furthermore, the slot matrix is symmetric, and the home team assignment also exhibits a particular structure by design:
 \begin{itemize}
@@ -90,7 +90,6 @@ Additional constraints were required due to the way we defined the decision vari
 & \text{slot}_{i,j} = \text{slot}_{j,i},\\
 & \text{home}_{j,i} = 1 - \text{home}_{i,j}
 \end{aligned}$
-
 \end{itemize}
 
 \subsubsection*{Symmetry Breaking Constraints}
@@ -121,7 +120,7 @@ This constraint eliminates symmetries that come from flipping home-away status f
 \forall\, t \in T:\quad \text{imbalance}_t \ge \text{imbalance}_{t+1}
 \]
 
-This last symmetry breaking constraint binds the imbalance array to be decreasing.
+This last symmetry breaking constraint binds the imbalance array to be decreasing and was of course tested only on the optimization version of the problem.
 
 \subsection{Validation}
 The models were implemented in MiniZinc and coupled with a Python script that takes the input parameters, determines week assignments, and subsequently executes the corresponding MiniZinc model.
