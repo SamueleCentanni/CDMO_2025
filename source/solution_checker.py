@@ -1,4 +1,12 @@
+from itertools import combinations
+
+import os
+import json
+import argparse
+import sys
+
 def get_elements(solution):
+
     periods = [s for s in solution]
     matches = [m for s in periods for m in s]
     teams = [t for m in matches for t in m]
@@ -22,6 +30,9 @@ def fatal_errors(solution, obj, time, optimal, teams):
         return fatal_errors
 
     if len(solution) > 0:
+
+        n = max(teams)
+
         if any([t not in set(teams) for t in range(1,n+1)]):
             fatal_errors.append(f'Missing team in the solution or team out of range!!!')
 
@@ -85,22 +96,25 @@ def load_json(path):
         sys.exit(1)
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-# parser = argparse.ArgumentParser(description="Check the validity of a STS solution JSON file.")
-# parser.add_argument("json_file_directory", help="Path to the directory containing .json solution files")
-# args = parser.parse_args()
-# directory = args.json_file_directory
-directory = './'
-for f in filter(lambda x: x.endswith('.json'), os.listdir(directory)):
-    json_data = load_json(f'{directory}/{f}')
-    print(f'File: {f}\n')
-    for approach, result in json_data.items():
-        sol = result.get("sol")
-        time = result.get("time")
-        opt = result.get("optimal")
-        obj = result.get("obj")
-        message = check_solution(sol, obj, time, opt)
-        status = "VALID" if type(message) == str else "INVALID"
-        message_str = '\n\t  '.join(message)
-        print(f"  Approach: {approach}\n    Status: {status}\n    Reason: {message if status == 'VALID' else message_str}\n")
+    parser = argparse.ArgumentParser(description="Check the validity of a STS solution JSON file.")
+    parser.add_argument("json_file_directory", help="Path to the directory containing .json solution files")
+    args = parser.parse_args()
+
+    directory = args.json_file_directory
+
+    for f in filter(lambda x: x.endswith('.json'), os.listdir(directory)):
+        json_data = load_json(f'{directory}/{f}')
+
+        print(f'File: {f}\n')
+        for approach, result in json_data.items():
+            sol = result.get("sol")
+            time = result.get("time")
+            opt = result.get("optimal")
+            obj = result.get("obj")
+
+            message = check_solution(sol, obj, time, opt)
+            status = "VALID" if type(message) == str else "INVALID"
+            message_str = '\n\t  '.join(message)
+            print(f"  Approach: {approach}\n    Status: {status}\n    Reason: {message if status == 'VALID' else message_str}\n")
