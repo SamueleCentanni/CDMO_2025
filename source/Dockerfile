@@ -5,7 +5,7 @@ RUN mkdir /src
 ADD ./main.py /src
 ADD ./MIP /src/MIP
 
-RUN apt-get update && apt-get install -y --no-install-recommends coinor-cbc coinor-libcbc-dev && rm -rf /var/lib/apt/lists/*
-RUN pip install --no-cache-dir pyomo numpy
+RUN apt-get update && apt-get install -y --no-install-recommends coinor-cbc coinor-libcbc-dev glpk-utils && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir pyomo numpy gurobipy
 
 CMD ["python", "/src/main.py"]
