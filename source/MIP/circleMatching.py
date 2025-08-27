@@ -251,8 +251,12 @@ if __name__ == "__main__":
             result, solution = solveCircleMatching(
                 n, opt=True, solver=solver, verbose=False)
             end = time.time()-start
-            outputs.append((result, solution, end))
-
+            if solution.shape == (n-1, n//2, n, n):
+                outputs.append((result, solution, end))
+            elif end >= 299:
+                solvers.remove(solver)
+                
+            print(f"solver: {solver}")
             print(f"status: {result.Solver.status}")
             print(f"time: {end}")
 

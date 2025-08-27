@@ -10,5 +10,7 @@ mv ./res/MIP ../res
 ```
 
 ## Excec MIP
-For the MIP formulation, the best modelling is in circleMatching.py
-To solve the problem only for the MIP formulation run:
+For the MIP formulation, the best result are obtained with the gurobi solver, which requires a license
+To solve the problem only for the MIP formulation:
+- copy the license file ```gurobi.ilc``` into the source/MIP directory (otherwise the defauolt open-source solvers will be used)
+- run docker with: ```...```
