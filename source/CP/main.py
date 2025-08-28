@@ -300,6 +300,12 @@ def main():
         help="Save solver results to JSON files."
     )
 
+    parser.add_argument(
+        "--verbose",
+        action='store_true',
+        help="Enable verbose output."
+    )
+
     args = parser.parse_args()
 
     # Parse and validate number of teams
@@ -356,7 +362,8 @@ def main():
                         save_results_as_json(n, model_name=model_name, results=results)
                     if results['sol']:
                         print(f"\n[Decisional Result] n={n} | time={results['time']}")
-                        human_readable_schedule(results['sol'])
+                        if args.verbose:
+                            human_readable_schedule(results['sol'])
                     else:
                         print(f"[!] No solution found for n={n}")
 
@@ -381,7 +388,8 @@ def main():
                         save_results_as_json(n, model_name=model_name, results=results)
                     if results['sol']:
                         print(f"\n[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
-                        human_readable_schedule(results['sol'])
+                        if args.verbose:
+                            human_readable_schedule(results['sol'])
                     else:
                         print(f"[!] No solution found for n={n}")
 
