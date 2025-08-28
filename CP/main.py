@@ -26,7 +26,7 @@ def generate_dzn(n, matchings, filename):
     with open(filename, 'w') as f:
         f.write(f"num_teams = {n};\n")
         f.write(f"num_weeks = {n - 1};\n")
-        f.write(f"num_slots = {n // 2};\n\n")
+        f.write(f"num_periods = {n // 2};\n\n")
 
         weeks = np.zeros((n, n), dtype=int)
         for week_num, matches in matchings.items():
@@ -69,29 +69,29 @@ def human_readable_schedule(schedule_tuple):
     """
     schedule_tuple: tuple di 3 elementi
         1. dict: {week_number: [(team1, team2), ...]}
-        2. 2D array: slot[i][j] = slot number per la coppia (i,j)
+        2. 2D array: period[i][j] = period number per la coppia (i,j)
         3. 2D array: home[i][j] = True se i gioca in casa, False se j gioca in casa
     """
-    match_dict, slot_matrix, home_matrix = schedule_tuple
-    
+    match_dict, period_matrix, home_matrix = schedule_tuple
+
     for week in sorted(match_dict.keys()):
         print(f"\n=== Week {week} ===")
         matches = match_dict[week]
         
-        matches_sorted = sorted(matches, key=lambda match: slot_matrix[match[0]-1][match[1]-1])
+        matches_sorted = sorted(matches, key=lambda match: period_matrix[match[0]-1][match[1]-1])
         
         for match in matches_sorted:
             i, j = match
-            slot = slot_matrix[i-1][j-1]
+            period = period_matrix[i-1][j-1]
             home_team, away_team = (i, j) if home_matrix[i-1][j-1] else (j, i)
-            print(f"Slot {slot}: Team {home_team} (home) vs Team {away_team} (away)")
+            print(f"Period {period}: Team {home_team} (home) vs Team {away_team} (away)")
 
 def solution_transform(num_teams, schedule_tuple):
     """
     Transforms schedule tuple into a (n/2) x (n-1) matrix, 
     where each entry is [home_team, away_team].
     """
-    match_dict, slot_matrix, home_matrix = schedule_tuple
+    match_dict, period_matrix, home_matrix = schedule_tuple
     n = num_teams
     periods = n // 2
     weeks = n - 1
@@ -102,9 +102,9 @@ def solution_transform(num_teams, schedule_tuple):
         matches = match_dict[week]
         for match in matches:
             i, j = match
-            slot = slot_matrix[i-1][j-1] 
+            period = period_matrix[i-1][j-1]
             home_team, away_team = (i, j) if home_matrix[i-1][j-1] else (j, i)
-            matrix[slot-1][week-1] = [home_team, away_team]
+            matrix[period-1][week-1] = [home_team, away_team]
 
     return matrix
 
@@ -174,7 +174,7 @@ def solve_cp_decisional(n, timeout, solver, search_strategy="base", symmetry_bre
     if status == Status.SATISFIED:
         result = {
             'obj': results.objective,
-            'sol': (matchings, results['slot'], results['home']),
+            'sol': (matchings, results['period'], results['home']),
             'optimal': True,
             'time': solve_time
         }
@@ -212,14 +212,14 @@ def solve_cp_optimization(n, timeout, solver, search_strategy="base", symmetry_b
     if status == Status.OPTIMAL_SOLUTION:
         result = {
             'obj': results.objective,
-            'sol': (matchings, results["slot"], results["home"]),
+            'sol': (matchings, results["period"], results["home"]),
             'optimal': True,
             'time': solve_time
         }
     elif status == Status.SATISFIED:
         result = {
             'obj': results.objective,
-            'sol': (matchings, results['slot'], results['home']),
+            'sol': (matchings, results['period'], results['home']),
             'optimal': False,
             'time': solve_time
         }
