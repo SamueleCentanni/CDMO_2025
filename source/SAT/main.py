@@ -167,9 +167,11 @@ def at_most_k_totalizer(bool_vars, k, name=''):
     if k < 0: return BoolVal(False)
     if n == 0: return BoolVal(True)
 
-    current_level = [[v] for v in bool_vars]
+    current_level = [[v] for v in bool_vars] # each boolean variable is a leaf
     depth = 0
-    while len(current_level) > 1:
+    
+    # totalizer tree
+    while len(current_level) > 1:  # when we encounter the root, we stop
         next_level = []
         for i in range(0, len(current_level), 2):
             if i + 1 == len(current_level):
@@ -179,12 +181,14 @@ def at_most_k_totalizer(bool_vars, k, name=''):
                 right = current_level[i + 1]
                 merged = totalizer_merge(left, right, name, depth, constraints)
                 next_level.append(merged)
-                depth += 1
+                depth += 1 # to give unique names in the totalizer_merge
         current_level = next_level
 
     total_sum = current_level[0]
+    
+    # at most k implementation
     for i in range(k, len(total_sum)):
-        constraints.append(Not(total_sum[i]))
+        constraints.append(Not(total_sum[i])) # i = at least i+1 variables are true
 
     return And(constraints)
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -750,7 +754,7 @@ def main():
         action="store_false",
         help="Disable symmetry breaking."
     )
-    parser.set_defaults(sb=False)
+    parser.set_defaults(sb=None)
 
     parser.add_argument(
         "--verbose",
@@ -806,64 +810,68 @@ def main():
         return
 
     timeout = args.timeout - 1
-    sb = args.sb
-    sb_name = "sb" if sb else "no_sb"
+    if args.sb is None:
+        sb_options = [True, False]
+    else:
+        sb_options = [args.sb]
 
-    for (eo_name, eo_func), (ak_name, ak_func) in encoding_combinations:
-        name_prefix = f"{eo_name}_{ak_name}"
+    for sb in sb_options:
+        sb_name = "sb" if sb else "no_sb"
+        for (eo_name, eo_func), (ak_name, ak_func) in encoding_combinations:
+            name_prefix = f"{eo_name}_{ak_name}"
 
-        if args.run_decisional:
-            print(f"\n=== Decisional Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
-            for n in args.n_teams:
-                model_name = f"decisional_{name_prefix}_{sb_name}"
-                try:
-                    results = solve_sts_decisional(
-                        n,
-                        max_diff_k=args.max_diff,
-                        exactly_one_encoding=eo_func,
-                        at_most_k_encoding=ak_func,
-                        timeout_seconds=timeout,
-                        symmetry_breaking=sb,
-                        verbose=args.verbose
-                    )
-                except ValueError as e:
-                    print(f"Skipping n={n}: {e}")
-                    continue
+            if args.run_decisional:
+                print(f"\n=== Decisional Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
+                for n in args.n_teams:
+                    model_name = f"decisional_{name_prefix}_{sb_name}"
+                    try:
+                        results = solve_sts_decisional(
+                            n,
+                            max_diff_k=args.max_diff,
+                            exactly_one_encoding=eo_func,
+                            at_most_k_encoding=ak_func,
+                            timeout_seconds=timeout,
+                            symmetry_breaking=sb,
+                            verbose=args.verbose
+                        )
+                    except ValueError as e:
+                        print(f"Skipping n={n}: {e}")
+                        continue
 
-                if args.save_json:
-                    save_results_as_json(n, model_name=model_name, results=results)
+                    if args.save_json:
+                        save_results_as_json(n, model_name=model_name, results=results)
 
-                if results['sol'] is not None:
-                    print(f"\n[Decisional Result] n={n} | time={results['time']}")
-                    print_weekly_schedule(results['sol'], n)
-                else:
-                    print(f"[!] No solution found for n={n}")
+                    if results['sol'] is not None:
+                        print(f"\n[Decisional Result] n={n} | time={results['time']}")
+                        print_weekly_schedule(results['sol'], n)
+                    else:
+                        print(f"[!] No solution found for n={n}")
 
-        if args.run_optimization:
-            print(f"\n=== Optimization Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
-            for n in args.n_teams:
-                model_name = f"optimization_{name_prefix}_{sb_name}"
-                try:
-                    results = solve_sts_optimization(
-                        n,
-                        exactly_one_encoding=eo_func,
-                        at_most_k_encoding=ak_func,
-                        timeout_seconds=timeout,
-                        symmetry_breaking=sb,
-                        verbose=args.verbose
-                    )
-                except ValueError as e:
-                    print(f"Skipping n={n}: {e}")
-                    continue
+            if args.run_optimization:
+                print(f"\n=== Optimization Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
+                for n in args.n_teams:
+                    model_name = f"optimization_{name_prefix}_{sb_name}"
+                    try:
+                        results = solve_sts_optimization(
+                            n,
+                            exactly_one_encoding=eo_func,
+                            at_most_k_encoding=ak_func,
+                            timeout_seconds=timeout,
+                            symmetry_breaking=sb,
+                            verbose=args.verbose
+                        )
+                    except ValueError as e:
+                        print(f"Skipping n={n}: {e}")
+                        continue
 
-                if args.save_json:
-                    save_results_as_json(n, model_name=model_name, results=results)
+                    if args.save_json:
+                        save_results_as_json(n, model_name=model_name, results=results)
 
-                if results['sol'] is not None:
-                    print(f"\n[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
-                    print_weekly_schedule(results['sol'], n)
-                else:
-                    print(f"[!] No solution found for n={n}")
+                    if results['sol'] is not None:
+                        print(f"\n[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
+                        print_weekly_schedule(results['sol'], n)
+                    else:
+                        print(f"[!] No solution found for n={n}")
 
 if __name__ == "__main__":
     main()

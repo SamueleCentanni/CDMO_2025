@@ -19,7 +19,7 @@
   "restarts": 0,
   "conflicts": 2,
   "mk_bool_var": 49,
-  "max_memory": 21.45
+  "max_memory": 17.72
  },
  "decisional_heule_seq_no_sb": {
   "time": 0,
@@ -74,7 +74,7 @@
   "restarts": 0,
   "conflicts": 2,
   "mk_bool_var": 57,
-  "max_memory": 17.68
+  "max_memory": 17.75
  },
  "optimization_heule_totalizer_no_sb": {
   "time": 0,
@@ -86,5 +86,16 @@
   "conflicts": 4,
   "mk_bool_var": 126,
   "max_memory": 219.51
+ },
+ "optimization_np_np_sb": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": [],
+  "max_diff": 0,
+  "restarts": 0,
+  "conflicts": 2,
+  "mk_bool_var": 33,
+  "max_memory": 17.67
  }
 }
