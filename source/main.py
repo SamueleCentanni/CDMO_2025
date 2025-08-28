@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import argparse
+from SAT.main import runAllSAT
 from MIP.circleMatching import runAllCircleMatching, runCircleMatching
 from MIP._4dArray import runAll4dArray
 
@@ -17,12 +18,18 @@ if __name__ == '__main__':
 
     if args.f == 'all' and args.n == 'all':
         # CP
+        # print("--- running all CP models ---")
         # SAT
+        # runAllSAT()
+        print("--- running all SAT models ---")
+        os.system("python /src/SAT/main.py --run_decisional --run_optimization --all")
         # SMT
+        # print("--- running all SMT models ---")
 
         # MIP models
-        runAllCircleMatching()
-        runAll4dArray()
+        print("--- running all MIP models ---")
+        # runAllCircleMatching()
+        # runAll4dArray()
     else:
         if args.f == 'cp':
             pass

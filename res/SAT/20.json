@@ -1,0 +1,24 @@
+{
+ "decisional_heule_totalizer_sb": {
+  "time": 308,
+  "optimal": true,
+  "obj": null,
+  "sol": [],
+  "max_diff": 0,
+  "restarts": 0,
+  "conflicts": 1823048,
+  "mk_bool_var": 27536,
+  "max_memory": 205.61
+ },
+ "optimization_heule_totalizer_sb": {
+  "time": 300,
+  "optimal": false,
+  "obj": null,
+  "sol": [],
+  "max_diff": 0,
+  "restarts": 0,
+  "conflicts": 1386310,
+  "mk_bool_var": 27536,
+  "max_memory": 205.61
+ }
+}

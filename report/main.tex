@@ -1,0 +1,41 @@
+\documentclass{article}
+\usepackage{graphicx} % immagini
+\usepackage{amsmath}  % formule
+\usepackage{verbatim} % per includere testo puro
+\usepackage{fancyhdr} % eventuale formattazione extra
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{subcaption}
+
+\date{September 2025}
+
+\begin{document}
+    \begin{titlepage}
+        \begin{center}
+            {\LARGE STS - Sport Tournament Scheduling }
+            \vspace*{1em}
+            
+            Samuele Centanni, Tomaž Cotič, Mattia Lodi, Artem Uskov
+
+            \centerline{\{samuele.centanni, tomaz.cotic, mattia.lodi, artem.uskov\}@studio.unibo.it}
+        \end{center}
+    \end{titlepage}
+
+\input{Introduction}  
+\input{SAT}     
+\input{SMT}    
+
+\begin{thebibliography}{9}
+
+\bibitem{dewerra1999}
+Dominique de Werra.
+\newblock Scheduling Round-Robin Tournaments: An Overview.
+\newblock \emph{Discrete Applied Mathematics}, 91(1–3):241--277, 1999.
+
+\bibitem{bailleux2003}
+Olivier Bailleux and Yacine Boufkhad.
+\newblock Efficient CNF Encoding of Boolean Cardinality Constraints.
+\newblock In: \emph{Principles and Practice of Constraint Programming (CP 2003)}, Lecture Notes in Computer Science, 2003.
+\end{thebibliography}
+
+\end{document}
