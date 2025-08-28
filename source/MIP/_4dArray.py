@@ -2,9 +2,8 @@ from pyomo.environ import ConcreteModel, RangeSet, Var, Binary, Constraint, Obje
     NonNegativeIntegers, SolverFactory, minimize, ConstraintList, NonNegativeReals
 import numpy as np
 import time
-import math
-import json
 import os
+from .saveSolutions import saveSol, updateSol
 
 
 def solve4dArray(n, opt=True, solver='cbc', verbose=False):
@@ -112,66 +111,6 @@ def solve4dArray(n, opt=True, solver='cbc', verbose=False):
             solution[i[0], i[1], i[2], i[3]] = 1
     return result, solution
 
-def saveSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP', filename='data.json'):
-    output = {}
-    for h,o in enumerate(outputs):
-        result, solution, time = o
-        formatted_sol = []
-        for p in range(n//2):
-            row = []
-            for w in range(n-1):
-                for i in range(n):
-                    for j in range(n):
-                        if solution[w, p, i, j] == 1:
-                            row.append([i+1, j+1])
-            formatted_sol.append(row)
-        time  = math.floor(time)
-        obj = result.Problem.Upper_bound
-        optimal = not opt or (obj == 1 and time < 299)
-        output[solvers[h]] = {
-            "sol": formatted_sol,
-            "time": time if optimal else 300,
-            "optimal": optimal,
-            "obj": obj if opt else None,
-        }
-
-    os.makedirs(output_dir, exist_ok=True)
-    with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
-        json.dump(output, f, ensure_ascii=False, indent=4)
-
-def updateSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP', filename='data.json'):
-    output = {}
-    try:
-        with open(os.path.join(output_dir, filename), 'r', encoding='utf-8') as f:
-            output = json.load(f)
-    except:
-        pass
-    for h,o in enumerate(outputs):
-        result, solution, time = o
-        formatted_sol = []
-        for p in range(n//2):
-            row = []
-            for w in range(n-1):
-                for i in range(n):
-                    for j in range(n):
-                        if solution[w, p, i, j] == 1:
-                            row.append([i+1, j+1])
-            formatted_sol.append(row)
-        time  = math.floor(time)
-        obj = result.Problem.Upper_bound
-        optimal = not opt or (obj == 1 and time < 299)
-        output[solvers[h]] = {
-            "sol": formatted_sol,
-            "time": time if optimal else 300,
-            "optimal": optimal,
-            "obj": obj if opt else None,
-        }
-
-    os.makedirs(output_dir, exist_ok=True)
-    with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
-        json.dump(output, f, ensure_ascii=False, indent=4)
-
-
 def runAll4dArray():
     solvers = ['cbc', 'glpk']
     if os.path.exists('/opt/gurobi/gurobi.lic'):
@@ -223,7 +162,7 @@ if __name__ == "__main__":
                 outputs.append((result, solution, end))
             elif end >= 299:
                 solvers.remove(solver)
-                
+
             print(f"solver: {solver}")
             print(f"status: {result.Solver.status}")
             print(f"time: {end}")

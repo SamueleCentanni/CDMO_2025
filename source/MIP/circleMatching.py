@@ -3,8 +3,8 @@ from pyomo.environ import ConcreteModel, RangeSet, Var, Binary, Constraint, Obje
 import numpy as np
 import time
 import math
-import json
 import os
+from .saveSolutions import saveSol, updateSol
 
 
 def circle_matchings(n):
@@ -144,65 +144,32 @@ def solveCircleMatching(n, opt=True, solver='cbc', verbose=False):
     return result, solution
 
 
-def saveSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP', filename='data.json'):
-    output = {}
-    for h,o in enumerate(outputs):
-        result, solution, time = o
-        formatted_sol = []
-        for p in range(n//2):
-            row = []
-            for w in range(n-1):
-                for i in range(n):
-                    for j in range(n):
-                        if solution[w, p, i, j] == 1:
-                            row.append([i+1, j+1])
-            formatted_sol.append(row)
-        time  = math.floor(time)
-        obj = result.Problem.Upper_bound
-        optimal = not opt or (obj == 1 and time < 299)
-        output[solvers[h]] = {
-            "sol": formatted_sol,
-            "time": time if optimal else 300,
-            "optimal": optimal,
-            "obj": obj if opt else None,
-        }
-
-    os.makedirs(output_dir, exist_ok=True)
-    with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
-        json.dump(output, f, ensure_ascii=False, indent=4)
-
-def updateSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP', filename='data.json'):
-    output = {}
-    try:
-        with open(os.path.join(output_dir, filename), 'r', encoding='utf-8') as f:
-            output = json.load(f)
-    except:
-        pass
-    for h,o in enumerate(outputs):
-        result, solution, time = o
-        formatted_sol = []
-        for p in range(n//2):
-            row = []
-            for w in range(n-1):
-                for i in range(n):
-                    for j in range(n):
-                        if solution[w, p, i, j] == 1:
-                            row.append([i+1, j+1])
-            formatted_sol.append(row)
-        time  = math.floor(time)
-        obj = result.Problem.Upper_bound
-        optimal = not opt or (obj == 1 and time < 299)
-        output[solvers[h]] = {
-            "sol": formatted_sol,
-            "time": time if optimal else 300,
-            "optimal": optimal,
-            "obj": obj if opt else None,
-        }
-
-    os.makedirs(output_dir, exist_ok=True)
-    with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
-        json.dump(output, f, ensure_ascii=False, indent=4)
-
+def runCircleMatching(n=6):
+    solvers = ['cbc', 'glpk']
+    if os.path.exists('/opt/gurobi/gurobi.lic'):
+        solvers.append('gurobi')
+    if solvers == []:
+        raise ValueError("No solver available")
+    outputs = []
+    for solver in solvers:
+        try:
+            start = time.time()
+            result, solution = solveCircleMatching(
+                n, opt=True, solver=solver, verbose=False)
+            end = time.time()-start
+            if solution.shape == (n-1, n//2, n, n):
+                outputs.append((result, solution, end))
+                
+            print(f"solver: {solver}")
+            print(f"status: {result.Solver.status}")
+            print(f"time: {end}")
+        except Exception as e:
+            if solver == 'gurobi':  # gurobi license error
+                solvers.remove('gurobi')
+    saveSol(n, solvers, outputs, opt=True, output_dir='/res/MIP',        
+            filename=f'circleMatching_{n}.json')
+    return
+    
 
 def runAllCircleMatching():
     solvers = ['cbc', 'glpk']
@@ -233,6 +200,7 @@ def runAllCircleMatching():
 
         saveSol(n, solvers, outputs, opt=True, output_dir='/res/MIP',
                 filename=f'circleMatching_{n}.json')
+    return
 
 
 if __name__ == "__main__":
@@ -255,7 +223,7 @@ if __name__ == "__main__":
                 outputs.append((result, solution, end))
             elif end >= 299:
                 solvers.remove(solver)
-                
+
             print(f"solver: {solver}")
             print(f"status: {result.Solver.status}")
             print(f"time: {end}")

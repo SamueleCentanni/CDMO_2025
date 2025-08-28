@@ -8,4 +8,5 @@ ADD ./MIP /src/MIP
 RUN apt-get update && apt-get install -y --no-install-recommends coinor-cbc coinor-libcbc-dev glpk-utils && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir pyomo numpy gurobipy
 
-CMD ["python", "/src/main.py"]
+# python /src/main.py -f all -n all
+CMD ["python", "/src/main.py", "-f", "all", "-n", "all"] 
