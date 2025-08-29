@@ -154,8 +154,12 @@ if __name__ == '__main__':
                 row.append([j, i])
         sol_periods.append(row)
 
+    # get the directory where the current script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
     # write JSON
-    folder = os.path.join('res', 'SMT')
+    folder = os.path.join(script_dir, 'res', 'SMT')
+
     os.makedirs(folder, exist_ok=True)
     json_path = os.path.join(folder, f'{n}.json')
     if os.path.exists(json_path):
@@ -172,4 +176,4 @@ if __name__ == '__main__':
     }
     with open(json_path, 'w') as f:
         json.dump(data, f, indent=2)
-    print(f"Results for '{approach}' appended to {json_path}")
+    #print(f"Results for '{approach}' appended to {json_path}")
