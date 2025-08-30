@@ -5,6 +5,7 @@ RUN mkdir /src
 ADD ./main.py /src
 ADD ./CP /src/CP
 ADD ./SAT /src/SAT
+ADD ./SMT /src/SMT
 ADD ./MIP /src/MIP
 
 RUN apt-get update

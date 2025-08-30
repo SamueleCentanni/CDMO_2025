@@ -1,10 +1,45 @@
-# 🏆 Sport Tournament Scheduling with Z3
+# CDMO_2025
+Combinatorial Decision Making and Optimization to solve the Sport Tournament Scheduling (STS)
+
+## SMT 
+
+### Usage:
+python decisional.py <n> <approach_base> [--sb_disabled]
+
+approach_base is just the name of the approach string displayed in json
+--sb_disabled flag will disable symmetry breaking, otherwise enabled by default
+
+### Examples:
+
+1.
+python decisional.py 16 z3_decisional_but_also_optimal_by_graph_theory 
+will run decisional version for n=16
+and append the results to json in res/SMT
+where z3_decisional_but_also_optimal_by_graph_theory is just the name of the approach in json
+add --sb_disabled flag to disable symmetry breaking
+
+2.
+python optimal.py 16 z3_optimal
+will run decisional version for n=16
+and append the results to json in res/SMT
+
+usually both versions can do up to n=20 in less than 5 minutes
+
+3.
+python solution_checker.py res/SMT
+would run professor's checker to validate the satisfaction
+of all the constraints, but not optimality
+
+4.to check optimality we have our own checker
+python check_optimality.py res\SMT
+
+## SAT - 🏆 Sport Tournament Scheduling with Z3
 
 This repository provides an implementation of the **Sport Tournament Scheduling (STS)** problem using the Z3 SMT solver. It supports a variety of constraint encodings and includes both **decisional** and **optimization** solving modes.
 
 ---
 
-## 📦 Features
+### 📦 Features
 
 - 📌 Supports **Exactly-One** encodings:
 
@@ -26,9 +61,9 @@ This repository provides an implementation of the **Sport Tournament Scheduling 
 
 ---
 
-## ⚙️ Usage
+### ⚙️ Usage
 
-### Command-line Example
+#### Command-line Example
 
 ```bash
 python script.py \
@@ -41,7 +76,7 @@ python script.py \
   --save_json
 ```
 
-### Arguments
+#### Arguments
 
 | Argument                 | Description                                                     |
 | ------------------------ | --------------------------------------------------------------- |
@@ -59,7 +94,7 @@ python script.py \
 
 ---
 
-## 📊 Output
+### 📊 Output
 
 - 🖨️ **Human-readable schedule** printed to console
 - 📁 **JSON files** with:
@@ -71,16 +106,16 @@ python script.py \
 
 ---
 
-## 📘 Model Description
+### 📘 Model Description
 
-### Problem
+#### Problem
 
 - Schedule a **round-robin tournament** for `n` teams (even).
 - Each team plays all others exactly once.
 - Matches must be assigned to one of `n/2` periods in `n-1` weeks.
 - Respect max home/away imbalance (`max_diff_k`).
 
-### Constraints
+#### Constraints
 
 - Each match assigned to **exactly one** period
 - Each period in a week has **exactly one** match
@@ -93,16 +128,16 @@ python script.py \
 
 ---
 
-## 📚 Encodings Implemented
+### 📚 Encodings Implemented
 
-### Exactly-One Encodings
+#### Exactly-One Encodings
 
 - **Naive Pairwise (np)**: Pairwise mutual exclusion
 - **Binary (bw)**: Binary auxiliary variables
 - **Sequential (seq)**: Using auxiliary sequential bits
 - **Heule**: Recursive grouping + auxiliary variables
 
-### At-Most-K Encodings
+#### At-Most-K Encodings
 
 - **Naive Pairwise (np)**: Pairwise for k+1 combinations
 - **Sequential (seq)**: Sequential counter using auxiliary variables
@@ -110,7 +145,7 @@ python script.py \
 
 ---
 
-## 🧪 Benchmarks
+### 🧪 Benchmarks
 
 You can test various encoding combinations using `--all`, which evaluates the following:
 
@@ -122,7 +157,7 @@ You can test various encoding combinations using `--all`, which evaluates the fo
 
 ---
 
-## 📁 Output Example
+### 📁 Output Example
 
 Example JSON output structure:
 
@@ -144,7 +179,7 @@ Example JSON output structure:
 
 ---
 
-## 🔍 Notes
+### 🔍 Notes
 
 - `n` must be **even**.
 - The solver uses Z3 with `random_seed=42` for determinism.
@@ -152,13 +187,13 @@ Example JSON output structure:
 
 ---
 
-## 📄 License
+### 📄 License
 
 MIT License.
 
 ---
 
-## 🙋‍♂️ Authors
+### 🙋‍♂️ Authors
 
 Developed as part of a project on **Combinatorial Decision Making**.
 

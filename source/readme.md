@@ -8,6 +8,7 @@ docker build -t cdmo .
 docker run -v "$PWD/res:/res" cdmo
 mv ./res/CP ../res
 mv ./res/SAT ../res
+mv ./res/SMT ../res
 mv ./res/MIP ../res
 ```
 

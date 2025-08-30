@@ -17,21 +17,22 @@ def main():
 
     if args.f == 'all' and args.n == 'all':
         # CP
-        print("--- running all CP models ---")
+        os.system("echo '--- running all CP models ---'")
         os.chdir("/src/CP")
         os.system("python3 /src/CP/main.py --run_decisional --run_optimization --all -n 6-18 --save_json")
         # SAT
-        # runAllSAT()
-        print("--- running all SAT models ---")
-        # os.chdir("/src/SAT")
-        # os.system("python3 /src/SAT/main.py --run_decisional --run_optimization --all")
+        os.system("echo '--- running all SAT models ---'")
+        os.chdir("/src/SAT")
+        os.system("python3 /src/SAT/main.py --run_decisional --run_optimization --all")
         # SMT
-        # print("--- running all SMT models ---")
-        # os.chdir("/src/SMT")
-
+        os.system("echo '--- running all SMT models ---'")
+        os.chdir("/src/SMT")
+        for n in range(6,8,2):
+            os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional --sb_disabled")
+            os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal --sb_disabled")
         # MIP models
-        # print("--- running all MIP models ---")
-        # os.chdir("/src/MIP")
+        os.system("echo '--- running all MIP models ---'")
+        os.chdir("/src/MIP")
         # runAllCircleMatching()
         # runAll4dArray()
     # else:
@@ -46,9 +47,6 @@ def main():
                 # runAllCircleMatching()
             # else:
                 # runCircleMatching(int(args.n))
-
-    # move all sol files
-
     return
 
 if __name__ == '__main__':
