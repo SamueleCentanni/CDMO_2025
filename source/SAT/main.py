@@ -919,7 +919,7 @@ def main():
 
                     if results['sol'] is not None:
                         print(f"\n[Decisional Result] n={n} | time={results['time']}")
-                        print_weekly_schedule(results['sol'], n)
+                        # print_weekly_schedule(results['sol'], n)
                     else:
                         print(f"[!] No solution found for n={n}")
 
@@ -945,7 +945,7 @@ def main():
 
                     if results['sol'] is not None:
                         print(f"\n[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
-                        print_weekly_schedule(results['sol'], n)
+                        # print_weekly_schedule(results['sol'], n)
                     else:
                         print(f"[!] No solution found for n={n}")
     return

@@ -1,14 +1,19 @@
-FROM python:3.13-slim
+FROM minizinc/minizinc:latest
 
 RUN mkdir /src
 # include src files
 ADD ./main.py /src
+ADD ./CP /src/CP
 ADD ./SAT /src/SAT
 ADD ./MIP /src/MIP
-ADD ../res /res
 
-RUN apt-get update && apt-get install -y --no-install-recommends coinor-cbc coinor-libcbc-dev glpk-utils && rm -rf /var/lib/apt/lists/*
-RUN pip install --no-cache-dir pyomo numpy gurobipy z3-solver
+RUN apt-get update
+RUN apt-get install -y python3 python3-pip
+# RUN apt-get install -y --no-install-recommends coinor-cbc coinor-libcbc-dev glpk-utils && rm -rf /var/lib/apt/lists/*
 
-# python /src/main.py -f all -n all
-CMD ["python", "/src/main.py", "-f", "all", "-n", "all"] 
+# Create and use a Python virtual environment for package installation
+RUN pip3 install --break-system-packages --no-cache-dir minizinc numpy pyomo gurobipy z3-solver
+
+# Use the virtual environment's Python for running the main script
+CMD ["python3", "/src/main.py", "-f", "all", "-n", "all"]
+

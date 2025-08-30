@@ -108,7 +108,7 @@ def solution_transform(num_teams, schedule_tuple):
 
     return matrix
 
-def save_results_as_json(n, results, model_name, output_dir="res/CP"):
+def save_results_as_json(n, results, model_name, output_dir="/res/CP"):
     """
     Saves the results dictionary to a JSON file.
     """
@@ -144,6 +144,7 @@ def save_results_as_json(n, results, model_name, output_dir="res/CP"):
     
     with open(json_path, "w") as f:
         json.dump(json_obj, f, indent=1)
+    
 
 def run_minizinc(n, dzn_file, model_file, solver, timeout, init_time):
     matchings = circle_matchings(n)
@@ -161,6 +162,7 @@ def solve_cp_decisional(n, timeout, solver, search_strategy="base", symmetry_bre
     if n % 2 != 0:
         raise ValueError("Number of teams must be even.")
     init_time = time.perf_counter()
+
 
     model_file = f"d_circle_method_{symmetry_breaking}_{search_strategy}.mzn"
     dzn_file = "circle_method.dzn"
@@ -339,7 +341,7 @@ def main():
         for n in args.n_teams:
             for solver, ss, sb in solving_combinations:
                     sb_name = "SB" if sb == "Y" else "no_SB"
-                    print(f"\n=== Decisional Solver | Solver: {solver} | Symmetry: {sb_name} | Search strategy: {ss} ===\n")
+                    # print(f"\n=== Decisional Solver | Solver: {solver} | Symmetry: {sb_name} | Search strategy: {ss} ===\n")
                     model_name = f"d_{solver}_{sb_name}_{ss}"
                     try: 
                         results = solve_cp_decisional(
@@ -356,7 +358,7 @@ def main():
                         save_results_as_json(n, model_name=model_name, results=results)
                     if results['sol']:
                         print(f"\n[Decisional Result] n={n} | time={results['time']}")
-                        human_readable_schedule(results['sol'])
+                        # human_readable_schedule(results['sol'])
                     else:
                         print(f"[!] No solution found for n={n}")
 
@@ -364,7 +366,7 @@ def main():
         for n in args.n_teams:
             for solver, ss, sb in solving_combinations:
                     sb_name = "SB" if sb == "Y" else "no_SB"
-                    print(f"\n=== Optimization Solver | Solver: {solver} | Symmetry: {sb_name} | Search strategy: {ss} ===\n")
+                    # print(f"\n=== Optimization Solver | Solver: {solver} | Symmetry: {sb_name} | Search strategy: {ss} ===\n")
                     model_name = f"o_{solver}_{sb_name}_{ss}"
                     try:
                         results = solve_cp_optimization(
@@ -381,7 +383,7 @@ def main():
                         save_results_as_json(n, model_name=model_name, results=results)
                     if results['sol']:
                         print(f"\n[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
-                        human_readable_schedule(results['sol'])
+                        # human_readable_schedule(results['sol'])
                     else:
                         print(f"[!] No solution found for n={n}")
 

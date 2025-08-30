@@ -1,14 +1,13 @@
-#!/usr/bin/env python
 import os
 import argparse
-from SAT.main import runAllSAT
-from MIP.circleMatching import runAllCircleMatching, runCircleMatching
-from MIP._4dArray import runAll4dArray
+# from MIP.circleMatching import runAllCircleMatching, runCircleMatching
+# from MIP._4dArray import runAll4dArray
 
-if __name__ == '__main__':
+
+def main():
     parser = argparse.ArgumentParser(description="Run circle matching and 4d array solvers.")
-    parser.add_argument('-f', choices=['all', 'mip', 'cp', 'sat', 'smt'], default='all', help='Solver type to run')
-    parser.add_argument('-n', choices=['all', '6', '8', '10', '12'], default='all', help='Problem size to run')
+    parser.add_argument('-f', choices=['all', 'mip', 'cp', 'sat', 'smt'], default='all', help='Formulation to run')
+    parser.add_argument('-n', choices=['all', '6', '8', '10', '12', '14', '16', '18', '20'], default='all', help='Problem size to run')
     args = parser.parse_args()
 
     # handle commercial solver license
@@ -18,27 +17,39 @@ if __name__ == '__main__':
 
     if args.f == 'all' and args.n == 'all':
         # CP
-        # print("--- running all CP models ---")
+        print("--- running all CP models ---")
+        os.chdir("/src/CP")
+        os.system("python3 /src/CP/main.py --run_decisional --run_optimization --all -n 6-18 --save_json")
         # SAT
         # runAllSAT()
         print("--- running all SAT models ---")
-        os.system("python /src/SAT/main.py --run_decisional --run_optimization --all")
+        # os.chdir("/src/SAT")
+        # os.system("python3 /src/SAT/main.py --run_decisional --run_optimization --all")
         # SMT
         # print("--- running all SMT models ---")
+        # os.chdir("/src/SMT")
 
         # MIP models
-        print("--- running all MIP models ---")
+        # print("--- running all MIP models ---")
+        # os.chdir("/src/MIP")
         # runAllCircleMatching()
         # runAll4dArray()
-    else:
-        if args.f == 'cp':
-            pass
-        elif args.f == 'sat':
-            pass
-        elif args.f == 'smt':
-            pass
-        elif args.f == 'mip':
-            if args.n == 'all':
-                runAllCircleMatching()
-            else:
-                runCircleMatching(int(args.n))
+    # else:
+    #     if args.f == 'cp':
+    #         pass
+    #     elif args.f == 'sat':
+    #         pass
+    #     elif args.f == 'smt':
+    #         pass
+    #     elif args.f == 'mip':
+    #         if args.n == 'all':
+                # runAllCircleMatching()
+            # else:
+                # runCircleMatching(int(args.n))
+
+    # move all sol files
+
+    return
+
+if __name__ == '__main__':
+    main()

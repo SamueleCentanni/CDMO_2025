@@ -6,6 +6,7 @@ To solve the problem for all the instances and models with docker just run the `
 cd source
 docker build -t cdmo .
 docker run -v "$PWD/res:/res" cdmo
+mv ./res/CP ../res
 mv ./res/SAT ../res
 mv ./res/MIP ../res
 ```
