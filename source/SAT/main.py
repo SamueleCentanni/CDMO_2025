@@ -208,7 +208,7 @@ def convert_to_matrix(n, solution):
         matrix[p - 1][w - 1] = [h, a]
     return matrix
 
-def save_results_as_json(n, results, model_name, output_dir="../res/SAT"):
+def save_results_as_json(n, results, model_name, output_dir="/res/SAT"):
     """
     Saves the results dictionary to a JSON file.
     """
@@ -462,7 +462,7 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
                 print("Global timeout reached.")
             break
             
-        k = (low + high) // 2
+        k = (low + high) // 2 # binary search 
         
         if verbose:
             print(f"Testing max_diff <= {k}. Remaining time: {remaining_time:.2f}s...")
@@ -605,7 +605,7 @@ def solve_sts_decisional(n, max_diff_k, timeout_seconds, exactly_one_encoding, a
     Does NOT perform optimization.
     """
     if verbose:
-        print(f"\n--- Decisional solver for n={n}, max_diff_k={max_diff_k} started ---")
+        print(f"\n--- Decisional solver for n={n} ---")
 
     init_time = time.time()
 
@@ -811,12 +811,7 @@ def main():
         action="store_true",
         help="Run the optimization solver."
     )
-    parser.add_argument(
-        "--max_diff",
-        type=int,
-        default=1,
-        help="The max_diff_k value for the decisional solver."
-    )
+    
 
     parser.add_argument(
         "--sb",
@@ -903,7 +898,7 @@ def main():
                     try:
                         results = solve_sts_decisional(
                             n,
-                            max_diff_k=args.max_diff,
+                            max_diff_k=n-1,
                             exactly_one_encoding=eo_func,
                             at_most_k_encoding=ak_func,
                             timeout_seconds=timeout,
