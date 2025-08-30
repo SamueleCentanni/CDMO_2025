@@ -208,7 +208,7 @@ def convert_to_matrix(n, solution):
         matrix[p - 1][w - 1] = [h, a]
     return matrix
 
-def save_results_as_json(n, results, model_name, output_dir="../../res/SAT"):
+def save_results_as_json(n, results, model_name, output_dir="res/SAT"):
     """
     Saves the results dictionary to a JSON file.
     """
