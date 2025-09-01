@@ -4,7 +4,7 @@ import numpy as np
 import time
 import math
 import os
-from .saveSolutions import saveSol, updateSol
+from saveSolutions import saveSol, updateSol
 
 
 def circle_matchings(n):
@@ -22,7 +22,7 @@ def circle_matchings(n):
     return m
 
 
-def solveCircleMatching(n, opt=True, solver='cbc', verbose=False):
+def solveCircleMatching(n, optimization=True, ic=True, solver='cbc', timeout=300, verbose=False):
     start_cosntr = time.time()
     l = [(i, j) for i in range(n) for j in range(n) if i < j]
     ij_to_match = {(i, j): idx for idx, (i, j) in enumerate(l)}
@@ -38,7 +38,7 @@ def solveCircleMatching(n, opt=True, solver='cbc', verbose=False):
     # decision vars
     model.Y = Var(model.WP, model.M, domain=Binary)
     model.H = Var(model.M, domain=Binary)
-    if opt:
+    if optimization:
         # optimization vars
         model.Home = Var(model.I, domain=Integers, bounds=(0, n-1))
         model.Away = Var(model.I, domain=Integers, bounds=(0, n-1))
@@ -82,26 +82,27 @@ def solveCircleMatching(n, opt=True, solver='cbc', verbose=False):
             model.max_team_match_period.add(sum(model.Y[(w, p), ij_to_match[(k, j)]] for w in model.W for j in range(k+1, n)) +
                                             sum(model.Y[(w, p), ij_to_match[(i, k)]] for w in model.W for i in range(0, k)) <= 2)
 
-    # additional constraints for efficiency
-    model.implied = ConstraintList()
-    model.Zteam = Var(model.I, model.P, domain=Binary)
-    model.cover = ConstraintList()
-    for i in model.I:
-        for p in model.P:
-            expr = sum(
-                model.Y[(w, p), ij_to_match[(i, j)]]
-                for w in model.W for j in range(i+1, n)
-            ) + sum(
-                model.Y[(w, p), ij_to_match[(j, i)]]
-                for w in model.W for j in range(0, i)
-            )
-            model.cover.add(expr <= 2*model.Zteam[i, p])
-    # Each team must appear in at least ceil((n-1)/2) distinct periods
-    for i in model.I:
-        model.cover.add(sum(model.Zteam[i, p]
-                        for p in model.P) >= math.ceil((n-1)/2))
+    if ic:
+        # additional constraints for efficiency
+        model.implied = ConstraintList()
+        model.Zteam = Var(model.I, model.P, domain=Binary)
+        model.cover = ConstraintList()
+        for i in model.I:
+            for p in model.P:
+                expr = sum(
+                    model.Y[(w, p), ij_to_match[(i, j)]]
+                    for w in model.W for j in range(i+1, n)
+                ) + sum(
+                    model.Y[(w, p), ij_to_match[(j, i)]]
+                    for w in model.W for j in range(0, i)
+                )
+                model.cover.add(expr <= 2*model.Zteam[i, p])
+        # Each team must appear in at least ceil((n-1)/2) distinct periods
+        for i in model.I:
+            model.cover.add(sum(model.Zteam[i, p]
+                            for p in model.P) >= math.ceil((n-1)/2))
 
-    if opt:
+    if optimization:
         # objective constraints
         def home_games_rule(model, i):
             return model.Home[i] == sum(model.H[m] for m in model.M if i == model.match_teams[m][0]) + \
@@ -129,8 +130,9 @@ def solveCircleMatching(n, opt=True, solver='cbc', verbose=False):
         solver_factory.options["threads"] = 1   # required
         solver_factory.options["MIPFocus"] = 3  # focus: 1-constr, 2-opt, 3-bound
     result = solver_factory.solve(
-        model, tee=verbose, timelimit=int(300-constr_time))
+        model, tee=verbose, timelimit=int(timeout-constr_time))
 
+    # solution extraction
     solution = np.zeros((n-1, n//2, n, n))
     for w in model.W:
         for p in model.P:
@@ -144,30 +146,30 @@ def solveCircleMatching(n, opt=True, solver='cbc', verbose=False):
     return result, solution
 
 
-def runCircleMatching(n=6):
+def runCircleMatching(n, timeout=300, ic=True, optimization=True, verbose=False, save=True):
     solvers = ['cbc', 'glpk']
-    if os.path.exists('/opt/gurobi/gurobi.lic'):
+    if os.path.exists('/opt/gurobi/gurobi.lic') or os.path.exists('./gurobi.lic'):
         solvers.append('gurobi')
     if solvers == []:
         raise ValueError("No solver available")
     outputs = []
     for solver in solvers:
         try:
+            name = f"{'decision' if not optimization else 'optimization'}_{solver}_circleMatching_{'ic' if ic else 'no_ic'}.json"
             start = time.time()
-            result, solution = solveCircleMatching(
-                n, opt=True, solver=solver, verbose=False)
+            result, solution = solveCircleMatching(n, optimization, ic, solver, timeout, verbose)
             end = time.time()-start
             if solution.shape == (n-1, n//2, n, n):
-                outputs.append((result, solution, end))
-                
-            print(f"solver: {solver}")
-            print(f"status: {result.Solver.status}")
-            print(f"time: {end}")
+                outputs.append((result, solution, end, name))
+
+            print(f"CM, {n}, {'decision' if not optimization else 'optimization'}, {solver}, status: {result.Solver.status}, time: {end}")
+
         except Exception as e:
             if solver == 'gurobi':  # gurobi license error
                 solvers.remove('gurobi')
-    saveSol(n, solvers, outputs, opt=True, output_dir='/res/MIP',        
-            filename=f'circleMatching_{n}.json')
+    if save:
+        updateSol(n, outputs, optimization, output_dir='/res/MIP',        
+                filename=f'{n}.json')
     return
     
 
@@ -201,32 +203,3 @@ def runAllCircleMatching():
         saveSol(n, solvers, outputs, opt=True, output_dir='/res/MIP',
                 filename=f'circleMatching_{n}.json')
     return
-
-
-if __name__ == "__main__":
-    solvers = []
-    if os.path.exists('gurobi.lic'):
-        solvers.append('gurobi')
-    if solvers == []:
-        raise ValueError("No solver available")
-    # for n in [6, 8]:
-    for n in range(6,18,2):
-        print(f"--- n: {n} ---")
-        outputs = []
-        for solver in solvers:
-            print(f"solver: {solver}")
-            start = time.time()
-            result, solution = solveCircleMatching(
-                n, opt=True, solver=solver, verbose=False)
-            end = time.time()-start
-            if solution.shape == (n-1, n//2, n, n):
-                outputs.append((result, solution, end))
-            elif end >= 299:
-                solvers.remove(solver)
-
-            print(f"solver: {solver}")
-            print(f"status: {result.Solver.status}")
-            print(f"time: {end}")
-
-        updateSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP',
-                filename=f'circleMatching_{n}.json')

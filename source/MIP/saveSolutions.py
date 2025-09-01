@@ -1,10 +1,10 @@
 import os, json, math
 
 
-def saveSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP', filename='data.json'):
+def saveSol(n, outputs, opt=True, output_dir='/res/MIP', filename='data.json'):
     output = {}
     for h,o in enumerate(outputs):
-        result, solution, time = o
+        result, solution, time, name = o
         formatted_sol = []
         for p in range(n//2):
             row = []
@@ -17,7 +17,7 @@ def saveSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP', filename=
         time  = math.floor(time)
         obj = result.Problem.Upper_bound
         optimal = not opt or (obj == 1 and time < 299)
-        output[solvers[h]] = {
+        output[name] = {
             "sol": formatted_sol,
             "time": time if optimal else 300,
             "optimal": optimal,
@@ -29,7 +29,7 @@ def saveSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP', filename=
         json.dump(output, f, ensure_ascii=False, indent=4)
     return
 
-def updateSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP', filename='data.json'):
+def updateSol(n, outputs, opt=True, output_dir='/res/MIP', filename='data.json'):
     output = {}
     try:
         with open(os.path.join(output_dir, filename), 'r', encoding='utf-8') as f:
@@ -37,7 +37,7 @@ def updateSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP', filenam
     except:
         pass
     for h,o in enumerate(outputs):
-        result, solution, time = o
+        result, solution, time, name = o
         formatted_sol = []
         for p in range(n//2):
             row = []
@@ -50,7 +50,7 @@ def updateSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP', filenam
         time  = math.floor(time)
         obj = result.Problem.Upper_bound
         optimal = not opt or (obj == 1 and time < 299)
-        output[solvers[h]] = {
+        output[name] = {
             "sol": formatted_sol,
             "time": time if optimal else 300,
             "optimal": optimal,

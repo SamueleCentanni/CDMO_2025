@@ -200,3 +200,8 @@ Developed as part of a project on **Combinatorial Decision Making**.
 ---
 
 Feel free to contribute, raise issues, or suggest improvements!
+
+## MIP
+For the MIP formulation, the best result are obtained with the gurobi solver, which requires a license
+To solve the problem only for the MIP formulation:
+- copy the license file ```gurobi.ilc``` into the source/MIP directory (otherwise the default open-source solvers will be used)

@@ -3,7 +3,7 @@ from pyomo.environ import ConcreteModel, RangeSet, Var, Binary, Constraint, Obje
 import numpy as np
 import time
 import os
-from .saveSolutions import saveSol, updateSol
+from saveSolutions import saveSol, updateSol
 
 
 def solve4dArray(n, opt=True, solver='cbc', verbose=False):
@@ -111,6 +111,33 @@ def solve4dArray(n, opt=True, solver='cbc', verbose=False):
             solution[i[0], i[1], i[2], i[3]] = 1
     return result, solution
 
+def run4dArray(n, timeout=300, ic=True, optimization=True, verbose=False, save=True):
+    solvers = ['cbc', 'glpk']
+    if os.path.exists('/opt/gurobi/gurobi.lic') or os.path.exists('./gurobi.lic'):
+        solvers.append('gurobi')
+    if solvers == []:
+        raise ValueError("No solver available")
+    outputs = []
+    for solver in solvers:
+        try:
+            name = f"{'decision' if not optimization else 'optimization'}_{solver}_4dArray_{'ic' if ic else 'no_ic'}.json"
+            start = time.time()
+            result, solution = solve4dArray(n, optimization, ic, solver, timeout, verbose)
+            end = time.time()-start
+            if solution.shape == (n-1, n//2, n, n):
+                outputs.append((result, solution, end, name))
+
+            print(f"4D, {n}, {'decision' if not optimization else 'optimization'}, {solver}, status: {result.Solver.status}, time: {end}")
+
+        except Exception as e:
+            if solver == 'gurobi':  # gurobi license error
+                solvers.remove('gurobi')
+    if save:
+        updateSol(n, outputs, optimization, output_dir='/res/MIP',        
+                filename=f'{n}.json')
+    return
+    
+
 def runAll4dArray():
     solvers = ['cbc', 'glpk']
     if os.path.exists('/opt/gurobi/gurobi.lic'):
@@ -139,33 +166,4 @@ def runAll4dArray():
                     solvers.remove('gurobi')
 
         saveSol(n, solvers, outputs, opt=True, output_dir='/res/MIP',
-                filename=f'4dArray_{n}.json')
-
-
-if __name__ == "__main__":
-    solvers = []
-    if os.path.exists('gurobi.lic'):
-        solvers.append('gurobi')
-    if solvers == []:
-        raise ValueError("No solver available")
-    # for n in [12]:
-    for n in range(6,18,2):
-        print(f"--- n: {n} ---")
-        outputs = []
-        for solver in solvers:
-            print(f"solver: {solver}")
-            start = time.time()
-            result, solution = solve4dArray(
-                n, opt=True, solver=solver, verbose=False)
-            end = time.time()-start
-            if solution.shape == (n-1, n//2, n, n):
-                outputs.append((result, solution, end))
-            elif end >= 299:
-                solvers.remove(solver)
-
-            print(f"solver: {solver}")
-            print(f"status: {result.Solver.status}")
-            print(f"time: {end}")
-        
-        updateSol(n, solvers, outputs, opt=True, output_dir='../../res/MIP',
                 filename=f'4dArray_{n}.json')

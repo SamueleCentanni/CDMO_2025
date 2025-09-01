@@ -1,13 +1,10 @@
 import os
 import argparse
-# from MIP.circleMatching import runAllCircleMatching, runCircleMatching
-# from MIP._4dArray import runAll4dArray
-
 
 def main():
     parser = argparse.ArgumentParser(description="Run circle matching and 4d array solvers.")
-    parser.add_argument('-f', choices=['all', 'mip', 'cp', 'sat', 'smt'], default='all', help='Formulation to run')
-    parser.add_argument('-n', choices=['all', '6', '8', '10', '12', '14', '16', '18', '20'], default='all', help='Problem size to run')
+    parser.add_argument('-f', required=True, choices=['all', 'mip', 'cp', 'sat', 'smt'], default='all', help='Formulation to run')
+    parser.add_argument("-n", required=True, type=str, default=["2-20"], help="Problem size(s) to run")
     args = parser.parse_args()
 
     # handle commercial solver license
@@ -33,20 +30,20 @@ def main():
         # MIP models
         os.system("echo '--- running all MIP models ---'")
         os.chdir("/src/MIP")
-        # runAllCircleMatching()
-        # runAll4dArray()
-    # else:
-    #     if args.f == 'cp':
-    #         pass
-    #     elif args.f == 'sat':
-    #         pass
-    #     elif args.f == 'smt':
-    #         pass
-    #     elif args.f == 'mip':
-    #         if args.n == 'all':
-                # runAllCircleMatching()
-            # else:
-                # runCircleMatching(int(args.n))
+        os.system("python3 /src/MIP/main.py --run_decisional --run_optimization --all")
+
+    else:
+        assert args.f == 'cp' or args.f == 'sat' or args.f == 'smt' or args.f == 'mip', "Specify one formulation"
+        if args.f == 'cp':
+            pass
+        elif args.f == 'sat':
+            pass
+        elif args.f == 'smt':
+            pass
+        elif args.f == 'mip':
+            os.chdir("/src/MIP")
+            os.system(f"python3 /src/MIP/main.py --all -n {args.n}")
+
     return
 
 if __name__ == '__main__':
