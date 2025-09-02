@@ -4,7 +4,7 @@ import numpy as np
 import time
 import math
 import os
-from saveSolutions import saveSol, updateSol
+from saveSolutions import saveSol
 
 
 def circle_matchings(n):

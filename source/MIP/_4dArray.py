@@ -3,7 +3,7 @@ from pyomo.environ import ConcreteModel, RangeSet, Var, Binary, Constraint, Obje
 import numpy as np
 import time
 import os
-from saveSolutions import saveSol, updateSol
+from saveSolutions import saveSol
 
 
 def solve4dArray(n, opt=True, solver='cbc', verbose=False):

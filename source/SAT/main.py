@@ -240,11 +240,6 @@ def save_results_as_json(n, results, model_name, output_dir="/res/SAT"):
             "optimal": res.get("optimal"),
             "obj": res.get("obj"),
             "sol": matrix,
-            "max_diff": res.get("max_diff", 0),
-            "restarts": res.get("restarts", 0),
-            "conflicts": res.get("conflicts", 0),
-            "mk_bool_var": res.get("mk_bool_var", 0),
-            "max_memory": res.get("max_memory", 0)
         }
     
     with open(json_path, "w") as f:
@@ -450,7 +445,7 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
     init_time = time.time()
     
     if verbose:
-        print(f"\n--- Optimization for n={n} started (MinMax with Binary Search) ---")
+        print(f"\n--- Optimization for n={n} started ---")
 
     # Binary search
     while low <= high:
@@ -482,7 +477,8 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
         current_elapsed_time = time.time() - init_time
         
         if verbose:
-            print(f"  Solver result for k={k}: {status} (Elapsed: {current_elapsed_time:.2f}s)")
+            current_elapsed_time = current_elapsed_time if current_elapsed_time <= 300 else 300
+            print(f"  Solver result for k={k}: {status}")
             
         if status == sat:
             model = solver.model()
@@ -496,13 +492,11 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
                 
         elif status == unsat:
             proven_unsat = True
-            if verbose:
-                print(f"  No solution found for max_diff <= {k}. Trying for a larger value.")
             break
                 
         else: 
             if verbose:
-                print("  Solver returned 'unknown' (timeout for this iteration).")
+                print("  Solver returned 'unknown'.")
             break
 
     stat = solver.statistics()
@@ -537,17 +531,10 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
                 
                 best_solution_schedule.append((home_team_idx + 1, away_team_idx + 1, week_idx + 1, p + 1))
 
-
         if optimal_diff_MinMax is not None and optimal_diff_MinMax == 1:
             proven_optimal_final = True
-
-    if verbose:
-        print("\n--- Optimization completed ---")
-        print(f"  Final MinMax objective (max difference): {optimal_diff_MinMax}")
-        print(f"  Proven optimal: {proven_optimal_final}")
-        print("  Final statistics:")
-        for k, v in final_stats.items():
-            print(f"    {k}: {v}")
+            
+    solve_time = solve_time if solve_time <= 300 else 300
             
     if proven_optimal_final:
         result = {
@@ -652,7 +639,7 @@ def solve_sts_decisional(n, max_diff_k, timeout_seconds, exactly_one_encoding, a
                 
                 best_solution_schedule.append((home_team_idx + 1, away_team_idx + 1, week_idx + 1, p + 1))
     
-        
+    solve_time = solve_time if solve_time <= 300 else 300
     result = {
         'obj': None,
         'sol': best_solution_schedule,
@@ -692,82 +679,6 @@ def parse_n_teams(n_input):
             except ValueError:
                 print(f"[WARNING] Invalid value for -n: {item}")
     return sorted(result)
-
-
-def runAllSAT():
-    """same as running from terminal with: python main.py --run_decisional --run_optimization --all"""
-    exactly_one_encodings = {
-        "np": exactly_one_np,
-        "bw": exactly_one_bw,
-        "seq": exactly_one_seq,
-        "heule": heule_exactly_one,
-    }
-    at_most_k_encodings = {
-        "np": at_most_k_np,
-        "seq": at_most_k_seq,
-        "totalizer": at_most_k_totalizer,
-    }
-    allowed_pairs = [
-            ("np", "np"),
-            ("heule", "seq"),
-            ("heule", "totalizer")
-        ]
-    encoding_combinations = [
-            ((eo, exactly_one_encodings[eo]), (ak, at_most_k_encodings[ak]))
-            for eo, ak in allowed_pairs
-        ]
-    n_teams = range(6,22,2)
-
-    for sb in [True, False]:
-        sb_name = "sb" if sb else "no_sb"
-        for (eo_name, eo_func), (ak_name, ak_func) in encoding_combinations:
-            name_prefix = f"{eo_name}_{ak_name}"
-
-            # decision
-            print(f"\n=== Decisional Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
-            for n in n_teams:
-                model_name = f"decisional_{name_prefix}_{sb_name}"
-                try:
-                    results = solve_sts_decisional(
-                        n,
-                        max_diff_k=1,
-                        exactly_one_encoding=eo_func,
-                        at_most_k_encoding=ak_func,
-                        timeout_seconds=300,
-                        symmetry_breaking=sb,
-                        verbose=False
-                    )
-                except ValueError as e:
-                    print(f"Skipping n={n}: {e}")
-                    continue
-                save_results_as_json(n, model_name=model_name, results=results)
-                if results['sol'] is not None:
-                    print(f"\n[Decisional Result] n={n} | time={results['time']}")
-                else:
-                    print(f"[!] No solution found for n={n}")
-            # optimization
-            print(f"\n=== Optimization Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
-            for n in n_teams:
-                model_name = f"optimization_{name_prefix}_{sb_name}"
-                try:
-                    results = solve_sts_optimization(
-                        n,
-                        exactly_one_encoding=eo_func,
-                        at_most_k_encoding=ak_func,
-                        timeout_seconds=300,
-                        symmetry_breaking=sb,
-                        verbose=False
-                    )
-                except ValueError as e:
-                    print(f"Skipping n={n}: {e}")
-                    continue
-                save_results_as_json(n, model_name=model_name, results=results)
-                if results['sol'] is not None:
-                        print(f"\n[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
-                else:
-                        print(f"[!] No solution found for n={n}")
-    return
-
 
 def main():
     parser = argparse.ArgumentParser(description="Sport Tournament Scheduler using Z3 solvers.")
@@ -912,7 +823,7 @@ def main():
                     if args.save_json:
                         save_results_as_json(n, model_name=model_name, results=results)
 
-                    if results['sol'] is not None:                        
+                    if results['sol'] is not None:
                         if os.path.exists("/.dockerenv"):
                             os.system(f"echo '[Decisional Result] n={n} | time={results['time']}'")
                         else:
@@ -922,7 +833,7 @@ def main():
                         print(f"[!] No solution found for n={n}")
 
             if args.run_optimization:
-                # print(f"\n=== Optimization Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
+                print(f"\n=== Optimization Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
                 for n in args.n_teams:
                     model_name = f"optimization_{name_prefix}_{sb_name}"
                     try:
@@ -949,7 +860,6 @@ def main():
                         # print_weekly_schedule(results['sol'], n)
                     else:
                         print(f"[!] No solution found for n={n}")
-    return
 
 if __name__ == "__main__":
     main()
