@@ -240,11 +240,6 @@ def save_results_as_json(n, results, model_name, output_dir="res/SAT"):
             "optimal": res.get("optimal"),
             "obj": res.get("obj"),
             "sol": matrix,
-            "max_diff": res.get("max_diff", 0),
-            "restarts": res.get("restarts", 0),
-            "conflicts": res.get("conflicts", 0),
-            "mk_bool_var": res.get("mk_bool_var", 0),
-            "max_memory": res.get("max_memory", 0)
         }
     
     with open(json_path, "w") as f:
@@ -450,7 +445,7 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
     init_time = time.time()
     
     if verbose:
-        print(f"\n--- Optimization for n={n} started (MinMax with Binary Search) ---")
+        print(f"\n--- Optimization for n={n} started ---")
 
     # Binary search
     while low <= high:
@@ -482,7 +477,8 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
         current_elapsed_time = time.time() - init_time
         
         if verbose:
-            print(f"  Solver result for k={k}: {status} (Elapsed: {current_elapsed_time:.2f}s)")
+            current_elapsed_time = current_elapsed_time if current_elapsed_time <= 300 else 300
+            print(f"  Solver result for k={k}: {status}")
             
         if status == sat:
             model = solver.model()
@@ -496,13 +492,11 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
                 
         elif status == unsat:
             proven_unsat = True
-            if verbose:
-                print(f"  No solution found for max_diff <= {k}. Trying for a larger value.")
             break
                 
         else: 
             if verbose:
-                print("  Solver returned 'unknown' (timeout for this iteration).")
+                print("  Solver returned 'unknown'.")
             break
 
     stat = solver.statistics()
@@ -537,17 +531,10 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
                 
                 best_solution_schedule.append((home_team_idx + 1, away_team_idx + 1, week_idx + 1, p + 1))
 
-
         if optimal_diff_MinMax is not None and optimal_diff_MinMax == 1:
             proven_optimal_final = True
-
-    if verbose:
-        print("\n--- Optimization completed ---")
-        print(f"  Final MinMax objective (max difference): {optimal_diff_MinMax}")
-        print(f"  Proven optimal: {proven_optimal_final}")
-        print("  Final statistics:")
-        for k, v in final_stats.items():
-            print(f"    {k}: {v}")
+            
+    solve_time = solve_time if solve_time <= 300 else 300
             
     if proven_optimal_final:
         result = {
@@ -652,7 +639,7 @@ def solve_sts_decisional(n, max_diff_k, timeout_seconds, exactly_one_encoding, a
                 
                 best_solution_schedule.append((home_team_idx + 1, away_team_idx + 1, week_idx + 1, p + 1))
     
-        
+    solve_time = solve_time if solve_time <= 300 else 300
     result = {
         'obj': None,
         'sol': best_solution_schedule,
