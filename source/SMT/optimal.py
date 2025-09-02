@@ -137,23 +137,26 @@ if __name__ == '__main__':
     t2 = time.time()
 
     total_time = min(int(t2 - t0), 300)
+
     optimal = timetable is not None
     obj = imbalance
 
     # Transpose timetable to periods x weeks, ordering teams by home_away indicator
     sol_periods = []
-    for p_idx in range(periods):
-        period = p_idx + 1
-        row = []
-        for w in sorted(timetable):
-            i, j = timetable[w][period]
-            # if h=1 first team is home, else swap
-            if home_away.get((w, i, j), 1) == 1:
-                row.append([i, j])
-            else:
-                row.append([j, i])
-        sol_periods.append(row)
-
+    try:
+        for p_idx in range(periods):
+            period = p_idx + 1
+            row = []
+            for w in sorted(timetable):
+                i, j = timetable[w][period]
+                # if h=1 first team is home, else swap
+                if home_away.get((w, i, j), 1) == 1:
+                    row.append([i, j])
+                else:
+                    row.append([j, i])
+            sol_periods.append(row)
+    except:
+        pass
     # get the directory where the current script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
