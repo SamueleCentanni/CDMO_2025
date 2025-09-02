@@ -124,15 +124,10 @@
      7
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 28,
-  "mk_bool_var": 630,
-  "max_memory": 18.72
+  ]
  },
  "optimization_np_np_sb": {
-  "time": 1,
+  "time": 0,
   "optimal": true,
   "obj": 1,
   "sol": [
@@ -256,12 +251,7 @@
      5
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 11,
-  "mk_bool_var": 962,
-  "max_memory": 204.71
+  ]
  },
  "decisional_heule_seq_sb": {
   "time": 0,
@@ -388,12 +378,7 @@
      7
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 8,
-  "mk_bool_var": 970,
-  "max_memory": 208.65
+  ]
  },
  "optimization_heule_seq_sb": {
   "time": 0,
@@ -520,12 +505,7 @@
      7
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 12,
-  "mk_bool_var": 1302,
-  "max_memory": 208.65
+  ]
  },
  "decisional_heule_totalizer_sb": {
   "time": 0,
@@ -652,12 +632,7 @@
      7
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 22,
-  "mk_bool_var": 1002,
-  "max_memory": 208.65
+  ]
  },
  "optimization_heule_totalizer_sb": {
   "time": 0,
@@ -784,12 +759,7 @@
      8
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 21,
-  "mk_bool_var": 1334,
-  "max_memory": 208.65
+  ]
  },
  "decisional_np_np_no_sb": {
   "time": 0,
@@ -916,12 +886,7 @@
      1
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 43,
-  "mk_bool_var": 820,
-  "max_memory": 208.91
+  ]
  },
  "optimization_np_np_no_sb": {
   "time": 0,
@@ -1048,12 +1013,7 @@
      5
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 5,
-  "mk_bool_var": 1276,
-  "max_memory": 231.24
+  ]
  },
  "decisional_heule_seq_no_sb": {
   "time": 0,
@@ -1180,12 +1140,7 @@
      7
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 160,
-  "mk_bool_var": 1172,
-  "max_memory": 234.1
+  ]
  },
  "optimization_heule_seq_no_sb": {
   "time": 0,
@@ -1312,12 +1267,7 @@
      7
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 68,
-  "mk_bool_var": 1628,
-  "max_memory": 234.1
+  ]
  },
  "decisional_heule_totalizer_no_sb": {
   "time": 0,
@@ -1444,12 +1394,7 @@
      6
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 60,
-  "mk_bool_var": 1204,
-  "max_memory": 234.1
+  ]
  },
  "optimization_heule_totalizer_no_sb": {
   "time": 0,
@@ -1576,11 +1521,6 @@
      8
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 85,
-  "mk_bool_var": 1660,
-  "max_memory": 234.1
+  ]
  }
 }

@@ -6,7 +6,7 @@ import os
 from saveSolutions import saveSol
 
 
-def solve4dArray(n, opt=True, solver='cbc', verbose=False):
+def solve4dArray(n, optimization=True, ic=True, solver='cbc', timeout=300, verbose=False):
     start_cosntr = time.time()
     model = ConcreteModel()
     model.W = RangeSet(0, (n-1)-1)
@@ -15,7 +15,7 @@ def solve4dArray(n, opt=True, solver='cbc', verbose=False):
     model.J = RangeSet(0, n-1)
     # decision var
     model.X = Var(model.W, model.P, model.I, model.J, domain=Binary)
-    if opt:
+    if optimization:
         # optimization vars
         model.home = Var(model.I, domain=NonNegativeIntegers)
         model.away = Var(model.I, domain=NonNegativeIntegers)
@@ -61,13 +61,14 @@ def solve4dArray(n, opt=True, solver='cbc', verbose=False):
     model.one_game_per_team_per_week = Constraint(model.W, model.I, rule=one_game_per_team_per_week_rule)
     model.one_match_per_period_per_week = Constraint(model.W, model.P, rule=one_match_per_period_per_week_rule)
 
-    # additional constraints for efficiency
-    def tot_matches_rule(model):
-        return sum(model.X[w,p,i,j] for w in model.W for p in model.P for i in model.I for j in model.J) == n*(n - 1)//2
-    def no_self_match_rule(model, i):
-        return sum(model.X[w, p, i, i] for w in model.W for p in model.P) == 0
-    model.tot_matches = Constraint(rule=tot_matches_rule)
-    model.no_self_match = Constraint(model.I, rule=no_self_match_rule)
+    if ic:
+        # additional constraints for efficiency
+        def tot_matches_rule(model):
+            return sum(model.X[w,p,i,j] for w in model.W for p in model.P for i in model.I for j in model.J) == n*(n - 1)//2
+        def no_self_match_rule(model, i):
+            return sum(model.X[w, p, i, i] for w in model.W for p in model.P) == 0
+        model.tot_matches = Constraint(rule=tot_matches_rule)
+        model.no_self_match = Constraint(model.I, rule=no_self_match_rule)
 
     # symmetry breaking
     def fix_first_week_rule(model, p):
@@ -81,7 +82,7 @@ def solve4dArray(n, opt=True, solver='cbc', verbose=False):
     model.team0_schedule = Constraint(model.W, rule=fix_team0_schedule_rule)
 
     # objective function
-    if opt:        
+    if optimization:        
         # auxiliary constraints for obj function
         def home_games_rule(model, i):
             return model.home[i] == sum(model.X[w, p, i, j] for w in model.W for p in model.P for j in model.J if i != j)
@@ -101,9 +102,10 @@ def solve4dArray(n, opt=True, solver='cbc', verbose=False):
     constr_time = time.time() - start_cosntr
     solver_factory = SolverFactory(solver)
     if solver == 'gurobi':
+        solver_factory.options["TimeLimit"] = int(timeout-constr_time)
         solver_factory.options["threads"] = 1   # required
         solver_factory.options["MIPFocus"] = 3  # focus: 1-constr, 2-opt, 3-bound
-    result = solver_factory.solve(model, tee=verbose, timelimit=int(300-constr_time))
+    result = solver_factory.solve(model, tee=verbose, timelimit=int(timeout-constr_time))
 
     solution = np.zeros((n-1, n//2, n, n))
     for i in model.X.get_values().keys():
@@ -112,7 +114,7 @@ def solve4dArray(n, opt=True, solver='cbc', verbose=False):
     return result, solution
 
 def run4dArray(n, timeout=300, ic=True, optimization=True, verbose=False, save=True):
-    solvers = ['cbc', 'glpk']
+    solvers = ['cbc','glpk']
     if os.path.exists('/opt/gurobi/gurobi.lic') or os.path.exists('./gurobi.lic'):
         solvers.append('gurobi')
     if solvers == []:
@@ -133,37 +135,6 @@ def run4dArray(n, timeout=300, ic=True, optimization=True, verbose=False, save=T
             if solver == 'gurobi':  # gurobi license error
                 solvers.remove('gurobi')
     if save:
-        saveSol(n, outputs, optimization, output_dir='/res/MIP',        
+        saveSol(n, outputs, optimization, output_dir='/res/MIP',
                 filename=f'{n}.json', update=True)
     return
-    
-
-def runAll4dArray():
-    solvers = ['cbc', 'glpk']
-    if os.path.exists('/opt/gurobi/gurobi.lic'):
-        solvers.append('gurobi')
-    if solvers == []:
-        raise ValueError("No solver available")
-    for n in range(6,18,2):
-        print(f"--- n: {n} ---")
-        outputs = []
-        for solver in solvers:
-            try:
-                start = time.time()
-                result, solution = solve4dArray(
-                    n, opt=True, solver=solver, verbose=False)
-                end = time.time()-start
-                if solution.shape == (n-1, n//2, n, n):
-                    outputs.append((result, solution, end))
-                elif end >= 299:
-                    solvers.remove(solver)
-
-                print(f"solver: {solver}")
-                print(f"status: {result.Solver.status}")
-                print(f"time: {end}")
-            except:
-                if solver == 'gurobi':  # gurobi license error
-                    solvers.remove('gurobi')
-
-        saveSol(n, solvers, outputs, opt=True, output_dir='/res/MIP',
-                filename=f'4dArray_{n}.json')

@@ -1,36 +1,21 @@
 {
  "decisional_np_np_sb": {
-  "time": 324,
+  "time": 300,
   "optimal": true,
   "obj": null,
-  "sol": [],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 1651465,
-  "mk_bool_var": 12414,
-  "max_memory": 204.71
+  "sol": []
  },
  "optimization_np_np_sb": {
   "time": 300,
   "optimal": false,
   "obj": null,
-  "sol": [],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 1469649,
-  "mk_bool_var": 19238,
-  "max_memory": 208.65
+  "sol": []
  },
  "decisional_heule_seq_sb": {
-  "time": 301,
+  "time": 300,
   "optimal": true,
   "obj": null,
-  "sol": [],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 2905873,
-  "mk_bool_var": 20512,
-  "max_memory": 208.65
+  "sol": []
  },
  "optimization_heule_seq_sb": {
   "time": 300,
@@ -817,89 +802,49 @@
      15
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 121201,
-  "mk_bool_var": 27336,
-  "max_memory": 208.65
+  ]
  },
  "decisional_heule_totalizer_sb": {
-  "time": 304,
+  "time": 300,
   "optimal": true,
   "obj": null,
-  "sol": [],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 2776767,
-  "mk_bool_var": 20712,
-  "max_memory": 208.65
+  "sol": []
  },
  "optimization_heule_totalizer_sb": {
   "time": 300,
   "optimal": false,
   "obj": null,
-  "sol": [],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 2526636,
-  "mk_bool_var": 27536,
-  "max_memory": 208.91
+  "sol": []
  },
  "decisional_np_np_no_sb": {
-  "time": 323,
+  "time": 300,
   "optimal": true,
   "obj": null,
-  "sol": [],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 1389987,
-  "mk_bool_var": 13510,
-  "max_memory": 231.24
+  "sol": []
  },
  "optimization_np_np_no_sb": {
   "time": 300,
   "optimal": false,
   "obj": null,
-  "sol": [],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 1208358,
-  "mk_bool_var": 21130,
-  "max_memory": 234.1
+  "sol": []
  },
  "decisional_heule_seq_no_sb": {
-  "time": 301,
+  "time": 300,
   "optimal": true,
   "obj": null,
-  "sol": [],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 2645058,
-  "mk_bool_var": 21650,
-  "max_memory": 234.1
+  "sol": []
  },
  "optimization_heule_seq_no_sb": {
   "time": 300,
   "optimal": false,
   "obj": null,
-  "sol": [],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 2227388,
-  "mk_bool_var": 29270,
-  "max_memory": 234.1
+  "sol": []
  },
  "decisional_heule_totalizer_no_sb": {
-  "time": 308,
+  "time": 300,
   "optimal": true,
   "obj": null,
-  "sol": [],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 2330190,
-  "mk_bool_var": 21850,
-  "max_memory": 234.1
+  "sol": []
  },
  "optimization_heule_totalizer_no_sb": {
   "time": 300,
@@ -1686,11 +1631,6 @@
      16
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 612237,
-  "mk_bool_var": 29470,
-  "max_memory": 234.1
+  ]
  }
 }

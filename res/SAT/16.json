@@ -1,6 +1,6 @@
 {
  "decisional_np_np_sb": {
-  "time": 76,
+  "time": 68,
   "optimal": true,
   "obj": null,
   "sol": [
@@ -500,15 +500,10 @@
      5
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 405317,
-  "mk_bool_var": 6142,
-  "max_memory": 65.48
+  ]
  },
  "optimization_np_np_sb": {
-  "time": 112,
+  "time": 119,
   "optimal": true,
   "obj": 1,
   "sol": [
@@ -1008,15 +1003,10 @@
      2
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 314518,
-  "mk_bool_var": 9490,
-  "max_memory": 204.71
+  ]
  },
  "decisional_heule_seq_sb": {
-  "time": 14,
+  "time": 17,
   "optimal": true,
   "obj": null,
   "sol": [
@@ -1516,15 +1506,10 @@
      3
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 164978,
-  "mk_bool_var": 10046,
-  "max_memory": 208.65
+  ]
  },
  "optimization_heule_seq_sb": {
-  "time": 23,
+  "time": 25,
   "optimal": true,
   "obj": 1,
   "sol": [
@@ -2024,15 +2009,10 @@
      5
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 82821,
-  "mk_bool_var": 13394,
-  "max_memory": 208.65
+  ]
  },
  "decisional_heule_totalizer_sb": {
-  "time": 30,
+  "time": 33,
   "optimal": true,
   "obj": null,
   "sol": [
@@ -2532,15 +2512,10 @@
      7
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 310590,
-  "mk_bool_var": 10174,
-  "max_memory": 208.65
+  ]
  },
  "optimization_heule_totalizer_sb": {
-  "time": 91,
+  "time": 97,
   "optimal": true,
   "obj": 1,
   "sol": [
@@ -3040,15 +3015,10 @@
      9
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 399239,
-  "mk_bool_var": 13522,
-  "max_memory": 208.65
+  ]
  },
  "decisional_np_np_no_sb": {
-  "time": 16,
+  "time": 17,
   "optimal": true,
   "obj": null,
   "sol": [
@@ -3548,15 +3518,10 @@
      4
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 63818,
-  "mk_bool_var": 6856,
-  "max_memory": 208.91
+  ]
  },
  "optimization_np_np_no_sb": {
-  "time": 99,
+  "time": 95,
   "optimal": true,
   "obj": 1,
   "sol": [
@@ -4056,15 +4021,10 @@
      2
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 51338,
-  "mk_bool_var": 10712,
-  "max_memory": 231.24
+  ]
  },
  "decisional_heule_seq_no_sb": {
-  "time": 14,
+  "time": 11,
   "optimal": true,
   "obj": null,
   "sol": [
@@ -4564,15 +4524,10 @@
      16
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 98926,
-  "mk_bool_var": 10792,
-  "max_memory": 234.1
+  ]
  },
  "optimization_heule_seq_no_sb": {
-  "time": 140,
+  "time": 114,
   "optimal": true,
   "obj": 1,
   "sol": [
@@ -5072,15 +5027,10 @@
      1
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 385803,
-  "mk_bool_var": 14648,
-  "max_memory": 234.1
+  ]
  },
  "decisional_heule_totalizer_no_sb": {
-  "time": 5,
+  "time": 4,
   "optimal": true,
   "obj": null,
   "sol": [
@@ -5580,15 +5530,10 @@
      15
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 19295,
-  "mk_bool_var": 10920,
-  "max_memory": 234.1
+  ]
  },
  "optimization_heule_totalizer_no_sb": {
-  "time": 98,
+  "time": 66,
   "optimal": true,
   "obj": 1,
   "sol": [
@@ -6088,11 +6033,6 @@
      7
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 61404,
-  "mk_bool_var": 14776,
-  "max_memory": 234.1
+  ]
  }
 }

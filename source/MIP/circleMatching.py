@@ -127,6 +127,7 @@ def solveCircleMatching(n, optimization=True, ic=True, solver='cbc', timeout=300
     constr_time = time.time() - start_cosntr
     solver_factory = SolverFactory(solver)
     if solver == 'gurobi':
+        solver_factory.options["TimeLimit"] = int(timeout-constr_time)
         solver_factory.options["threads"] = 1   # required
         solver_factory.options["MIPFocus"] = 3  # focus: 1-constr, 2-opt, 3-bound
     result = solver_factory.solve(
@@ -147,7 +148,7 @@ def solveCircleMatching(n, optimization=True, ic=True, solver='cbc', timeout=300
 
 
 def runCircleMatching(n, timeout=300, ic=True, optimization=True, verbose=False, save=True):
-    solvers = ['cbc', 'glpk']
+    solvers = ['cbc','glpk']
     if os.path.exists('/opt/gurobi/gurobi.lic') or os.path.exists('./gurobi.lic'):
         solvers.append('gurobi')
     if solvers == []:
@@ -171,9 +172,6 @@ def runCircleMatching(n, timeout=300, ic=True, optimization=True, verbose=False,
         saveSol(n, outputs, optimization, output_dir='/res/MIP',        
                 filename=f'{n}.json', update=True)
     return
-    
-
-def runAllCircleMatching():
     solvers = ['cbc', 'glpk']
     if os.path.exists('/opt/gurobi/gurobi.lic'):
         solvers.append('gurobi')

@@ -20,10 +20,19 @@ def saveSol(n, outputs, optimization=True, output_dir='/res/MIP', filename='data
                         if solution[w, p, i, j] == 1:
                             row.append([i+1, j+1])
             formatted_sol.append(row)
-        time  = math.floor(time) if time < 300 else 300
+
+        time  = math.floor(time) if time <= 300 else 300
         obj = result.Problem.Upper_bound if optimization and result.Solver.termination_condition == 'optimal' else None
         optimal = not optimization or (obj == 1 and time < 300)
         formatted_sol = formatted_sol if time < 300 else []
+
+        try:
+            if formatted_sol == []  or formatted_sol[0] == []:
+                time = 300
+                obj = None
+        except:
+            pass
+
         output[name] = {
             "sol": formatted_sol,
             "time": time,

@@ -98,7 +98,7 @@ def main():
         elif args.f == 'mip':
             os.chdir("/src/MIP")
             if args.n == 'all':
-                os.system(f"python3 /src/MIP/main.py --all -n 6-18")
+                os.system(f"python3 /src/MIP/main.py --all -n 6-16")
             else:
                 os.system(f"python3 /src/MIP/main.py --all -n {args.n}")
 

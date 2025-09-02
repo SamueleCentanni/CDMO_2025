@@ -2,8 +2,8 @@ import os
 import argparse
 import re
 from itertools import product
-from circleMatching import runAllCircleMatching, runCircleMatching
-from _4dArray import runAll4dArray, run4dArray
+from circleMatching import runCircleMatching
+from _4dArray import run4dArray
 
 
 def parse_n_teams(n_input):
@@ -92,18 +92,19 @@ def main():
 
     # Parse and validate number of teams
     args.n_teams = parse_n_teams(args.n_teams)
+    assert args.all or args.CM or args._4D, "Specify at least one model to run: --CM or --_4D"
+    assert args.all or args.run_decisional or args.run_optimization, "Specify at least one solver type to run: --run_decisional or --run_optimization"
+    
     for n in args.n_teams:
-        assert args.all or args.CM or args._4D, "Specify at least one model to run: --CM or --_4D"
-        assert args.all or args.run_decisional or args.run_optimization, "Specify at least one solver type to run: --run_decisional or --run_optimization"
         if args.all:
-            runCircleMatching(n, args.timeout, ic=False, optimization=False, verbose=args.verbose, save=args.save_json)
-            runCircleMatching(n, args.timeout, ic=True, optimization=False, verbose=args.verbose, save=args.save_json)
             run4dArray(n, args.timeout, ic=False, optimization=False, verbose=args.verbose, save=args.save_json)
             run4dArray(n, args.timeout, ic=True, optimization=False, verbose=args.verbose, save=args.save_json)
-            runCircleMatching(n, args.timeout, ic=False, optimization=True, verbose=args.verbose, save=args.save_json)
-            runCircleMatching(n, args.timeout, ic=True, optimization=True, verbose=args.verbose, save=args.save_json)
             run4dArray(n, args.timeout, ic=False, optimization=True, verbose=args.verbose, save=args.save_json)
             run4dArray(n, args.timeout, ic=True, optimization=True, verbose=args.verbose, save=args.save_json)
+            runCircleMatching(n, args.timeout, ic=False, optimization=False, verbose=args.verbose, save=args.save_json)
+            runCircleMatching(n, args.timeout, ic=True, optimization=False, verbose=args.verbose, save=args.save_json)
+            runCircleMatching(n, args.timeout, ic=False, optimization=True, verbose=args.verbose, save=args.save_json)
+            runCircleMatching(n, args.timeout, ic=True, optimization=True, verbose=args.verbose, save=args.save_json)
         else:
             if args.CM:
                 if args.run_decisional:

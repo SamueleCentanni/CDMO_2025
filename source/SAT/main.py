@@ -833,7 +833,7 @@ def main():
                         print(f"[!] No solution found for n={n}")
 
             if args.run_optimization:
-                print(f"\n=== Optimization Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
+                # print(f"\n=== Optimization Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
                 for n in args.n_teams:
                     model_name = f"optimization_{name_prefix}_{sb_name}"
                     try:

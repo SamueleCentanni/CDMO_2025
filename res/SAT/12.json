@@ -1,6 +1,6 @@
 {
  "decisional_np_np_sb": {
-  "time": 3,
+  "time": 5,
   "optimal": true,
   "obj": null,
   "sol": [
@@ -280,12 +280,7 @@
      3
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 4801,
-  "mk_bool_var": 2438,
-  "max_memory": 26.41
+  ]
  },
  "optimization_np_np_sb": {
   "time": 5,
@@ -568,12 +563,7 @@
      10
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 1242,
-  "mk_bool_var": 3750,
-  "max_memory": 204.71
+  ]
  },
  "decisional_heule_seq_sb": {
   "time": 0,
@@ -856,12 +846,7 @@
      4
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 4546,
-  "mk_bool_var": 3916,
-  "max_memory": 208.65
+  ]
  },
  "optimization_heule_seq_sb": {
   "time": 3,
@@ -1144,12 +1129,7 @@
      8
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 14419,
-  "mk_bool_var": 5228,
-  "max_memory": 208.65
+  ]
  },
  "decisional_heule_totalizer_sb": {
   "time": 0,
@@ -1432,12 +1412,7 @@
      6
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 141,
-  "mk_bool_var": 3988,
-  "max_memory": 208.65
+  ]
  },
  "optimization_heule_totalizer_sb": {
   "time": 2,
@@ -1720,12 +1695,7 @@
      10
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 968,
-  "mk_bool_var": 5300,
-  "max_memory": 208.65
+  ]
  },
  "decisional_np_np_no_sb": {
   "time": 2,
@@ -2008,12 +1978,7 @@
      11
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 2757,
-  "mk_bool_var": 2850,
-  "max_memory": 208.91
+  ]
  },
  "optimization_np_np_no_sb": {
   "time": 6,
@@ -2296,12 +2261,7 @@
      3
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 1500,
-  "mk_bool_var": 4446,
-  "max_memory": 231.24
+  ]
  },
  "decisional_heule_seq_no_sb": {
   "time": 0,
@@ -2584,12 +2544,7 @@
      6
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 4058,
-  "mk_bool_var": 4350,
-  "max_memory": 234.1
+  ]
  },
  "optimization_heule_seq_no_sb": {
   "time": 3,
@@ -2872,15 +2827,10 @@
      6
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 1785,
-  "mk_bool_var": 5946,
-  "max_memory": 234.1
+  ]
  },
  "decisional_heule_totalizer_no_sb": {
-  "time": 1,
+  "time": 0,
   "optimal": true,
   "obj": null,
   "sol": [
@@ -3160,12 +3110,7 @@
      7
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 1550,
-  "mk_bool_var": 4422,
-  "max_memory": 234.1
+  ]
  },
  "optimization_heule_totalizer_no_sb": {
   "time": 3,
@@ -3448,11 +3393,6 @@
      9
     ]
    ]
-  ],
-  "max_diff": 0,
-  "restarts": 0,
-  "conflicts": 1012,
-  "mk_bool_var": 6018,
-  "max_memory": 234.1
+  ]
  }
 }
