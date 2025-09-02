@@ -892,7 +892,7 @@ def main():
             name_prefix = f"{eo_name}_{ak_name}"
 
             if args.run_decisional:
-                print(f"\n=== Decisional Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
+                # print(f"\n=== Decisional Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
                 for n in args.n_teams:
                     model_name = f"decisional_{name_prefix}_{sb_name}"
                     try:
@@ -912,14 +912,17 @@ def main():
                     if args.save_json:
                         save_results_as_json(n, model_name=model_name, results=results)
 
-                    if results['sol'] is not None:
-                        print(f"\n[Decisional Result] n={n} | time={results['time']}")
+                    if results['sol'] is not None:                        
+                        if os.path.exists("/.dockerenv"):
+                            os.system(f"echo '[Decisional Result] n={n} | time={results['time']}'")
+                        else:
+                            print(f"[Decisional Result] n={n} | time={results['time']}")
                         # print_weekly_schedule(results['sol'], n)
                     else:
                         print(f"[!] No solution found for n={n}")
 
             if args.run_optimization:
-                print(f"\n=== Optimization Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
+                # print(f"\n=== Optimization Solver | {eo_name} + {ak_name} | Symmetry: {sb_name} ===\n")
                 for n in args.n_teams:
                     model_name = f"optimization_{name_prefix}_{sb_name}"
                     try:
@@ -939,7 +942,10 @@ def main():
                         save_results_as_json(n, model_name=model_name, results=results)
 
                     if results['sol'] is not None:
-                        print(f"\n[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
+                        if os.path.exists("/.dockerenv"):
+                            os.system(f"echo '[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}'")
+                        else:
+                            print(f"[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
                         # print_weekly_schedule(results['sol'], n)
                     else:
                         print(f"[!] No solution found for n={n}")

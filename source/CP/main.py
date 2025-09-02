@@ -357,7 +357,10 @@ def main():
                     if args.save_json:
                         save_results_as_json(n, model_name=model_name, results=results)
                     if results['sol']:
-                        print(f"\n[Decisional Result] n={n} | time={results['time']}")
+                        if os.path.exists("/.dockerenv"):
+                            os.system(f"echo '[Decisional Result] n={n} | time={results['time']}'")
+                        else:
+                            print(f"[Decisional Result] n={n} | time={results['time']}")
                         # human_readable_schedule(results['sol'])
                     else:
                         print(f"[!] No solution found for n={n}")
@@ -382,10 +385,14 @@ def main():
                     if args.save_json:
                         save_results_as_json(n, model_name=model_name, results=results)
                     if results['sol']:
-                        print(f"\n[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
+                        if os.path.exists("/.dockerenv"):
+                            os.system(f"echo '[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}'")
+                        else:
+                            print(f"[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
                         # human_readable_schedule(results['sol'])
                     else:
                         print(f"[!] No solution found for n={n}")
+    return
 
 if __name__ == "__main__":
     main()

@@ -35,7 +35,7 @@ def main():
         "-n", "--n_teams",
         type=str,
         nargs='+',
-        default=["2-20"],
+        default=["6-18"],
         help="List of even numbers or ranges like 2-18 for number of teams to test."
     )
     parser.add_argument(

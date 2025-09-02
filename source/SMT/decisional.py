@@ -1,4 +1,4 @@
-import sys
+import argparse
 import os
 import json
 import time
@@ -88,9 +88,9 @@ def home_away_balance(matches_per_week, n):
         balanced[w] = row
     return balanced
 
-if __name__ == '__main__':
+
+def main():
     # usage: python decisional.py <n> <approach_base> [--sb_disabled]
-    import argparse
     parser = argparse.ArgumentParser(description='Decisional solver with optional SB.')
     parser.add_argument('n', type=int, help='Number of teams (even)')
     parser.add_argument('approach_base', help='Base name for the approach in JSON')
@@ -145,4 +145,13 @@ if __name__ == '__main__':
 
     with open(json_path, 'w') as f:
         json.dump(data, f, indent=2)
-    print(f"Solved {approach} for {n} teams in {total_time} seconds")
+    
+    if os.path.exists("/.dockerenv"):
+        os.system(f"echo 'Solved {approach} for {n} teams in {total_time} seconds'")
+    else:
+        print(f"Solved {approach} for {n} teams in {total_time} seconds")
+    
+    return
+
+if __name__ == '__main__':
+    main()

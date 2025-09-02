@@ -1,9 +1,10 @@
-import sys
 import os
 import json
 import time
 from z3 import *
 from collections import defaultdict
+import argparse
+
 
 def z3_label_periods_with_home_away(matches_per_week, periods, n, max_per_team=2, sb_enabled=True, timeout=290):
     """
@@ -115,8 +116,7 @@ def circle_matchings(n):
         m[w] = ms
     return m
 
-if __name__ == '__main__':
-    import argparse
+def main():
     parser = argparse.ArgumentParser(description='Optim. solver with home/away and optional SB.')
     parser.add_argument('n', type=int, help='Number of teams (even)')
     parser.add_argument('approach_base', help='Base name for the approach in JSON')
@@ -172,4 +172,12 @@ if __name__ == '__main__':
     }
     with open(json_path, 'w') as f:
         json.dump(data, f, indent=2)
-    print(f"Solved {approach} for {n} teams in {total_time} seconds")
+    
+    if os.path.exists("/.dockerenv"):
+        os.system(f"echo 'Solved {approach} for {n} teams in {total_time} seconds'")
+    else:
+        print(f"Solved {approach} for {n} teams in {total_time} seconds")
+    return
+
+if __name__ == '__main__':
+    main()

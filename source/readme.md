@@ -27,7 +27,6 @@ docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f FORMULATION -n N
 mv ./res/MIP ../res
 ```
 
-
 # 3. 
 If more customization is needed, follow the instrucitons for #2 and modify the command following "docker run -v "$PWD/res:/res" cdmo"
 for a complete reference of possibility refer to the command line argument helpers.
