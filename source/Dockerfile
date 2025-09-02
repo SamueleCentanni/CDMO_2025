@@ -1,6 +1,7 @@
 FROM minizinc/minizinc:latest
 
 RUN mkdir /src
+
 # include src files
 ADD ./main.py /src
 ADD ./CP /src/CP

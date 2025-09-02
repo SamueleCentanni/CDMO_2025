@@ -168,8 +168,8 @@ def runCircleMatching(n, timeout=300, ic=True, optimization=True, verbose=False,
             if solver == 'gurobi':  # gurobi license error
                 solvers.remove('gurobi')
     if save:
-        updateSol(n, outputs, optimization, output_dir='/res/MIP',        
-                filename=f'{n}.json')
+        saveSol(n, outputs, optimization, output_dir='/res/MIP',        
+                filename=f'{n}.json', update=True)
     return
     
 
@@ -190,7 +190,7 @@ def runAllCircleMatching():
                 end = time.time()-start
                 if solution.shape == (n-1, n//2, n, n):
                     outputs.append((result, solution, end))
-                elif end >= 299:
+                if end >= 299:
                     solvers.remove(solver)
 
                 print(f"solver: {solver}")

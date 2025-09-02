@@ -1,6 +1,6 @@
 {
   "z3_decisional_sb_disabled": {
-    "time": 1,
+    "time": 0,
     "optimal": true,
     "obj": null,
     "sol": [
@@ -503,7 +503,7 @@
     ]
   },
   "z3_optimal_sb_disabled": {
-    "time": 59,
+    "time": 55,
     "optimal": true,
     "obj": 16,
     "sol": [

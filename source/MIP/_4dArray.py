@@ -133,8 +133,8 @@ def run4dArray(n, timeout=300, ic=True, optimization=True, verbose=False, save=T
             if solver == 'gurobi':  # gurobi license error
                 solvers.remove('gurobi')
     if save:
-        updateSol(n, outputs, optimization, output_dir='/res/MIP',        
-                filename=f'{n}.json')
+        saveSol(n, outputs, optimization, output_dir='/res/MIP',        
+                filename=f'{n}.json', update=True)
     return
     
 
