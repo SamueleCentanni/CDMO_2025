@@ -31,11 +31,6 @@ def main():
     parser.add_argument("-n", required=True, type=str, default=["6-20"], help="Problem size(s) to run")
     args = parser.parse_args()
 
-
-    # os.chdir("/src/CP")
-    # os.system("python3 /src/CP/main.py -n 16 -s chuffed -ss ff_split ro_luby --run_optimization --sb Y --save_json")
-    # return
-
     # handle commercial solver license
     if os.path.exists('/src/MIP/gurobi.lic'):
         os.makedirs('/opt/gurobi', exist_ok=True)

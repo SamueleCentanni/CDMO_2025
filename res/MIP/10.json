@@ -198,13 +198,7 @@
         "obj": null
     },
     "decision_glpk_4dArray_no_ic.json": {
-        "sol": [
-            [],
-            [],
-            [],
-            [],
-            []
-        ],
+        "sol": [],
         "time": 300,
         "optimal": true,
         "obj": null
@@ -407,13 +401,7 @@
         "obj": null
     },
     "decision_glpk_4dArray_ic.json": {
-        "sol": [
-            [],
-            [],
-            [],
-            [],
-            []
-        ],
+        "sol": [],
         "time": 300,
         "optimal": true,
         "obj": null
@@ -616,13 +604,7 @@
         "obj": null
     },
     "optimization_glpk_4dArray_no_ic.json": {
-        "sol": [
-            [],
-            [],
-            [],
-            [],
-            []
-        ],
+        "sol": [],
         "time": 300,
         "optimal": false,
         "obj": null
