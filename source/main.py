@@ -31,6 +31,11 @@ def main():
     parser.add_argument("-n", required=True, type=str, default=["6-20"], help="Problem size(s) to run")
     args = parser.parse_args()
 
+
+    # os.chdir("/src/CP")
+    # os.system("python3 /src/CP/main.py -n 16 -s chuffed -ss ff_split ro_luby --run_optimization --sb Y --save_json")
+    # return
+
     # handle commercial solver license
     if os.path.exists('/src/MIP/gurobi.lic'):
         os.makedirs('/opt/gurobi', exist_ok=True)
@@ -49,9 +54,12 @@ def main():
         # SMT
         os.system("echo '--- running all SMT models ---'")
         os.chdir("/src/SMT")
-        for n in range(6,20,2):
+        for n in range(6,22,2):
             os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional --sb_disabled")
+            os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional")
             os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal --sb_disabled")
+            os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal")
+        os.system("echo '--- running all MIP models ---'")
         # MIP models
         os.system("echo '--- running all MIP models ---'")
         os.chdir("/src/MIP")
@@ -64,10 +72,12 @@ def main():
         os.chdir("/src/SAT")
         os.system(f"python3 /src/SAT/main.py --run_decisional --run_optimization --all -n {args.n} --save_json")
         os.system("echo '--- running all SAT models ---'")
-        os.chdir("/src/SAT")
+        os.chdir("/src/SMT")
         for n in parse_n_teams(args.n):
             os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional --sb_disabled")
+            os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional")
             os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal --sb_disabled")
+            os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal")
         os.system("echo '--- running all MIP models ---'")
         os.chdir("/src/MIP")
         os.system(f"python3 /src/MIP/main.py --all -n {args.n}")
@@ -88,13 +98,17 @@ def main():
         elif args.f == 'smt':
             os.chdir("/src/SMT")
             if args.n == 'all':
-                for n in range(6,20,2):
+                for n in range(6,22,2):
                     os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional --sb_disabled")
+                    os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional")
                     os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal --sb_disabled")
+                    os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal")
             else:
                 for n in parse_n_teams(args.n):
                     os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional --sb_disabled")
+                    os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional")
                     os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal --sb_disabled")
+                    os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal")
         elif args.f == 'mip':
             os.chdir("/src/MIP")
             if args.n == 'all':
