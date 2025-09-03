@@ -111,14 +111,17 @@ def main():
     t2 = time.time()
 
     # transpose to periods x weeks
-    sol_periods = []
-    num_weeks = len(sol_weeks)
-    for p in range(periods):
-        row = []
-        for w in range(num_weeks):
-            row.append(sol_weeks[w][p])
-        sol_periods.append(row)
-
+    try:
+        sol_periods = []
+        num_weeks = len(sol_weeks)
+        for p in range(periods):
+            row = []
+            for w in range(num_weeks):
+                row.append(sol_weeks[w][p])
+            sol_periods.append(row)
+    except:
+        pass
+    
     total_time = min(int(t2 - t0), 300)
     optimal = sol_periods is not None
     obj = None
