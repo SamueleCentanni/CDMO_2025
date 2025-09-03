@@ -1,4 +1,4 @@
-FROM minizinc/minizinc:latest
+FROM minizinc/minizinc:2.9.3
 
 RUN mkdir /src
 
@@ -9,9 +9,10 @@ ADD ./SAT /src/SAT
 ADD ./SMT /src/SMT
 ADD ./MIP /src/MIP
 
-RUN apt-get update
-RUN apt-get install -y python3 python3-pip
-RUN apt-get install -y --no-install-recommends coinor-cbc coinor-libcbc-dev glpk-utils && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip && \
+    apt-get install -y --no-install-recommends --quiet coinor-cbc coinor-libcbc-dev glpk-utils && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create and use a Python virtual environment for package installation
 RUN pip3 install --break-system-packages --no-cache-dir minizinc numpy pyomo gurobipy z3-solver
