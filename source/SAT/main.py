@@ -851,13 +851,13 @@ def main():
 
                     if args.save_json:
                         save_results_as_json(n, model_name=model_name, results=results)
-
                     if results['sol'] is not None:
                         if os.path.exists("/.dockerenv"):
                             os.system(f"echo '[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}'")
+                            
                         else:
                             print(f"[Optimization Result] n={n} | obj={results['obj']} | time={results['time']}")
-                        # print_weekly_schedule(results['sol'], n)
+                        
                     else:
                         print(f"[!] No solution found for n={n}")
 
