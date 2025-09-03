@@ -24,6 +24,7 @@ def circle_matchings(n):
 
 def solveCircleMatching(n, optimization=True, ic=True, solver='cbc', timeout=300, verbose=False):
     start_cosntr = time.time()
+    # utils
     l = [(i, j) for i in range(n) for j in range(n) if i < j]
     ij_to_match = {(i, j): idx for idx, (i, j) in enumerate(l)}
 
@@ -33,8 +34,7 @@ def solveCircleMatching(n, optimization=True, ic=True, solver='cbc', timeout=300
     model.I = RangeSet(0, n-1)
     model.M = RangeSet(0, (n*(n - 1)//2)-1)
     model.WP = Set(initialize=[(w, p) for w in model.W for p in model.P])
-    model.match_teams = Param(
-        model.M, initialize=lambda model, m: l[m], within=Any)
+    model.match_teams = Param(model.M, initialize=lambda model, m: l[m], within=Any)
     # decision vars
     model.Y = Var(model.WP, model.M, domain=Binary)
     model.H = Var(model.M, domain=Binary)
@@ -84,7 +84,6 @@ def solveCircleMatching(n, optimization=True, ic=True, solver='cbc', timeout=300
 
     if ic:
         # additional constraints for efficiency
-        model.implied = ConstraintList()
         model.Zteam = Var(model.I, model.P, domain=Binary)
         model.cover = ConstraintList()
         for i in model.I:
@@ -117,9 +116,7 @@ def solveCircleMatching(n, optimization=True, ic=True, solver='cbc', timeout=300
         model.away_games = Constraint(model.I, rule=away_games_rule)
         model.balance_max = Constraint(model.I, range(2), rule=lambda model, i, d:
                                        (model.Home[i] - model.Away[i] <= model.Z) if d == 0 else
-                                       (model.Away[i] -
-                                        model.Home[i] <= model.Z)
-                                       )
+                                       (model.Away[i] - model.Home[i] <= model.Z))
         model.obj = Objective(expr=model.Z, sense=minimize)
     else:
         model.obj = Objective(expr=1, sense=minimize)

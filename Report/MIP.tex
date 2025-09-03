@@ -1,0 +1,61 @@
+
+
+\section{MIP Model}
+The MIP formulation was developed with promo, a Python library for writing solver-independent models.
+Two models were developed: a base version composed of a 4d array with symmetry breaking and implied constraints, and a better one, optimizing the number of variables featuring circle matching.
+
+\subsection{Variables}
+\subsubsection*{Decision Variables}
+To encode the STS problem, two variables were used:
+\begin{enumerate}
+\item Y a matrix of (n-1)*(n//2) x (n*(n - 1)//2) binary values, the most strict possible formulation in order to minimize the variable count. The indices of the matrix are couples (w,p) and (i,j) where i<j
+\item H a binary array of length (n*(n - 1)//2), indicating for each match (i,j) if the team i plays home or away  
+The domains are [0,1] to ease the constraints formulation and to improve the search speed.
+\end{enumerate}
+\subsubsection*{Implied Variables}
+The implied constraint needs a variable Zteam that keeps track of which team played on which period.
+\subsubsection*{Objective Variables}
+In order of minimizing the maximum imbalance we need 3 extra variables:
+\begin{enumerate}
+\item Home: the number of home matches played by team i
+\item Away: the number of away matches played by team i
+\item Z: the maximum imbalance itself, minimized by the objective function
+\end{enumerate}
+Despite having integers domains we can easily bound them to (0, n-1) massively reducing the search space.
+
+
+\subsection{Constraints}
+In this particular model the addition of symmetry breaking constraints did not improve the results, as circle matching already breaks some symmetries, this is why they are not included.
+
+\subsubsection*{Necessary constraints}
+\begin{enumerate}
+\item \text{one\_match\_per\_period\_per\_week\_rule}: each week/period slot needs to have one match scheduled
+\item \text{match\_scheduled\_once\_rule}: each match can be scheduled once for all week/period slots 
+\item \text{max\_team\_match\_period}: a team k can play at most twice in the same period
+\end{enumerate}
+
+
+\subsubsection*{Implied constraints}
+Especially useful in an optimization environment, this constraint aims to spread the matches of a team in different periods over the scheduling, to get a more balanced result. It also help with symmetry breaking.
+\subsubsection*{Objective Constraints}
+The \text{home\_games} and \text{away\_games} are meant to populate the variables Home and Away with the right values.
+\text{balance\_max} sets both Home-Away <= Z and Away-Home <= Z for every team, to implement the objective.
+
+\subsection{4d array model}
+The simplest possible implementation of the STS problem, developed only for comparison as it is not nearly as efficient as the previous one.
+The only decision variable is X, a 4d array n-1 x n/2 x n x n of binary values, where each cell represents a match, described as a combination of week, period, team1 and team2. The first team is the one playing home.
+The constraints, apart from the necessary ones, include two symmetry-breaking constraints and two implied constraints.
+The optimization is performed in the same way as in the previous model.
+
+\subsection{Solvers}
+The results were obtained by running the models for 3 different solvers: Cbc, Glpk and Guroby. Cbc and Glpk are open source solvers while Gurobi is proprietary, used under an academic license.
+
+\subsection{Validation}
+The model was implemented in Python using Z3's API. All experiments were carried out with respect to the given timeout of $300\,\mathrm{s}$ and with an increasing number of instances (i.e. number of teams, $n$).
+
+In the following, we present tables and plots to compare the Z3 model using different encoding techniques, both with and without symmetry breaking constraints.
+
+\subsubsection{Experimental Results (Decision version)}
+
+\subsubsection{Experimental Results (Optimization version)}
+
