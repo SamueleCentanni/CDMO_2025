@@ -267,10 +267,10 @@ def main():
     parser.add_argument(
         "-ss", "--search_strategy",
         type=str,
-        choices=["base", "dwd_random", "dwd_r_Luby", "dwd_r_rr", "ff_split", "ro_luby"],
+        choices=["base", "dwd_random", "dwd_r_Luby", "dwd_r_rr", "ff_split", "ro_Luby"],
         default="base",
         nargs="+",
-        help="The search strategy to use (base, dwd_random, dwd_r_Luby, dwd_r_rr, ff_split, ro_luby)."
+        help="The search strategy to use (base, dwd_random, dwd_r_Luby, dwd_r_rr, ff_split, ro_Luby)."
     )
     parser.add_argument(
         "--all",
