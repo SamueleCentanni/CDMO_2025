@@ -33,7 +33,7 @@ Alternatively, you can start the container manually:
 
 ```bash
 docker build -t cdmo .
-docker run -v "$PWD/res:/res" cdmo
+docker run -v "$PWD/res:/res" cdmo python3 /src/main.py --run_all_formulations
 ```
 
 ### Run a Specific Formulation:
