@@ -1,4 +1,5 @@
 import os, json, math
+import numpy as np
 
 
 def saveSol(n, outputs, optimization=True, output_dir='/res/MIP', filename='data.json', update=False):
@@ -11,6 +12,19 @@ def saveSol(n, outputs, optimization=True, output_dir='/res/MIP', filename='data
             pass
     for o in outputs:
         result, solution, time, name = o
+
+        try:
+            if result == {} or not int(np.sum(solution)) == n*(n - 1)//2 or solution == []:
+                output[name] = {
+                    "sol": [],
+                    "time": 300,
+                    "optimal": False,
+                    "obj": None,
+                }
+                continue
+        except Exception as e:
+            pass
+
         formatted_sol = []
         for p in range(n//2):
             row = []
@@ -23,11 +37,11 @@ def saveSol(n, outputs, optimization=True, output_dir='/res/MIP', filename='data
 
         time  = math.floor(time) if time <= 300 else 300
         obj = result.Problem.Upper_bound if optimization and result.Solver.termination_condition == 'optimal' else None
-        optimal = not optimization or (obj == 1 and time < 300)
+        optimal = (not optimization and time < 300) or (optimization and obj == 1 and time < 300)
         formatted_sol = formatted_sol if time < 300 else []
 
         try:
-            if formatted_sol == []  or formatted_sol[0] == []:
+            if formatted_sol == []  or formatted_sol[0] == [] or result.Solver.status == 'aborted':
                 time = 300
                 obj = None
         except:
