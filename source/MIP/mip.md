@@ -38,7 +38,7 @@ Two variables are used:
 2. H a binary array of length (n*(n - 1)//2), indicating for each match (i,j) if the team i plays home or away  
 The domains are [0,1] to ease the constraints formualtion and to improve the search speed.
 ### implied
-The implied constraint necessitates a variable Zteam that keeps track of which team played on which period.
+The implied constraint necessitates a variable Q that keeps track of which team played on which period.
 ### optimization
 
 ## constraints

@@ -1,5 +1,5 @@
 {
-    "decision_cbc_circleMatching_no_ic.json": {
+    "decision_cbc_circleMatching_no_ic": {
         "sol": [
             [
                 [
@@ -384,13 +384,13 @@
         "optimal": true,
         "obj": null
     },
-    "decision_glpk_circleMatching_no_ic.json": {
+    "decision_glpk_circleMatching_no_ic": {
         "sol": [],
-        "time": 299,
-        "optimal": true,
+        "time": 300,
+        "optimal": false,
         "obj": null
     },
-    "decision_cbc_circleMatching_ic.json": {
+    "decision_cbc_circleMatching_ic": {
         "sol": [
             [
                 [
@@ -775,7 +775,7 @@
         "optimal": true,
         "obj": null
     },
-    "decision_glpk_circleMatching_ic.json": {
+    "decision_glpk_circleMatching_ic": {
         "sol": [
             [
                 [
@@ -1160,7 +1160,7 @@
         "optimal": true,
         "obj": null
     },
-    "optimization_cbc_circleMatching_no_ic.json": {
+    "optimization_cbc_circleMatching_no_ic": {
         "sol": [
             [
                 [
@@ -1545,7 +1545,7 @@
         "optimal": true,
         "obj": 1.0
     },
-    "optimization_glpk_circleMatching_no_ic.json": {
+    "optimization_glpk_circleMatching_no_ic": {
         "sol": [
             [
                 [
@@ -1930,7 +1930,7 @@
         "optimal": true,
         "obj": 1.0
     },
-    "optimization_cbc_circleMatching_ic.json": {
+    "optimization_cbc_circleMatching_ic": {
         "sol": [
             [
                 [
@@ -2315,13 +2315,13 @@
         "optimal": true,
         "obj": 1.0
     },
-    "optimization_glpk_circleMatching_ic.json": {
+    "optimization_glpk_circleMatching_ic": {
         "sol": [],
-        "time": 299,
+        "time": 300,
         "optimal": false,
         "obj": null
     },
-    "decision_gurobi_circleMatching_no_ic.json": {
+    "decision_gurobi_circleMatching_no_ic": {
         "sol": [
             [
                 [
@@ -2706,7 +2706,7 @@
         "optimal": true,
         "obj": null
     },
-    "decision_gurobi_circleMatching_ic.json": {
+    "decision_gurobi_circleMatching_ic": {
         "sol": [
             [
                 [
@@ -3091,7 +3091,7 @@
         "optimal": true,
         "obj": null
     },
-    "optimization_gurobi_circleMatching_no_ic.json": {
+    "optimization_gurobi_circleMatching_no_ic": {
         "sol": [
             [
                 [
@@ -3476,7 +3476,7 @@
         "optimal": true,
         "obj": 1.0
     },
-    "optimization_gurobi_circleMatching_ic.json": {
+    "optimization_gurobi_circleMatching_ic": {
         "sol": [
             [
                 [
@@ -3861,7 +3861,7 @@
         "optimal": true,
         "obj": 1.0
     },
-    "decision_gurobi_4dArray_ic.json": {
+    "decision_gurobi_4dArray_ic": {
         "sol": [
             [
                 [
