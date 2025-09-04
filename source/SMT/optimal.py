@@ -95,11 +95,13 @@ def z3_label_periods_with_home_away(matches_per_week, periods, n, max_per_team=2
     home_away = {(w,i,j): m[h[w,i,j]].as_long()
                  for (w,i,j) in h}
 
-    # compute team away counts and imbalance sum
+    # compute team away counts and imbalance sum (it was used for debugging only)
     team_away_counts = {t: m.evaluate(abs_diff[t]).as_long() for t in teams}
     imbalance_sum = m.evaluate(sumDif).as_long()
 
-    return timetable, home_away, team_away_counts, imbalance_sum
+    # the actual objective value that was optimized by the solver
+    objective_value = m.evaluate(abs_diff[first_team]).as_long()
+    return timetable, home_away, team_away_counts, objective_value
 
 # presolve: matching and balancing
 
@@ -132,13 +134,12 @@ def main():
     t0 = time.time()
     matches = circle_matchings(n)
     periods = n // 2
-    timetable, home_away, counts, imbalance = z3_label_periods_with_home_away(
+    timetable, home_away, counts, obj = z3_label_periods_with_home_away(
         matches, periods, n, sb_enabled=sb_enabled)
     t2 = time.time()
 
     total_time = min(int(t2 - t0), 300)
     optimal = timetable is not None
-    obj = imbalance
 
     # Transpose timetable to periods x weeks, ordering teams by home_away indicator
     sol_periods = []

@@ -387,7 +387,7 @@
   "z3_optimal_sb_disabled": {
     "time": 11,
     "optimal": true,
-    "obj": 14,
+    "obj": 1,
     "sol": [
       [
         [
@@ -1157,7 +1157,7 @@
   "z3_optimal_sb_enabled": {
     "time": 4,
     "optimal": true,
-    "obj": 14,
+    "obj": 1,
     "sol": [
       [
         [
