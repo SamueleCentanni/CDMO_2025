@@ -64,12 +64,12 @@ _Example_: Run the CP solver for a range from 6 to 18 teams.
 docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f cp -n 6-18
 ```
 
-To run all pre-configured n values for a specific formulation, use the `--all_n` flag.
+To run all pre-configured n values for a specific formulation, use the `--run_all_sizes` flag.
 
 _Example_: Run all pre-configured n values for the MIP solver.
 
 ```bash
-docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f mip --all_n
+docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f mip --run_all_sizes
 ```
 
 ### Customize the Run with Specific Flags
