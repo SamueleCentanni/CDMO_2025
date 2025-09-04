@@ -23,12 +23,6 @@
   "obj": null,
   "sol": []
  },
- "d_gecode_SB_dwd_r_rr": {
-  "time": 300,
-  "optimal": false,
-  "obj": null,
-  "sol": []
- },
  "d_chuffed_SB_base": {
   "time": 300,
   "optimal": false,
@@ -36,12 +30,6 @@
   "sol": []
  },
  "d_chuffed_no_SB_base": {
-  "time": 300,
-  "optimal": false,
-  "obj": null,
-  "sol": []
- },
- "d_chuffed_SB_ff_split": {
   "time": 300,
   "optimal": false,
   "obj": null,
@@ -858,12 +846,6 @@
   "obj": null,
   "sol": []
  },
- "o_gecode_SB_dwd_r_rr": {
-  "time": 300,
-  "optimal": false,
-  "obj": null,
-  "sol": []
- },
  "o_chuffed_SB_base": {
   "time": 300,
   "optimal": false,
@@ -871,12 +853,6 @@
   "sol": []
  },
  "o_chuffed_no_SB_base": {
-  "time": 300,
-  "optimal": false,
-  "obj": null,
-  "sol": []
- },
- "o_chuffed_SB_ff_split": {
   "time": 300,
   "optimal": false,
   "obj": null,
