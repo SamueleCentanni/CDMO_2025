@@ -18,23 +18,22 @@ The model is encoded using the theory of Linear Integer Arithmetic (LIA), extend
 \subsubsection{Pre-solving with the Circle Method}
 \label{CircleMatching}
 
-We avoid additional decision variables by precomputing which teams $(i, j)$ play in each week $w$ using the fast and classical \emph{circle method} for round-robin tournaments \cite{dewerra1999}.
+We avoid additional decision variables by precomputing which teams $(i, j)$ play in each week $w$ using the fast and classical \emph{circle method} for round-robin tournaments \cite{dewerra1999}, which was already explained above.
+In practice, this greatly reduces the number of SMT variables and constraints. Thanks to pre-solving, we can solve instances with up to $n=20$ teams—and usually even $n=22$ sometimes — within the 5-minute limit. This is $2$ to $4$ teams more than our first SMT models that generated all possible matches as decision variables.
 
-One team (the pivot) is fixed, and the other $n - 1$ teams are placed in a circle. Each week, the pivot plays a rotating team, while the remaining teams are paired by connecting opposite positions in the circle. This rotation continues for $n - 1$ weeks. The construction guarantees:
-\begin{itemize}
-    \item Each team plays once per week;
-    \item No match is repeated;
-    \item The total number of matches is $\frac{n(n-1)}{2}$.
-\end{itemize}
+%One team (the pivot) is fixed, and the other $n - 1$ teams are placed in a circle. Each week, the pivot plays a rotating team, while the remaining teams are paired by connecting opposite positions in the circle. This rotation continues for $n - 1$ weeks. The construction guarantees:
+%\begin{itemize}
+%    \item Each team plays once per week;
+%    \item No match is repeated;
+%    \item The total number of matches is $\frac{n(n-1)}{2}$.
+%\end{itemize}
 
-Example for $n = 6$:
-\[
-\text{Week 1: } (6,1), (2,5), (3,4) \quad \text{Week 2: } (6,2), (3,1), (4,5), \dots
-\]
+%Example for $n = 6$:
+%\[
+%\text{Week 1: } (6,1), (2,5), (3,4) \quad \text{Week 2: } (6,2), (3,1), (4,5), \dots
+%\]
 
 % Mathematically, this yields a 1-factorization of the complete graph $K_n$, ensuring correctness. 
-
-In practice, this greatly reduces the number of SMT variables and constraints. Thanks to pre-solving, we can solve instances with up to $n=18$ teams—and usually even $n=20$—within the 5-minute limit. This is $2$ to $4$ teams more than our first SMT models that generated all possible matches as decision variables.
 
 \subsection{Objective Function}
 
@@ -71,12 +70,12 @@ We define for team t - absolute difference between home and away games as:
 \[
 \texttt{sumDif} \;=\;\sum_{t=1}^{n}\mathit{abs\_diff}_t
 \]
-as our objective function.  Also, we add the constraint
+as our first attempt to construct an objective function.  Also, we added the constraint
 \[
 \texttt{sumDif} \;\ge\; n
 \]
 
-We add following additional symmetry‑breaking constraint (w.r.t to team numbering) on the per‑team imbalances:
+We added following additional symmetry‑breaking constraint (w.r.t to team numbering) on the per‑team imbalances:
 \[
 \mathit{abs\_diff}_{t_1}\;\ge\;\mathit{abs\_diff}_{t_2}\;\ge\;\cdots\ge\;\mathit{abs\_diff}_{t_n},
 \]
@@ -85,7 +84,7 @@ and then instructed Z3 to minimize
 \max_{t}\mathit{abs\_diff}_t = abs\_diff_{0}
 \]
 
-In our experiments, it appeared that instead of minimizing $\texttt{sumDif}$, it is better to minimize $\max_{t}\mathit{abs\_diff}_t$ objective, as the optimization becomes almost an order of magnitude faster.
+In our experiments, it appeared that instead of minimizing $\texttt{sumDif}$, it is better to minimize $\max_{t}\mathit{abs\_diff}_t$ objective, as the optimization becomes almost an order of magnitude faster. 
 \subsection{Constraints}
 
 \paragraph{Domain Constraints.}
@@ -115,7 +114,7 @@ To reduce the search space, we fix the period assignment of all matches in the f
 \]
 where $(i_k, j_k)$ is the $k$-th match in a lexicographically sorted list of matches in week 1. This removes the permutation symmetry for the period labels.
 
-In our tests more complicated constraints - like lexicographical constraints on period assignment vectors for chosen pairs of teams - did not bring any noticeable additional improvements, as well as adding redundant constraints. 
+In our SMT tests more complicated constraints - like lexicographical constraints on period assignment vectors for chosen pairs of teams - did not bring any noticeable additional improvements, as well as adding redundant constraints. 
 
 % \paragraph{Lexicographic Team Schedule Ordering.}
 % Let $T_1$ and $T_2$ be the last two teams in lexicographic order. Let $\vec{v}_1$ and $\vec{v}_2$ be the sequences of period variables corresponding to matches involving $T_1$ and $T_2$, respectively. Then, we enforce:
@@ -127,19 +126,10 @@ In our tests more complicated constraints - like lexicographical constraints on 
 \subsection{Validation}
 
 \paragraph{Solver.}
-The model was implemented in Python using the Z3 SMT solver. A custom tactic pipeline was used:
-\[
-\texttt{Then(`card2bv', `smt')}
-\]
-to enable pseudo-Boolean cardinality constraints  translation into bit-vector constraints for speed.
-
-\paragraph{Experimental Setup.}
-\begin{itemize}
-    \item \textbf{Language:} Python 3.11
-    \item \textbf{Solver:} Z3 v4.15.2
-    \item \textbf{Hardware:} Intel Xeon CPU of Google Colab
-    \item \textbf{Timeout:} 300 seconds
-\end{itemize}
+The model was implemented in Python using the Z3 SMT solver. A custom tactic pipeline was used to enable pseudo-Boolean cardinality constraints translation into bit-vector constraints for speed.
+%\[
+%\texttt{Then(`card2bv', `smt')}
+%\]
 
 \subsection*{Experimental Results (Decision version, SMT in Z3)}
 
@@ -153,22 +143,27 @@ We tested the SMT model (without home-away optimization) using Z3 on increasing 
 \hline
 \textbf{Number of Teams} & \textbf{SB Enabled} & \textbf{SB Disabled} \\
 \hline
-10 & 0.04 & 0.09 \\
-14 & 0.92 & 0.43 \\
-16 & 8.21 & 1.50 \\
-18 & 9.14 & 15.65 \\
-20 & 44.74 & 181.71 \\
+6  & 0 & 0 \\
+8  & 0 & 0 \\
+10 & 0 & 0 \\
+12 & 0 & 1 \\
+14 & 0 & 0 \\
+16 & 0 & 2 \\
+18 & 8 & 17 \\
+20 & 5 & 42 \\
 \hline
 \end{tabular}
 \end{table}
 
-We observed that while symmetry breaking introduced a slight overhead for small $n$, it consistently reduced runtime as $n$ increased, especially beyond $n = 16$. Without SB, solving $n=20$ takes more than three minutes, while the version enabled with SB is completed in less than 45 seconds.
+For our SMT model, we observed that the simple version (first week periods were fixed) of symmetry breaking consistently reduced runtime for bigger $n$, especially beyond $n = 16$. Without SB, solving $n=20$ takes $8$ times longer.
 
-Though we need to mention that for a fixed $n$ there is still some variation between runs - due to the solver's heuristic choices adding some randomness. In rare cases $n=20$ might take more than 5 minutes.
+Though we need to mention that for a fixed $n$ there is still some variation between runs - due to the solver's heuristic choices adding some randomness. In some cases $n = 22$ gets solved on our hardware, while often it times out, so it was not included in the final table.
 
 \subsection*{Experimental Results (Optimization version, SMT in Z3)}
 
-We extended the SMT model to solve the optimization version of the problem, where the objective is to minimize the maximal absolute discrepancy in home/away balance. For $n$ teams, the theoretical optimum for the sum of absolute discrepancies is $n$ (each absolute discrepancy equal to $1$), and this value was reached in all tested instances.
+We extended the SMT model to solve the optimization version of the problem, where the objective is to minimize the maximal (w.r.t to all teams) absolute discrepancy in home/away balance. 
+Theoretically, our objective - maximal absolute discrepancy - being equal to $1$ is equivalent to reaching the optimum, and indeed this optimum value was reached in all tested instances.
+%For $n$ teams, the theoretical optimum for the sum of absolute discrepancies is $n$.  
 
 Table~\ref{tab:smt-opt-results} reports the total solving time (in seconds) for various team sizes, both with and without symmetry breaking (SB). All runs were performed with Z3 under a 5-minute timeout. In all cases, the solver found and proved optimal solutions within the time limit.
 
@@ -180,17 +175,20 @@ Table~\ref{tab:smt-opt-results} reports the total solving time (in seconds) for 
 \hline
 \textbf{Number of Teams} & \textbf{SB Enabled} & \textbf{SB Disabled} \\
 \hline
-10 & 0.23\textbar\textbf{1} & 0.41\textbar\textbf{1} \\
-12 & 1.25\textbar\textbf{1} & 1.13\textbar\textbf{1} \\
-14 & 6.57\textbar\textbf{1} & 5.35\textbar\textbf{1} \\
-16 & 50.75\textbar\textbf{1} & 53.23\textbar\textbf{1} \\
-18 & 73.31\textbar\textbf{1} & 171.56\textbar\textbf{1} \\
-20 & 130.75\textbar\textbf{1} & 260.65\textbar\textbf{1} \\
+6  & 0.00\textbar\textbf{1} & 0.00\textbar\textbf{1} \\
+8  & 0.00\textbar\textbf{1} & 0.00\textbar\textbf{1} \\
+10 & 0.00\textbar\textbf{1} & 0.00\textbar\textbf{1} \\
+12 & 3.00\textbar\textbf{1} & 6.00\textbar\textbf{1} \\
+14 & 4.00\textbar\textbf{1} & 11.00\textbar\textbf{1} \\
+16 & 127.00\textbar\textbf{1} & 44.00\textbar\textbf{1} \\
+18 & 189.00\textbar\textbf{1} & 257.00\textbar\textbf{1} \\
+20 & 149.00\textbar\textbf{1} & 154.00\textbar\textbf{1} \\
 \hline
 \end{tabular}
 \end{table}
 
-We observe that for smaller instances, symmetry breaking has a small impact or slight overhead. However, for larger values of $n$, symmetry breaking leads to significantly faster convergence to the optimal solution, nearly halving the runtime in the case of $n=20$.
+We observe that for the SMT optimization version, symmetry breaking has no such dramatic impact for bigger $n$, 
+though it helped in every case except for $n = 16$. For $n = 12$ and $n = 14$, SB yields a $2$ times and $3$ times improvement.
 
 Though there is a noticeable variance due to solver heuristic choices, the observations made above are true for the majority of the re-runs, if made. 
 
