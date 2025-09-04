@@ -1,207 +1,96 @@
-# CDMO_2025
-Combinatorial Decision Making and Optimization to solve the Sport Tournament Scheduling (STS)
+# Sports Tournament Scheduling Project
 
-## SMT 
+This project provides a comprehensive framework for solving the sports tournament scheduling problem using various computational formulations. The entire solution is packaged in a Docker container to ensure consistent and easy execution across different machines.
 
-### Usage:
-python decisional.py <n> <approach_base> [--sb_disabled]
+## Getting Started
 
-approach_base is just the name of the approach string displayed in json
---sb_disabled flag will disable symmetry breaking, otherwise enabled by default
-
-### Examples:
-
-1.
-python decisional.py 16 z3_decisional_but_also_optimal_by_graph_theory 
-will run decisional version for n=16
-and append the results to json in res/SMT
-where z3_decisional_but_also_optimal_by_graph_theory is just the name of the approach in json
-add --sb_disabled flag to disable symmetry breaking
-
-2.
-python optimal.py 16 z3_optimal
-will run decisional version for n=16
-and append the results to json in res/SMT
-
-usually both versions can do up to n=20 in less than 5 minutes
-
-3.
-python solution_checker.py res/SMT
-would run professor's checker to validate the satisfaction
-of all the constraints, but not optimality
-
-4.to check optimality we have our own checker
-python check_optimality.py res\SMT
-
-## SAT - 🏆 Sport Tournament Scheduling with Z3
-
-This repository provides an implementation of the **Sport Tournament Scheduling (STS)** problem using the Z3 SMT solver. It supports a variety of constraint encodings and includes both **decisional** and **optimization** solving modes.
-
----
-
-### 📦 Features
-
-- 📌 Supports **Exactly-One** encodings:
-
-  - `np`: Naive Pairwise
-  - `bw`: Binary Encoding
-  - `seq`: Sequential Encoding
-  - `heule`: Heule's Recursive Encoding
-
-- 📌 Supports **At-Most-K** encodings:
-
-  - `np`: Naive Pairwise
-  - `seq`: Sequential Counter
-  - `totalizer`: Totalizer Tree Encoding
-
-- ✅ Fixed calendar generation via the **Circle Method**
-- 🧩 Symmetry breaking to reduce the search space
-- 🔎 Both **optimization** (MinMax imbalance) and **decisional** (find any solution) modes
-- 📄 JSON output for result storage and analysis
-
----
-
-### ⚙️ Usage
-
-#### Command-line Example
+To get started, first clone the repository from your Git provider.
 
 ```bash
-python script.py \
-  --run_optimization \
-  --exactly_one_encoding heule \
-  --at_most_k_encoding totalizer \
-  -n 4 6 8 \
-  --sb \
-  --timeout 300 \
-  --save_json
+git clone <repository_url>
+cd <repository_name>
 ```
 
-#### Arguments
+The core of the project is the `main.py` script, which serves as a command-line interface for running the various solvers. You can start the container in a few different ways, depending on your needs—from a simple, complete benchmark to a highly customized execution.
 
-| Argument                 | Description                                                     |
-| ------------------------ | --------------------------------------------------------------- |
-| `-n` / `--n_teams`       | Number(s) of teams, e.g., `4`, `6-12` (even only)               |
-| `--timeout`              | Timeout in seconds (default: 300)                               |
-| `--exactly_one_encoding` | Method for Exactly-One constraints (`np`, `bw`, `seq`, `heule`) |
-| `--at_most_k_encoding`   | Method for At-Most-K constraints (`np`, `seq`, `totalizer`)     |
-| `--all`                  | Run predefined combinations of encodings                        |
-| `--run_decisional`       | Solve in decisional mode (check feasibility)                    |
-| `--run_optimization`     | Solve in optimization mode (minimize home/away imbalance)       |
-| `--max_diff`             | Max allowed imbalance for decisional mode                       |
-| `--sb` / `--no-sb`       | Enable/disable symmetry breaking                                |
-| `--save_json`            | Save results as JSON files in `../res/SAT`                      |
-| `--verbose`              | Print detailed logs                                             |
+**Important**: The `run.sh` script requires execution permissions. If you encounter a Permission Denied error, run the following command once:
 
----
-
-### 📊 Output
-
-- 🖨️ **Human-readable schedule** printed to console
-- 📁 **JSON files** with:
-  - `sol`: schedule matrix
-  - `obj`: objective value (MinMax imbalance)
-  - `optimal`: whether proven optimal
-  - `time`: time taken
-  - Solver statistics: conflicts, memory, etc.
-
----
-
-### 📘 Model Description
-
-#### Problem
-
-- Schedule a **round-robin tournament** for `n` teams (even).
-- Each team plays all others exactly once.
-- Matches must be assigned to one of `n/2` periods in `n-1` weeks.
-- Respect max home/away imbalance (`max_diff_k`).
-
-#### Constraints
-
-- Each match assigned to **exactly one** period
-- Each period in a week has **exactly one** match
-- Each team appears **at most twice** in the same period (global)
-- **Home/away imbalance** limited by `max_diff_k`
-- Optional symmetry breaking:
-  - Fix a match in week 0
-  - Alternate home/away for Team 0
-  - Lexicographic ordering in week 0
-
----
-
-### 📚 Encodings Implemented
-
-#### Exactly-One Encodings
-
-- **Naive Pairwise (np)**: Pairwise mutual exclusion
-- **Binary (bw)**: Binary auxiliary variables
-- **Sequential (seq)**: Using auxiliary sequential bits
-- **Heule**: Recursive grouping + auxiliary variables
-
-#### At-Most-K Encodings
-
-- **Naive Pairwise (np)**: Pairwise for k+1 combinations
-- **Sequential (seq)**: Sequential counter using auxiliary variables
-- **Totalizer**: Tree-merge counters with propagation constraints
-
----
-
-### 🧪 Benchmarks
-
-You can test various encoding combinations using `--all`, which evaluates the following:
-
-| Exactly-One | At-Most-K   |
-| ----------- | ----------- |
-| `np`        | `np`        |
-| `heule`     | `seq`       |
-| `heule`     | `totalizer` |
-
----
-
-### 📁 Output Example
-
-Example JSON output structure:
-
-```json
-{
-  "heule_seq": {
-    "time": 27,
-    "optimal": true,
-    "obj": 1,
-    "sol": [[[1,2], [3,4], ...], [...]],
-    "max_diff": 1,
-    "restarts": 12,
-    "conflicts": 489,
-    "mk_bool_var": 2048,
-    "max_memory": 13.7
-  }
-}
+```bash
+chmod +x run.sh
 ```
 
----
+## How to Run the Docker Container
 
-### 🔍 Notes
+### Run the Full Benchmark (Recommended):
 
-- `n` must be **even**.
-- The solver uses Z3 with `random_seed=42` for determinism.
-- The calendar is **fixed** using the circle method (only periods and home/away need assignment).
+To simultaneously run all formulations, models, and problem sizes, simply use the provided `run.sh` script. This is the recommended method for a complete benchmark.
 
----
+```bash
+./run.sh
+```
 
-### 📄 License
+Alternatively, you can start the container manually:
 
-MIT License.
+```bash
+docker build -t cdmo .
+docker run -v "$PWD/res:/res" cdmo
+```
 
----
+### Run a Specific Formulation:
 
-### 🙋‍♂️ Authors
+If you want to run only a specific formulation, you can call main.py directly from the Docker container. This allows you to specify the formulation (-f) and the number of teams (-n) to test.
 
-Developed as part of a project on **Combinatorial Decision Making**.
+Available Formulations:
 
----
+- cp (Constraint Programming)
 
-Feel free to contribute, raise issues, or suggest improvements!
+- sat (Boolean Satisfiability)
 
-## MIP
-For the MIP formulation, the best result are obtained with the gurobi solver, which requires a license
-To solve the problem only for the MIP formulation:
-- copy the license file ```gurobi.ilc``` into the source/MIP directory (otherwise the default open-source solvers will be used)
+- smt (Satisfiability Modulo Theories)
+
+- mip (Mixed-Integer Programming)
+
+_Example_: Run the SAT solver for 12 teams.
+
+```bash
+docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f sat -n 12
+```
+
+You can also specify a range of teams. The script will automatically test all even numbers within that range.
+
+_Example_: Run the CP solver for a range from 6 to 18 teams.
+
+```bash
+docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f cp -n 6-18
+```
+
+To run all pre-configured n values for a specific formulation, use the `--all_n` flag.
+
+_Example_: Run all pre-configured n values for the MIP solver.
+
+```bash
+docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f mip --all_n
+```
+
+### Customize the Run with Specific Flags
+
+For more advanced usage, you can pass any model-specific flags directly to the `main.py` script. The main script will automatically forward these arguments to the correct solver.
+
+_Example_: Run the MIP solver with the 4D array model and verbose output enabled.
+
+```bash
+docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f mip -n 12 --_4D --run_decisional --verbose
+```
+
+### Run Locally (Without Docker)
+
+While the Docker container is the recommended method for consistent execution, you can also run the solvers directly on your machine.
+
+Navigate to the src directory and run the main.py script for the desired solver. Note that the folder structure and file paths may differ from those inside the container.
+
+Example for the SAT solver
+
+```bash
+cd src/SAT
+python3 main.py -n 12 --run_decisional
+```

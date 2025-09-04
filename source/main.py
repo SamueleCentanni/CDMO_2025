@@ -1,19 +1,23 @@
 import os
 import argparse
-import re
+import sys
+from typing import Set, List
+import subprocess
 
-
-def parse_n_teams(n_input):
+def parse_n_teams(n_input: str) -> List[int]:
     """
     Parses the input for -n argument, allowing range input like 2-18.
     Ensures only even numbers are returned.
     """
-    result = set()
+    result: Set[int] = set()
     if "-" in n_input:
-        start, end = map(int, n_input.split("-"))
-        for n in range(start, end + 1):
-            if n % 2 == 0:
-                result.add(n)
+        try:
+            start, end = map(int, n_input.split("-"))
+            for n in range(start, end + 1):
+                if n % 2 == 0:
+                    result.add(n)
+        except ValueError:
+            print(f"[WARNING] Invalid range for -n: {n_input}")
     else:
         try:
             n = int(n_input)
@@ -23,95 +27,186 @@ def parse_n_teams(n_input):
                 print(f"[WARNING] Skipping odd number: {n}")
         except ValueError:
             print(f"[WARNING] Invalid value for -n: {n_input}")
-    return sorted(result)
+    return sorted(list(result))
+
+def handle_gurobi_license():
+    """Handles the Gurobi license file for the MIP solver."""
+    src_path = '/src/MIP/gurobi.lic'
+    dest_path = '/opt/gurobi/gurobi.lic'
+    if os.path.exists(src_path):
+        os.makedirs('/opt/gurobi', exist_ok=True)
+        os.rename(src_path, dest_path)
+        print("Gurobi license moved to /opt/gurobi/")
+
+def build_command(model_path: str, n_teams: int | str, extra_args: str, specific_args: str, default_range: str) -> str:
+    """Builds the full command string for a given model."""
+    n_arg = f"-n {n_teams}" if n_teams != 'all' else f"-n {default_range}"
+    return f"python3 {model_path} {specific_args} {n_arg} {extra_args}".strip()
+
+def run_cp(n_teams: int | str, extra_args_str: str, config: dict):
+    os.system(f"echo '--- running CP models ---'")
+    os.chdir(config['path'])
+    
+    # Check for --help first
+    if '--help' in extra_args_str:
+        command = f"python3 {config['main_file']} --help"
+        subprocess.run(command, shell=True)
+        return
+
+    extra_args_list = extra_args_str.split()
+    run_all = '--all' in extra_args_list
+    run_decisional = '--run_decisional' in extra_args_list
+    run_optimal = '--run_optimization' in extra_args_list
+    run_both = not run_decisional and not run_optimal
+    
+    solver_args_filtered = [arg for arg in extra_args_list if arg not in ['--run_decisional', '--run_optimization', '--all']]
+    solver_args_str_filtered = " ".join(solver_args_filtered)
+    
+    if run_all:
+        command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all", config['default_range'])
+        os.system(command)
+    else:
+        if run_decisional or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_decisional", config['default_range'])
+            os.system(command)
+        
+        if run_optimal or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_optimization", config['default_range'])
+            os.system(command)
+
+def run_sat(n_teams: int | str, extra_args_str: str, config: dict):
+    os.system(f"echo '--- running SAT models ---'")
+    os.chdir(config['path'])
+    
+    if '--help' in extra_args_str:
+        command = f"python3 {config['main_file']} --help"
+        subprocess.run(command, shell=True)
+        return
+
+    extra_args_list = extra_args_str.split()
+    run_all = '--all' in extra_args_list
+    run_decisional = '--run_decisional' in extra_args_list
+    run_optimal = '--run_optimization' in extra_args_list
+    run_both = not run_decisional and not run_optimal
+    
+    solver_args_filtered = [arg for arg in extra_args_list if arg not in ['--run_decisional', '--run_optimization', '--all']]
+    solver_args_str_filtered = " ".join(solver_args_filtered)
+
+    if run_all:
+        command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all", config['default_range'])
+        os.system(command)
+    else:
+        if run_decisional or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_decisional", config['default_range'])
+            os.system(command)
+        
+        if run_optimal or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_optimization", config['default_range'])
+            os.system(command)
+
+def run_mip(n_teams: int | str, extra_args_str: str, config: dict):
+    os.system(f"echo '--- running MIP models ---'")
+    os.chdir(config['path'])
+    
+    if '--help' in extra_args_str:
+        command = f"python3 {config['main_file']} --help"
+        subprocess.run(command, shell=True)
+        return
+
+    extra_args_list = extra_args_str.split()
+    run_all = '--all' in extra_args_list
+    run_decisional = '--run_decisional' in extra_args_list
+    run_optimal = '--run_optimization' in extra_args_list
+    run_both = not run_decisional and not run_optimal
+    
+    solver_args_filtered = [arg for arg in extra_args_list if arg not in ['--run_decisional', '--run_optimization', '--all']]
+    solver_args_str_filtered = " ".join(solver_args_filtered)
+    
+    if run_all:
+        command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all", config['default_range'])
+        os.system(command)
+    else:
+        if run_decisional or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_decisional", config['default_range'])
+            os.system(command)
+        
+        if run_optimal or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_optimization", config['default_range'])
+            os.system(command)
+
+def run_smt(n_teams: int | str, extra_args_str: str, config: dict):
+    os.system(f"echo '--- running SMT models ---'")
+    os.chdir(config['path'])
+
+    if '--help' in extra_args_str:
+        command = f"python3 {config['main_file']} --help"
+        subprocess.run(command, shell=True)
+        return
+
+    extra_args_list = extra_args_str.split()
+    run_all = '--all' in extra_args_list
+    run_decisional = '--run_decisional' in extra_args_list
+    run_optimal = '--run_optimization' in extra_args_list
+    run_both = not run_decisional and not run_optimal
+    
+    solver_args_filtered = [arg for arg in extra_args_list if arg not in ['--run_decisional', '--run_optimization', '--all']]
+    solver_args_str_filtered = " ".join(solver_args_filtered)
+    
+    if run_all:
+        command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all", config['default_range'])
+        os.system(command)
+    else:
+        if run_decisional or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_decisional", config['default_range'])
+            os.system(command)
+        
+        if run_optimal or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_optimization", config['default_range'])
+            os.system(command)
 
 def main():
-    parser = argparse.ArgumentParser(description="Run circle matching and 4d array solvers.")
-    parser.add_argument('-f', required=True, choices=['all', 'mip', 'cp', 'sat', 'smt'], default='all', help='Formulation to run')
-    parser.add_argument("-n", required=True, type=str, default=["6-20"], help="Problem size(s) to run")
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="Sport Tournament Scheduling.")
+    
+    # Updated flag names to prevent ambiguity with '--all' passed to sub-solvers
+    parser.add_argument("-f", choices=['mip', 'cp', 'sat', 'smt'], help='Formulation to run')
+    parser.add_argument("--run_all_formulations", action="store_true", help="Run all formulations with their default settings")
+    
+    parser.add_argument("-n", type=str, help="Problem size(s) to run")
+    parser.add_argument("--run_all_sizes", action="store_true", help="Run all problem sizes for the specified formulation")
+    
+    args, extra_args = parser.parse_known_args()
+    extra_args_str = " ".join(extra_args)
 
-    # handle commercial solver license
-    if os.path.exists('/src/MIP/gurobi.lic'):
-        os.makedirs('/opt/gurobi', exist_ok=True)
-        os.rename('/src/MIP/gurobi.lic', '/opt/gurobi/gurobi.lic')
+    handle_gurobi_license()
 
-    # run everything
-    if args.f == 'all' and args.n == 'all':
-        # CP
-        os.system("echo '--- running all CP models ---'")
-        os.chdir("/src/CP")
-        os.system("python3 /src/CP/main.py --run_decisional --run_optimization --all -n 6-18 --save_json")
-        # SAT
-        os.system("echo '--- running all SAT models ---'")
-        os.chdir("/src/SAT")
-        os.system("python3 /src/SAT/main.py --run_decisional --run_optimization --all --save_json")
-        # SMT
-        os.system("echo '--- running all SMT models ---'")
-        os.chdir("/src/SMT")
-        for n in range(6,22,2):
-            os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional --sb_disabled")
-            os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional")
-            os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal --sb_disabled")
-            os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal")
-        os.system("echo '--- running all MIP models ---'")
-        # MIP models
-        os.system("echo '--- running all MIP models ---'")
-        os.chdir("/src/MIP")
-        os.system("python3 /src/MIP/main.py --run_decisional --run_optimization --all")
-    elif args.f == 'all' :
-        os.system("echo '--- running CP models ---'")
-        os.chdir("/src/CP")
-        os.system(f"python3 /src/CP/main.py --run_decisional --run_optimization --all -n {args.n} --save_json")
-        os.system("echo '--- running all SAT models ---'")
-        os.chdir("/src/SAT")
-        os.system(f"python3 /src/SAT/main.py --run_decisional --run_optimization --all -n {args.n} --save_json")
-        os.system("echo '--- running all SAT models ---'")
-        os.chdir("/src/SMT")
-        for n in parse_n_teams(args.n):
-            os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional --sb_disabled")
-            os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional")
-            os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal --sb_disabled")
-            os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal")
-        os.system("echo '--- running all MIP models ---'")
-        os.chdir("/src/MIP")
-        os.system(f"python3 /src/MIP/main.py --all -n {args.n}")
+    models = {
+        'cp': {'path': '/src/CP', 'main_file': '/src/CP/main.py', 'default_range': '2-18', 'run_func': run_cp},
+        'sat': {'path': '/src/SAT', 'main_file': '/src/SAT/main.py', 'default_range': '2-20', 'run_func': run_sat},
+        'smt': {'path': '/src/SMT', 'main_file': '/src/SMT/main.py', 'default_range': '6-20', 'run_func': run_smt},
+        'mip': {'path': '/src/MIP', 'main_file': '/src/MIP/main.py', 'default_range': '6-18', 'run_func': run_mip},
+    }
+    
+    n_to_run = args.n
+    if args.run_all_sizes:
+        n_to_run = 'all'
+
+    if args.run_all_formulations:
+        if args.f or args.n or args.run_all_sizes or (len(extra_args) > 0 and '--help' not in extra_args_str):
+            print("[ERROR] Arguments are not allowed with --run_all_formulations.")
+            sys.exit(1)
+        for model_name, config in models.items():
+            config['run_func'](config['default_range'], "--all", config)
     else:
-        assert args.f == 'cp' or args.f == 'sat' or args.f == 'smt' or args.f == 'mip', "Specify one formulation"
-        if args.f == 'cp':
-            os.chdir("/src/CP")
-            if args.n == 'all':
-                os.system(f"python3 /src/CP/main.py --run_decisional --run_optimization --all -n 6-18 --save_json")
-            else:
-                os.system(f"python3 /src/CP/main.py --run_decisional --run_optimization --all -n {args.n} --save_json")
-        elif args.f == 'sat':
-            os.chdir("/src/SAT")
-            if args.n == 'all':
-                os.system("python3 /src/SAT/main.py --run_decisional --run_optimization --all --save_json")
-            else:
-                os.system(f"python3 /src/SAT/main.py --run_decisional --run_optimization --all -n {args.n} --save_json")
-        elif args.f == 'smt':
-            os.chdir("/src/SMT")
-            if args.n == 'all':
-                for n in range(6,22,2):
-                    os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional --sb_disabled")
-                    os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional")
-                    os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal --sb_disabled")
-                    os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal")
-            else:
-                for n in parse_n_teams(args.n):
-                    os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional --sb_disabled")
-                    os.system(f"python3 /src/SMT/decisional.py {n} z3_decisional")
-                    os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal --sb_disabled")
-                    os.system(f"python3 /src/SMT/optimal.py {n} z3_optimal")
-        elif args.f == 'mip':
-            os.chdir("/src/MIP")
-            if args.n == 'all':
-                os.system(f"python3 /src/MIP/main.py --all -n 6-16")
-            else:
-                os.system(f"python3 /src/MIP/main.py --all -n {args.n}")
-
-    return
+        if not args.f and not '--help' in extra_args_str:
+            print("[ERROR] You must specify a formulation with -f or use --run_all_formulations.")
+            sys.exit(1)
+        
+        if not args.n and not args.run_all_sizes and '--help' not in extra_args_str and '--all' not in extra_args_str:
+            print(f"[ERROR] Please specify -n, --run_all_sizes, or --all for formulation {args.f}.")
+            sys.exit(1)
+        
+        config = models[args.f]
+        config['run_func'](n_to_run, extra_args_str, config)
 
 if __name__ == '__main__':
     main()

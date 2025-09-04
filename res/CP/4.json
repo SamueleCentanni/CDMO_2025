@@ -1,0 +1,110 @@
+{
+ "d_gecode_SB_base": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "d_gecode_no_SB_base": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "d_gecode_SB_dwd_random": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "d_gecode_SB_dwd_r_Luby": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "d_gecode_SB_dwd_r_rr": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "d_chuffed_SB_base": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "d_chuffed_no_SB_base": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "d_chuffed_SB_ff_split": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "d_chuffed_SB_ro_Luby": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_gecode_SB_base": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_gecode_no_SB_base": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_gecode_SB_dwd_random": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_gecode_SB_dwd_r_Luby": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_gecode_SB_dwd_r_rr": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_chuffed_SB_base": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_chuffed_no_SB_base": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_chuffed_SB_ff_split": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ },
+ "o_chuffed_SB_ro_Luby": {
+  "time": 0,
+  "optimal": true,
+  "obj": null,
+  "sol": []
+ }
+}

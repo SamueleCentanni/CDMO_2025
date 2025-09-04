@@ -777,6 +777,8 @@ def main():
             ((eo, exactly_one_encodings[eo]), (ak, at_most_k_encodings[ak]))
             for eo, ak in allowed_pairs
         ]
+        args.run_decisional = True
+        args.run_optimization = True
     else:
         if not args.exactly_one_encoding or not args.at_most_k_encoding:
             print("Error: You must specify both --exactly_one_encoding and --at_most_k_encoding, or use --all.")

@@ -307,7 +307,10 @@ def main():
     # Parse and validate number of teams
     args.n_teams = parse_n_teams(args.n_teams)
 
-    if not args.run_decisional and not args.run_optimization:
+    if (not args.run_decisional and not args.run_optimization) and args.all:
+        args.run_decisional = True
+        args.run_optimization = True
+    elif  (not args.run_decisional and not args.run_optimization):
         print("Error: You must choose to run either --run_decisional or --run_optimization (or both).")
         parser.print_help()
         return
