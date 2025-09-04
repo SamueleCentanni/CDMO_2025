@@ -267,10 +267,10 @@ def main():
     parser.add_argument(
         "-ss", "--search_strategy",
         type=str,
-        choices=["base", "dwd_random", "dwd_r_Luby", "dwd_r_rr", "ff_split", "ro_Luby"],
+        choices=["base", "dwd_random", "dwd_r_Luby", "ro_Luby"],
         default="base",
         nargs="+",
-        help="The search strategy to use (base, dwd_random, dwd_r_Luby, dwd_r_rr, ff_split, ro_Luby)."
+        help="The search strategy to use (base, dwd_random, dwd_r_Luby, ro_Luby)."
     )
     parser.add_argument(
         "--all",
@@ -316,8 +316,8 @@ def main():
         return
     
     if args.solver == "chuffed":
-        if args.search_strategy != "base" and args.search_strategy != "ff_split" and args.search_strategy != "ro_Luby":
-            print("Error: Chuffed solver only supports 'base', 'ff_split', and 'ro_Luby' search strategies.")
+        if args.search_strategy != "base" and args.search_strategy != "ro_Luby":
+            print("Error: Chuffed solver only supports 'base', and 'ro_Luby' search strategies.")
             parser.print_help()
             return 
 
@@ -325,10 +325,8 @@ def main():
                             ("gecode", "base", "N"),
                             ("gecode", "dwd_random", "Y"),
                             ("gecode", "dwd_r_Luby", "Y"),
-                            ("gecode", "dwd_r_rr", "Y"),
                             ("chuffed", "base", "Y"),
                             ("chuffed", "base", "N"),
-                            ("chuffed", "ff_split", "Y"),
                             ("chuffed", "ro_Luby", "Y"),]
     if args.all:
         solving_combinations = allowed_combinations
