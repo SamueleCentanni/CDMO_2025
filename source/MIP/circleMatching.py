@@ -143,7 +143,7 @@ def solveCircleMatching(n, optimization=True, ic=True, solver='cbc', timeout=300
 
 
 def runCircleMatching(n, timeout=300, ic=True, optimization=True, verbose=False, save=True):
-    solvers = []
+    solvers = ['cbc', 'glpk']
     if os.path.exists('/opt/gurobi/gurobi.lic') or os.path.exists('./gurobi.lic'):
         solvers.append('gurobi')
     if solvers == []:
@@ -168,33 +168,4 @@ def runCircleMatching(n, timeout=300, ic=True, optimization=True, verbose=False,
     if save:
         saveSol(n, outputs, optimization, output_dir='/res/MIP',        
                 filename=f'{n}.json', update=True)
-    return
-    solvers = ['cbc', 'glpk']
-    if os.path.exists('/opt/gurobi/gurobi.lic'):
-        solvers.append('gurobi')
-    if solvers == []:
-        raise ValueError("No solver available")
-    for n in range(6,18,2):
-        print(f"--- n: {n} ---")
-        outputs = []
-        for solver in solvers:
-            try:
-                start = time.time()
-                result, solution = solveCircleMatching(
-                    n, opt=True, solver=solver, verbose=False)
-                end = time.time()-start
-                if solution.shape == (n-1, n//2, n, n):
-                    outputs.append((result, solution, end))
-                if end >= 299:
-                    solvers.remove(solver)
-
-                print(f"solver: {solver}")
-                print(f"status: {result.Solver.status}")
-                print(f"time: {end}")
-            except:
-                if solver == 'gurobi':  # gurobi license error
-                    solvers.remove('gurobi')
-
-        saveSol(n, solvers, outputs, opt=True, output_dir='/res/MIP',
-                filename=f'circleMatching_{n}.json')
     return
