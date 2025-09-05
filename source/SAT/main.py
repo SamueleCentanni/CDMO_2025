@@ -475,7 +475,9 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
         
         status = solver.check()
         
+        # update remaining time after solver
         current_elapsed_time = time.time() - init_time
+        remaining_time = timeout_seconds - current_elapsed_time
         
         if verbose:
             current_elapsed_time = min(current_elapsed_time, timeout_seconds)
@@ -488,7 +490,7 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
             best_solution_vars = (match_period_vars, home_vars, pair_to_week)
             solution_found_at_least_once = True
             high = k - 1
-            if verbose:
+            if verbose and k > 1:
                 print(f"  Found a solution with max_diff <= {k}. Trying for a smaller value.")
                 
         elif status == unsat:
@@ -780,8 +782,10 @@ def main():
             ((eo, exactly_one_encodings[eo]), (ak, at_most_k_encodings[ak]))
             for eo, ak in allowed_pairs
         ]
-        args.run_decisional = True
-        args.run_optimization = True
+        
+        if not args.run_decisional and not args.run_optimization:
+            args.run_decisional = True
+            args.run_optimization = True
     else:
         if not args.exactly_one_encoding or not args.at_most_k_encoding:
             print("Error: You must specify both --exactly_one_encoding and --at_most_k_encoding, or use --all.")

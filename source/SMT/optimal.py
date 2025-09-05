@@ -120,8 +120,8 @@ def circle_matchings(n):
 
 def main():
     parser = argparse.ArgumentParser(description='Optim. solver with home/away and optional SB.')
-    parser.add_argument('n', type=int, help='Number of teams (even)')
-    parser.add_argument('approach_base', help='Base name for the approach in JSON')
+    parser.add_argument('-n', type=int, help='Number of teams (even)')
+    parser.add_argument('--approach_base', help='Base name for the approach in JSON')
     parser.add_argument('--sb_disabled', action='store_true', help='Disable symmetry breaking')
     args = parser.parse_args()
 

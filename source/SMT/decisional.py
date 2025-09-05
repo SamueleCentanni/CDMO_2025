@@ -92,10 +92,11 @@ def home_away_balance(matches_per_week, n):
 def main():
     # usage: python decisional.py <n> <approach_base> [--sb_disabled]
     parser = argparse.ArgumentParser(description='Decisional solver with optional SB.')
-    parser.add_argument('n', type=int, help='Number of teams (even)')
-    parser.add_argument('approach_base', help='Base name for the approach in JSON')
+    parser.add_argument('-n', type=int, help='Number of teams (even)')
+    parser.add_argument('--approach_base', help='Base name for the approach in JSON')
     parser.add_argument('--sb_disabled', action='store_true', help='Disable symmetry breaking')
     args = parser.parse_args()
+    
 
     n = args.n
     sb_enabled = not args.sb_disabled
