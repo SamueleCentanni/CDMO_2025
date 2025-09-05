@@ -41,6 +41,7 @@ def handle_gurobi_license():
 def build_command(model_path: str, n_teams: int | str, extra_args: str, specific_args: str, default_range: str) -> str:
     """Builds the full command string for a given model."""
     n_arg = f"-n {n_teams}" if n_teams != 'all' else f"-n {default_range}"
+    print(f"python3 {model_path} {specific_args} {n_arg} {extra_args}".strip())
     return f"python3 {model_path} {specific_args} {n_arg} {extra_args}".strip()
 
 def run_cp(n_teams: int | str, extra_args_str: str, config: dict):
@@ -63,8 +64,12 @@ def run_cp(n_teams: int | str, extra_args_str: str, config: dict):
     solver_args_str_filtered = " ".join(solver_args_filtered)
     
     if run_all:
-        command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all", config['default_range'])
-        os.system(command)
+        if run_decisional or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all --run_decisional", config['default_range'])
+            os.system(command)
+        if run_optimal or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all --run_optimization", config['default_range'])
+            os.system(command)
     else:
         if run_decisional or run_both:
             command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_decisional", config['default_range'])
@@ -93,8 +98,12 @@ def run_sat(n_teams: int | str, extra_args_str: str, config: dict):
     solver_args_str_filtered = " ".join(solver_args_filtered)
 
     if run_all:
-        command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all", config['default_range'])
-        os.system(command)
+        if run_decisional or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all --run_decisional", config['default_range'])
+            os.system(command)
+        if run_optimal or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all --run_optimization", config['default_range'])
+            os.system(command)
     else:
         if run_decisional or run_both:
             command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_decisional", config['default_range'])
@@ -123,8 +132,12 @@ def run_mip(n_teams: int | str, extra_args_str: str, config: dict):
     solver_args_str_filtered = " ".join(solver_args_filtered)
     
     if run_all:
-        command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all", config['default_range'])
-        os.system(command)
+        if run_decisional or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all --run_decisional", config['default_range'])
+            os.system(command)
+        if run_optimal or run_both:
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all --run_optimization", config['default_range'])
+            os.system(command)
     else:
         if run_decisional or run_both:
             command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_decisional", config['default_range'])
@@ -153,16 +166,22 @@ def run_smt(n_teams: int | str, extra_args_str: str, config: dict):
     solver_args_str_filtered = " ".join(solver_args_filtered)
     
     if run_all:
-        command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all", config['default_range'])
-        os.system(command)
+        if run_decisional or run_both:
+            command = build_command(config['main_file_dec'], n_teams, solver_args_str_filtered, "--approach_base z3_decisional", config['default_range'])
+            os.system(command)
+        if run_optimal or run_both:
+            command = build_command(config['main_file_opt'], n_teams, solver_args_str_filtered, "--approach_base z3_optimal", config['default_range'])
+            os.system(command)
     else:
         if run_decisional or run_both:
-            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_decisional", config['default_range'])
+            command = build_command(config['main_file_dec'], n_teams, solver_args_str_filtered, "--approach_base z3_decisional", config['default_range'])
             os.system(command)
         
         if run_optimal or run_both:
-            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_optimization", config['default_range'])
+            command = build_command(config['main_file_opt'], n_teams, solver_args_str_filtered, "--approach_base z3_optimal", config['default_range'])
             os.system(command)
+    
+   
 
 def main():
     parser = argparse.ArgumentParser(description="Sport Tournament Scheduling.")
@@ -181,7 +200,7 @@ def main():
     models = {
         'cp': {'path': '/src/CP', 'main_file': '/src/CP/main.py', 'default_range': '2-18', 'run_func': run_cp},
         'sat': {'path': '/src/SAT', 'main_file': '/src/SAT/main.py', 'default_range': '2-20', 'run_func': run_sat},
-        'smt': {'path': '/src/SMT', 'main_file': '/src/SMT/main.py', 'default_range': '6-20', 'run_func': run_smt},
+        'smt': {'path': '/src/SMT', 'main_file_dec': '/src/SMT/decisional.py', 'main_file_opt': '/src/SMT/optimal.py', 'default_range': '6-20', 'run_func': run_smt},
         'mip': {'path': '/src/MIP', 'main_file': '/src/MIP/main.py', 'default_range': '6-18', 'run_func': run_mip},
     }
     
