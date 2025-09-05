@@ -167,7 +167,6 @@ def run_smt(n_teams: int | str, extra_args_str: str, config: dict):
 def main():
     parser = argparse.ArgumentParser(description="Sport Tournament Scheduling.")
     
-    # Updated flag names to prevent ambiguity with '--all' passed to sub-solvers
     parser.add_argument("-f", choices=['mip', 'cp', 'sat', 'smt'], help='Formulation to run')
     parser.add_argument("--run_all_formulations", action="store_true", help="Run all formulations with their default settings")
     

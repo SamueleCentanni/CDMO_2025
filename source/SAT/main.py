@@ -448,7 +448,8 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
         print(f"\n--- Optimization for n={n} started ---")
 
     # Binary search
-    while low <= high:
+    remaining_time = timeout_seconds - (time.time() - init_time)
+    while low <= high and remaining_time >= 10:
         current_elapsed_time = time.time() - init_time
         remaining_time = timeout_seconds - current_elapsed_time
         
@@ -477,7 +478,7 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
         current_elapsed_time = time.time() - init_time
         
         if verbose:
-            current_elapsed_time = current_elapsed_time if current_elapsed_time <= 300 else 300
+            current_elapsed_time = min(current_elapsed_time, timeout_seconds)
             print(f"  Solver result for k={k}: {status}")
             
         if status == sat:
@@ -533,8 +534,9 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
 
         if optimal_diff_MinMax is not None and optimal_diff_MinMax == 1:
             proven_optimal_final = True
-            
-    solve_time = solve_time if solve_time <= 300 else 300
+    
+    # if the solver takes few extra seconds than timeout
+    solve_time = min(solve_time, timeout_seconds)
             
     if proven_optimal_final:
         result = {
@@ -640,10 +642,11 @@ def solve_sts_decisional(n, max_diff_k, timeout_seconds, exactly_one_encoding, a
                 best_solution_schedule.append((home_team_idx + 1, away_team_idx + 1, week_idx + 1, p + 1))
     
     solve_time = solve_time if solve_time <= 300 else 300
+    optimal = True if solve_time < 300 else False
     result = {
         'obj': None,
         'sol': best_solution_schedule,
-        'optimal': True,
+        'optimal': optimal,
         'time': solve_time,
         'restart': stats_dict['restarts'],
         'max_memory': stats_dict['max_memory'],
@@ -731,7 +734,7 @@ def main():
         help="Enable symmetry breaking."
     )
     parser.add_argument(
-        "--no-sb",
+        "--no_sb",
         dest="sb",
         action="store_false",
         help="Disable symmetry breaking."
