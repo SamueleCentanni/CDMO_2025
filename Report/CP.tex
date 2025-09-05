@@ -1,31 +1,11 @@
-\documentclass{article}
-\usepackage{graphicx} % Required for inserting images
-\usepackage{amsmath}
-\usepackage{float}
-\usepackage{booktabs}
-\usepackage{subcaption}
-\usepackage{multirow}
-\usepackage[inline]{enumitem}
-\usepackage{pgfplots}
-\pgfplotsset{compat=1.18}
-
-
-\title{Combinatorial Decision Making and Optimization}
-\author{Tomaž Cotič}
-\date{September 2025}
-
-\begin{document}
-
-% \maketitle
-
 \section{CP Model}
 
 \subsection{Decision Variables}
 The CP model relies on the following decision variables:
 
 \begin{itemize}
-    \item For each pair of teams $(i,j)$ we define $\text{\textbf{period}}_{i,j} \in P\}$ as the slot in which team $i$ plays against team $j,$ where $n$ is the number of teams that take part in the tournament.
-    \item Similarly, for each pair of teams $(i,j)$ we define the variables $\text{\textbf{home}}_{i,j}\in \{0, 1\}$ in such a way that $\text{home}_{i,j}=1$ when $i$ plays against $j$ at home.
+    \item For each unordered pair of teams $(i,j)$ we define $\text{\textbf{period}}_{i,j} \in P$ as the slot in which team $i$ plays against team $j.$
+    \item Similarly, for each unordered pair of teams $(i,j)$ we define the variables $\text{\textbf{home}}_{i,j}\in \{0, 1\}$ in such a way that $\text{home}_{i,j}=1$ when $i$ plays against $j$ at home.
 \end{itemize}
 
 Moreover, using the previously described \emph{circle method}, all week assignments are precomputed and passed to the model in the variables $\text{\textbf{week}}_{i,j} \in W$, where $\text{week}_{i,j} = w$ means that $i$ plays against $j$ in week $w$.
@@ -45,24 +25,14 @@ In the CP model, the number of games each team plays at home and away are stored
 \]
 The imbalance for each team is stored in
 \[
-\mathtt{imbalance[t]} = \lvert \mathtt{home\_count[t]} - \mathtt{away\_count[t]} \rvert,
-\qquad t \in T,
+\mathtt{imbalance[t]} = \lvert \mathtt{home\_count[t]} - \mathtt{away\_count[t]} \rvert
 \]
-and the optimization variable is taken as
-\[
-\max_{t \in T} \mathtt{imbalance[t]}.
-\]
+and the optimization variable is taken as the $\text{max}$ over the array.
 
 A final consideration regarding the objective function is that the CP models performed significantly better when switching from minimizing the sum of home–away imbalances to minimizing the maximum imbalance.
 
 \subsection{Constraints}
-The \emph{circle method} automatically satisfies two of the three compulsory constraints:
-\begin{enumerate}
-    \item Each team plays every other team exactly once.
-    \item Each team plays exactly once every week.
-\end{enumerate}
-
-In this way, only two constraints had to be implemented to solve the problem in a valid way:
+Thanks to the previously described \emph{circle method} only two constraints had to be implemented to solve the problem in a consistent way:
 
 \textbf{Each team plays at most twice in the same period:}
 \[
@@ -83,7 +53,7 @@ M \;=\; \bigl\{\,(i,j) \;:\; i,j \in T,\; i<j \,\bigr\}.
 \]
 We tried to tackle this constraint using the global constraint \texttt{alldifferent} but it weakened the performance on basically all instances, which is why we didn't implement this constraint using the available global one.
 
-Additional constraints were required due to the way we defined the decision variables. Specifically, we allowed the slot variable to take the value $0$, even though it does not correspond to a valid slot in which teams can play. Furthermore, the slot matrix is symmetric, and the home team assignment also exhibits a particular structure by design:
+Additional constraints were required due to the way we defined the decision variables. Specifically, we allowed the slot variable to take the value $0$, even though it does not correspond to a valid slot in which teams can play. Furthermore, the slot matrix must be symmetric, and the home team assignment also exhibits a particular structure by design:
 \begin{itemize}
     \item $\forall\, t \in T:\quad \text{period}_{t,t} = 0$
     \item  $\forall\, i,j \in T,\, i \ne j:\;
@@ -130,49 +100,9 @@ The models were implemented in MiniZinc and coupled with a Python script that ta
 \subsubsection{Experimental design}
 We experimented our models using \textbf{Gecode} and \textbf{Chuffed} with different search strategies. All experiments were conducted respecting the given timeout of $300\,\mathrm{s}$, with the solvers in their sequential version and using $42$ as \texttt{random\_seed} in order to obtain a deterministic behavior.
 
-\subsubsection{Experimental Results}
+\subsubsection{Experimental Results (Decision version)}
 
-First, we present the results for the optimization version of the problem, followed by the results for the decision version at the end of the section in Figure~\ref{fig:solver_strategies}. Our first objective was to evaluate the impact of the proposed symmetry-breaking constraints. As shown in Table~\ref{cp-opt-results}, the inclusion of symmetry breaking yields clear benefits for both Gecode and Chuffed. In particular, Chuffed was able to solve the case $n=16$ to optimality, which was not possible without symmetry breaking. Similarly, Gecode, when combined with symmetry breaking, successfully solved the case $n=14$ to optimality. Among the three symmetry-breaking strategies considered, the best performance was obtained using the first two, while the third did not lead to any improvement in optimization time.
-
-Having established the advantages of symmetry breaking, we next investigated alternative search strategies to further enhance performance. All subsequent experiments were conducted with symmetry breaking enabled.
-
-For Chuffed, we identified two promising strategies:
-\begin{enumerate*}[label=(\roman*)]
-\item \texttt{first\_fail} for variable selection combined with \texttt{indomain\_split} for value assignment. We observed that changing the value assignment strategy had little, to no impact on the results,
-\item \texttt{random\_order} for variable selection paired with a restart strategy using \texttt{Luby$(50)$}.
-\end{enumerate*}
-Both strategies yielded similar outcomes and improved the quality of the solution for $n=18$, although the computational time required for smaller instances increased noticeably, as it nearly doubled compared to the default Chuffed's search.
-
-For Gecode, we initially experimented with the \texttt{first\_fail} variable selection heuristic, but it did not yield any performance improvement; consequently, we chose to omit it from the report. Switching to the largest-domain heuristic with weighted degree, combined with random value assignment, led to a significant improvement. Using this approach, Gecode was able to solve instances up to $n=16$ optimally, although, similar to Chuffed, the time required to solve $n=14$ increased noticeably.
-
-We also attempted to combine this strategy with restarts, specifically \texttt{Luby}, but the results weakened. This trend was consistent across several restart scales arbitrarily chosen within $[20,100]$.
-
-Additionally, we evaluated the large neighborhood search (LNS) strategy; however, it provided no benefit regardless of the retainment percentage, as shown in Table~\ref{cp-opt-results}.
-
-Overall, Chuffed consistently outperformed Gecode, producing better results across nearly all non-trivial instances, with the exception of some faster solutions that Gecode was able to find for $n=16$. 
-
-\begin{table}[h!]
-\centering
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{c|cccc|ccccc}
-\toprule
-\multirow{2}{*}{\textbf{n}} & \multicolumn{4}{c|}{\textbf{Chuffed}} & \multicolumn{5}{c}{\textbf{Gecode}} \\
-\cmidrule(lr){2-5} \cmidrule(lr){6-10}
- & Base & SB & ff+indomain\_split & random+luby(50) & Base & SB & dwd+random & dwd+r+luby(50) & dwd+r+rr \\
-\midrule
-6  & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ \\
-8  & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ \\
-10 & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ \\
-12 & $2\|\mathbf{1}$ & $2\|\mathbf{1}$ & $1\|\mathbf{1}$ & $2\|\mathbf{1}$ & $2\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $2\|\mathbf{1}$ & $1\|\mathbf{1}$ \\
-14 & $20\|\mathbf{1}$ & $5\|\mathbf{1}$ & $19\|\mathbf{1}$ & $19\|\mathbf{1}$ & $300\|7$ & $2\|\mathbf{1}$ & $28\|\mathbf{1}$ & $22\|\mathbf{1}$ & $28\|\mathbf{1}$ \\
-16 & $300\|5$ & $70\|\mathbf{1}$ & $144\|\mathbf{1}$ & $137\|\mathbf{1}$ & $\text{N/A}$ & $\text{N/A}$ & $18\|\mathbf{1}$ & $\text{N/A}$ & $17\|\mathbf{1}$ \\
-18 & $\text{N/A}$ & $300\|13$ & $300\|7$ & $300\|7$ & $\text{N/A}$ & $\text{N/A}$ & $\text{N/A}$ & $\text{N/A}$ & $\text{N/A}$ \\
-\bottomrule
-\end{tabular}
-}
-\caption{Optimization version: runtime in seconds and found objective value for different combinations of models, solvers and search strategies.}
-\label{cp-opt-results}
-\end{table}
+In Figure~\ref{fig:solver_strategies}, we present the results for the decision version of the problem. The best configuration combines Chuffed with the random-order variable selection heuristic and Luby restarts, using a restart scale of $50$. Another clear observation is that Chuffed consistently outperforms Gecode. Overall, the results are very similar to those of the optimization version, which is why the discussion of the chosen approaches is deferred to the following section.
 
 \begin{figure}[h!]
     \centering
@@ -182,7 +112,7 @@ Overall, Chuffed consistently outperformed Gecode, producing better results acro
             ylabel={Scheduling Time (s)},
             grid=major,
             width=12cm,
-            height=8cm,
+            height=7cm,
             legend style={
                 at={(0.05,0.95)},   % 5% from left, 95% from bottom
                 anchor=north west,  % aligns the top-left of the legend to this             point
@@ -192,32 +122,26 @@ Overall, Chuffed consistently outperformed Gecode, producing better results acro
         ]
 
         % Solver 1 (4 strategies) - blue shades
-        \addplot[color={rgb:red,31;green,120;blue,180}, mark=o] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,2) (16,29)};
+        \addplot[color={rgb:red,31;green,120;blue,180}, mark=o] coordinates {(6,0) (8,0) (10, 0) (12,1) (14,0) (16,12) (18,202)};
         \addlegendentry{Chuffed - Base}
 
-        \addplot[color={rgb:red,102;green,194;blue,165}, mark=triangle*] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,2) (16,38)};
+        \addplot[color={rgb:red,102;green,194;blue,165}, mark=triangle*] coordinates {(6,0) (8,0) (10, 0) (12,1) (14,0) (16,16) (18,197)};
         \addlegendentry{Chuffed - SB}
 
-        \addplot[color={rgb:red,166;green,206;blue,227}, mark=square*] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,1) (16,36)};
-        \addlegendentry{Chuffed - ff + in\_split}
-
-        \addplot[color={rgb:red,31;green,120;blue,180}, mark=diamond*] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,1) (16, 36)};
+        \addplot[color={rgb:red,31;green,120;blue,180}, mark=diamond*] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,0) (16,6) (18,63) (20,286)};
         \addlegendentry{Chuffed - random + Luby}
         % Solver 2 (5 strategies) - red shades
-        \addplot[color={rgb:red,227;green,26;blue,28}, mark=o] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,51)};
+        \addplot[color={rgb:red,227;green,26;blue,28}, mark=o] coordinates {(6,0) (8,0) (10, 0) (12,1) (14,109)};
         \addlegendentry{Gecode - Base}
 
-        \addplot[color={rgb:red,251;green,154;blue,153}, mark=triangle*] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,7)};
+        \addplot[color={rgb:red,251;green,154;blue,153}, mark=triangle*] coordinates {(6,0) (8,0) (10, 0) (12,0) (14,0)};
         \addlegendentry{Gecode - SB}
 
-        \addplot[color={rgb:red,255;green,127;blue,0}, mark=square*] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,49) (16,27)};
+        \addplot[color={rgb:red,255;green,127;blue,0}, mark=square*] coordinates {(6,0) (8,0) (10, 0) (12,1) (14,22) (16,12)};
         \addlegendentry{Gecode - dwd + random}
 
-        \addplot[color={rgb:red,255;green,178;blue,102}, mark=diamond*] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,1)};
+        \addplot[color={rgb:red,255;green,178;blue,102}, mark=diamond*] coordinates {(6,0) (8,0) (10, 0) (12,0) (14,2)};
         \addlegendentry{Gecode - dwd + r + luby}
-
-        \addplot[color={rgb:red,255;green,204;blue,153}, mark=star*] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,50) (16,28)};
-        \addlegendentry{Gecode - dwd + r + rr}
 
         \end{axis}
     \end{tikzpicture}
@@ -225,5 +149,41 @@ Overall, Chuffed consistently outperformed Gecode, producing better results acro
     \label{fig:solver_strategies}
 \end{figure}
 
+\subsubsection{Experimental Results (Optimization version)}
 
-\end{document}
+Our first objective was to evaluate the impact of the proposed symmetry-breaking constraints. As shown in Table~\ref{cp-opt-results}, the inclusion of symmetry breaking yields clear benefits for both Gecode and Chuffed. In particular, Chuffed was able to solve the case $n=16$ to optimality, which was not possible without symmetry breaking and it found a better solution for $n=18$. Similarly, Gecode, when combined with symmetry breaking, successfully solved the case $n=14$ to optimality. Among the three symmetry-breaking strategies described before, the best performance was obtained using the first two, while the third did not lead to any improvement, which is why we did not use it.
+
+Having established the advantages of symmetry breaking, we next investigated alternative search strategies to further enhance performance of both solvers. All subsequent experiments were conducted with symmetry breaking enabled.
+
+For the optimization version with Chuffed, we were not able to identify search strategies that improved the model’s solutions, highlighting the effectiveness of Lazy Clause Generation. Among the tested configurations, the best was \texttt{random\_order} for variable selection combined with a \texttt{Luby$(50)$} restart strategy. We also experimented with \texttt{first\_fail}, but regardless of the chosen value-assignment heuristic, no improvement was observed, although \texttt{indomain\_split} performed slightly better than the others.
+
+We additionally tested enabling free search, allowing the solver to switch between the specified search annotations and its default search. However, this significantly degraded performance: in fact, the models were unable to solve even the case $n=16$ to optimality.
+
+For Gecode, we initially experimented with the \texttt{first\_fail} variable selection heuristic, but it did not yield any performance improvement. Switching to the domain over weighted degree heuristic, combined with random value assignment, we obtained a significant improvement. Using this approach, Gecode was able to solve instances up to $n=16$ optimally, although, the time required to solve $n=14$ increased noticeably.
+
+We also attempted to combine this strategy with restarts, specifically \texttt{Luby}, but the results weakened. This trend was consistent across several restart scales arbitrarily chosen within $[20,150]$.
+
+Additionally, we evaluated the large neighborhood search (LNS) strategy; however, it provided no benefit regardless of the retainment percentage. In fact the results were the same as without it. As to be expected, this approach was only tested for the optimization version of the problem.
+
+Overall, Chuffed consistently outperformed Gecode, producing better results across nearly all non-trivial instances, with the exception of some faster solutions that Gecode was able to find for $n=16$. 
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{c|ccc|cccc}
+\toprule
+\multirow{2}{*}{\textbf{n}} & \multicolumn{3}{c|}{\textbf{Chuffed}} & \multicolumn{4}{c}{\textbf{Gecode}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-8}
+ & Base & SB & random+luby(50) & Base & SB & dwd+random & dwd+r+luby(50) \\
+\midrule
+10 & $0\|\mathbf{1}$ & $0\|\mathbf{1}$ & $0\|\mathbf{1}$ & $0\|\mathbf{1}$ & $0\|\mathbf{1}$ & $0\|\mathbf{1}$ & $0\|\mathbf{1}$\\
+12 & $1\|\mathbf{1}$ & $1\|\mathbf{1}$ & $2\|\mathbf{1}$ & $1\|\mathbf{1}$ & $0\|\mathbf{1}$ & $1\|\mathbf{1}$ & $1\|\mathbf{1}$\\
+14 & $1\|\mathbf{1}$ & $6\|\mathbf{1}$ & $6\|\mathbf{1}$ & $300\|7$ & $0\|\mathbf{1}$ & $36\|\mathbf{1}$ & $12\|\mathbf{1}$\\
+16 & $300\|3$ & $22\|\mathbf{1}$ & $87\|\mathbf{1}$ & $\text{N/A}$ & $\text{N/A}$ & $14\|\mathbf{1}$ & $300\|9$\\
+18 & $300\|11$ & $300\|5$ & $300\|7$ & $\text{N/A}$ & $\text{N/A}$ & $\text{N/A}$ & $\text{N/A}$\\
+\bottomrule
+\end{tabular}
+}
+\caption{Optimization version: runtime in seconds and found objective value for different combinations of models, solvers and search strategies. Smaller instances ($6,8$) are left out because all configurations solved them instantly.}
+\label{cp-opt-results}
+\end{table}
