@@ -140,3 +140,14 @@ def run4dArray(n, timeout=300, ic=True, optimization=True, verbose=False, save=T
         saveSol(n, outputs, optimization, output_dir='/res/MIP',
                 filename=f'{n}.json', update=True)
     return
+
+
+
+n=14
+name = "decision_gurobi_4dArray_no_ic"
+start = time.time()
+result, solution = solve4dArray(n, False, False, 'gurobi', 300, False)
+end = time.time()-start
+if solution.shape == (n-1, n//2, n, n):
+    saveSol(n, [(result, solution, end, name)], True, output_dir='./res/MIP',
+            filename=f'{n}.json', update=True)
