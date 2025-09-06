@@ -448,12 +448,11 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
         print(f"\n--- Optimization for n={n} started ---")
 
     # Binary search
-    remaining_time = timeout_seconds - (time.time() - init_time)
-    while low <= high and remaining_time >= 10:
+    while low <= high:
         current_elapsed_time = time.time() - init_time
         remaining_time = timeout_seconds - current_elapsed_time
         
-        if remaining_time <= 0:
+        if remaining_time <= 3:
             if verbose:
                 print("Global timeout reached.")
             break
@@ -474,10 +473,6 @@ def solve_sts_optimization(n, timeout_seconds, exactly_one_encoding, at_most_k_e
         solver.set("timeout", int(remaining_time * 1000))
         
         status = solver.check()
-        
-        # update remaining time after solver
-        current_elapsed_time = time.time() - init_time
-        remaining_time = timeout_seconds - current_elapsed_time
         
         if verbose:
             current_elapsed_time = min(current_elapsed_time, timeout_seconds)
