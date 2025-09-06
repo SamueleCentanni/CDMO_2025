@@ -35,7 +35,7 @@ These bounds ensure that the number of home games for each team respects the max
 
 \subsection{Constraints}
 Thanks to the \emph{circle method}, some constraints are inherently satisfied (see Section~\ref{CircleMatching}).
-This reduces the constraints needed, leaving the solver to decide only the specific period for each match $(i,j)$. In particular, we implemented the following constraints:
+This reduces the constraints needed, leaving the solver to decide only the specific period for each match $(i,j)$,  where $(i,j) \in \mathcal{M}_w$ ($\mathcal{M}_w$ is the set of matches scheduled in week $w \in W$). In particular, we implemented the following constraints:
 
 \textbf{Each match is assigned to exactly one period:}
 \[
