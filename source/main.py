@@ -169,7 +169,7 @@ def run_smt(n_teams: int | str, extra_args_str: str, config: dict):
     run_optimal = '--run_optimization' in extra_args_list
     run_both = not run_decisional and not run_optimal
     
-    n_teams = n_teams if n_teams != 'all' else parse_n_teams(config['default_range'])
+    n_teams = parse_n_teams(n_teams) if n_teams != 'all' else parse_n_teams(config['default_range'])
     
     solver_args_filtered = [arg for arg in extra_args_list if arg not in ['--run_decisional', '--run_optimization', '--all']]
     solver_args_str_filtered = " ".join(solver_args_filtered)
