@@ -1,5 +1,4 @@
 
-
 \section{MIP Model}
 The MIP formulation was developed with Pyomo, a Python library for writing solver-independent models.
 Two models were developed: a base version composed of a 4d array with symmetry breaking and implied constraints, and a better one, optimizing the number of variables featuring circle matching.
@@ -30,12 +29,10 @@ where $\mathbf{Q}_{i,p} = 1$ if team $i$ has at least one match in period $p$.
 
 \subsection{Objective Function}
 \paragraph{Variables}
-In order to minimize the maximum imbalance, we need 3 extra variables:
-\begin{enumerate}
-\item $\textbf{Home}_{i} \in [0,n-1]$: the number of home matches played by team i
-\item $\textbf{Away}_{i} \in [0,n-1]$: the number of away matches played by team i
-\item \textbf{Z} $ \in [0,n-1]$: the maximum imbalance across teams
-\end{enumerate}
+In order to minimize the maximum imbalance, we need 3 extra variables: 
+$\textbf{Home}_{i} \in [0,n-1]$, the number of home matches played by team i
+$\textbf{Away}_{i} \in [0,n-1]$, the number of away matches played by team i and
+\textbf{Z} $ \in [0,n-1]$, the maximum imbalance across teams
 
 \paragraph{Constraints}
 \begin{enumerate}
@@ -88,7 +85,7 @@ Especially useful in an optimization environment, this constraint aims to spread
 \subsubsection*{Symmetry breaking constraints}
 In this particular model the addition of symmetry breaking constraints did not improve the results, as circle matching already breaks most of the symmetries, and the addition of other constraints only increased the model weight.
 
-\subsection{4d array model}
+\subsection{4D array model}
 The simplest possible implementation of the STS problem, developed only for comparison as it is not nearly as efficient as the previous one.
 The only decision variable is X, a 4d array $(n-1 \times n/2 \times n \times n)$ of binary values, where each cell represents a match, described as a combination of week, period, team1 and team2. The first team is the one playing home.
 The constraints, apart from the necessary ones, include two symmetry-breaking constraints and two implied constraints.
@@ -97,16 +94,10 @@ The optimization is performed in the same way as in the previous model.
 \subsection{Validation}
 The model was implemented in Python using Pyomo 6.9.2. 
 The results were obtained by running the models for 3 different solvers:
-\begin{enumerate}
-    \item \textbf{Glpk}: open-source GNU MIP and LP solver, works well for small instances, but does not scale well.
-    \item \textbf{Cbc}: open-source solver based on CLP, thanks to its advanced heuristics and cutting planes performs well even on larger problems.
-    \item \textbf{Gurobi}: a commercial solver, under an academic license, which is required to reproduce its results.
-\end{enumerate}
+\textbf{Glpk}, works well for small instances, but does not scale well; \textbf{Cbc}, the most advanced open-source solver; \textbf{Gurobi}: a very efficient commercial solver, used under an academic license.
 
 \subsubsection{Experimental Results}
 We tested the MIP formulations on different configurations, using all solvers and both model variants (4D array and Circle Matching, CM). 
-For reproducibility, a more complete set of experiments is available in the \texttt{/res} folder of the project work. 
-Since circle matching inherently reduces symmetries, additional symmetry-breaking constraints were not applied.
 
 
 \begin{figure}[H]
@@ -127,17 +118,18 @@ Moreover, efficiency-oriented constraints, designed to balance the schedule, tur
 
 \begin{table}[H]
     \centering
+    \small
     \begin{tabular}{|c|c|c|c|}
     \hline
         \textbf{n} &  \textbf{Model} & \textbf{Solver} & \textbf{Time} \\
     \hline
          8 & 4D & Glpk & 1s \\
-         10 & 4D & Glpk & 300s \\
-         10 & 4D & Cbc & 5s \\
-         12 & 4D & Cbc & 300s \\
+         10 & 4D & Glpk & N/A \\
+         10 & 4D & Cbc & 4s \\
+         12 & 4D & Cbc & N/A \\
          12 & 4D & Gurobi & 23s \\
-         12 & CM & Glpk & 14s \\
-         12 & CM & Cbc & 11s \\
+         12 & CM & Glpk & 17s \\
+         12 & CM & Cbc & 14s \\
     \hline
     \end{tabular}
     \begin{tabular}{|c|c|c|c|}
@@ -146,38 +138,36 @@ Moreover, efficiency-oriented constraints, designed to balance the schedule, tur
     \hline
         12 & CM & Gurobi & 2s \\
          14 & 4D & Gurobi & 24s \\
-         14 & CM & Glpk & 300s \\
+         14 & CM & Glpk & N/A \\
          14 & CM & Cbc & 27s \\
          14 & CM & Gurobi & 36s \\
-         16 & CM & Cbc & 300s \\
+         16 & CM & Cbc & N/A \\
          16 & CM & Gurobi & 72s \\
     \hline
     \end{tabular}
     \caption{Results for the decision problem}
-    \text{\small{Efficiency constraints off. Results with $time=0$ or $time=300$ were not considered}}
+    \text{\small{Efficiency constraints were not enabled here}}
     \label{tab:mip1}
 \end{table}
 
 \paragraph{Optimization version}
-As expected, the CM model consistently outperformed the 4D array formulation in both solution quality and runtime. 
-For example, with $n=12$, the CM model solved optimally in a few seconds with all solvers, while the 4D array version either timed out or required several minutes without guaranteeing optimality.
-This highlights the benefit of a stricter model, with a smaller associated search space.
-
+As expected, the CM model consistently outperformed the 4D array formulation in both solution quality and runtime. This highlights the benefit of a stricter model, with a smaller associated search space.
 Table~\ref{tab:mip2} shows how solver performance followed the usual hierarchy: \textbf{Gurobi} was the most efficient, followed closely by \textbf{Cbc}, while \textbf{Glpk} struggled with scalability and often reached the time limit for larger instances. 
 Interestingly, though, for some smaller instances Glpk performs better than Cbc.
 
 \begin{table}[H]
     \centering
+    \small
     \begin{tabular}{|c|c|c|c|c|}
     \hline
         \textbf{n} &  \textbf{Model} & \textbf{Solver} & \textbf{Time\textbar Obj} \\
     \hline
-         10 & 4D & Cbc & 298\textbar? \\
-         10 & 4D & Glpk & 44\textbar1 \\
+         10 & 4D & Cbc & 298\textbar1 \\
+         10 & 4D & Glpk & 35\textbar1 \\
          10 & 4D & Gurobi & 5\textbar1 \\
-         12 & 4D & Cbc & 300\textbar N/A \\
-         12 & CM & Cbc & 3\textbar1 \\
-         12 & CM & Glpk & 9\textbar1 \\
+         12 & 4D & Cbc/Glpk & N/A \\
+         12 & CM & Cbc & 4\textbar1 \\
+         12 & CM & Glpk & 10\textbar1 \\
     \hline
     \end{tabular}
     \begin{tabular}{|c|c|c|c|c|}
@@ -186,13 +176,13 @@ Interestingly, though, for some smaller instances Glpk performs better than Cbc.
     \hline
          12 & CM & Gurobi & 5\textbar1 \\
          14 & CM & Cbc & 5\textbar1 \\
-         14 & CM & Glpk & 300\textbar N/A \\
+         14 & CM & Glpk & N/A \\
          14 & CM & Gurobi & 26\textbar1 \\
-         16 & CM & Cbc & 300\textbar N/A \\
+         16 & CM & Cbc & N/A \\
          16 & CM & Gurobi & 16\textbar1 \\
     \hline
     \end{tabular}
     \caption{Results for the optimization problem}
-    \text{\small{Efficiency constraints on. Results with $time=0$ or $time=300$ were not considered}}
+    \text{\small{Efficiency constraints were enabled here}}
     \label{tab:mip2} 
 \end{table}
