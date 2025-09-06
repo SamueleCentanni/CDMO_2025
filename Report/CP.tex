@@ -11,13 +11,7 @@ The CP model relies on the following decision variables:
 Moreover, using the previously described \emph{circle method}, all week assignments are precomputed and passed to the model in the variables $\text{\textbf{week}}_{i,j} \in W$, where $\text{week}_{i,j} = w$ means that $i$ plays against $j$ in week $w$.
 
 \subsection{Objective Function}
-As already described above, the objective function is defined as
-\[
-\max_{t \in T} \, |H_t - A_t|,
-\]
-where \(H_t\) is the number of home games of team \(t\), \(A_t\) is the number of away games of team \(t\), and \(T\) is the set of teams.
-
-In the CP model, the number of games each team plays at home and away are stored in two arrays:
+To implement the objective function in the CP model, the number of games each team plays at home and away are stored in two arrays:
 \[
 \forall t \in T \quad \mathtt{home\_count[t]} \in \{1, \dots, n-1\}, 
 \qquad
@@ -95,14 +89,11 @@ This constraint eliminates symmetries that come from flipping home-away status f
 This last symmetry breaking constraint binds the imbalance array to be decreasing and was of course tested only on the optimization version of the problem.
 
 \subsection{Validation}
-The models were implemented in MiniZinc and coupled with a Python script that takes the input parameters, determines week assignments, and subsequently executes the corresponding MiniZinc model.
-
-\subsubsection{Experimental design}
-We experimented our models using \textbf{Gecode} and \textbf{Chuffed} with different search strategies. All experiments were conducted respecting the given timeout of $300\,\mathrm{s}$, with the solvers in their sequential version and using $42$ as \texttt{random\_seed} in order to obtain a deterministic behavior.
+The models were implemented in MiniZinc and coupled with a Python script that takes the input parameters, determines week assignments, and subsequently executes the corresponding MiniZinc model. We used \textbf{Gecode} and \textbf{Chuffed} with different search strategies. All experiments were conducted respecting the given timeout of $300\,\mathrm{s}$, with the solvers in their sequential version and using $42$ as \texttt{random\_seed}.
 
 \subsubsection{Experimental Results (Decision version)}
 
-In Figure~\ref{fig:solver_strategies}, we present the results for the decision version of the problem. The best configuration combines Chuffed with the random-order variable selection heuristic and Luby restarts, using a restart scale of $50$. Another clear observation is that Chuffed consistently outperforms Gecode. Overall, the results are very similar to those of the optimization version, which is why the discussion of the chosen approaches is deferred to the following section.
+In Figure~\ref{fig:solver_strategies}, we present the results for the decision version of the problem. The best configuration combines Chuffed with the random-order variable selection heuristic and Luby restarts, using a restart scale of $50$. Another clear observation is that Chuffed consistently outperforms Gecode. Overall, the results are very similar to those of the optimization version, which is why the discussion of the chosen approaches is deferred to the following section. In both sections smaller instances ($4,6,8$) are left as all the approaches solved them instantly.
 
 \begin{figure}[h!]
     \centering
@@ -111,36 +102,37 @@ In Figure~\ref{fig:solver_strategies}, we present the results for the decision v
             xlabel={Number of Teams},
             ylabel={Scheduling Time (s)},
             grid=major,
-            width=12cm,
-            height=7cm,
+            width=8cm,
+            height=5cm,
             legend style={
-                at={(0.05,0.95)},   % 5% from left, 95% from bottom
-                anchor=north west,  % aligns the top-left of the legend to this             point
-                font=\scriptsize,   % keeps it small
+                at={(1.05,0.95)},   
+                anchor=north west,  % aligns the top-left of the legend to this point
+                font=\tiny,   % keeps it small
                 draw=none            % optional: removes the box around legend
                 },
+            legend image post style={scale=0.5}
         ]
 
         % Solver 1 (4 strategies) - blue shades
-        \addplot[color={rgb:red,31;green,120;blue,180}, mark=o] coordinates {(6,0) (8,0) (10, 0) (12,1) (14,0) (16,12) (18,202)};
+        \addplot[color={rgb:red,31;green,120;blue,180}, mark=o] coordinates {(10, 0) (12,1) (14,0) (16,12) (18,202)};
         \addlegendentry{Chuffed - Base}
 
-        \addplot[color={rgb:red,102;green,194;blue,165}, mark=triangle*] coordinates {(6,0) (8,0) (10, 0) (12,1) (14,0) (16,16) (18,197)};
+        \addplot[color={rgb:red,102;green,194;blue,165}, mark=triangle*] coordinates {(10, 0) (12,1) (14,0) (16,16) (18,197)};
         \addlegendentry{Chuffed - SB}
 
-        \addplot[color={rgb:red,31;green,120;blue,180}, mark=diamond*] coordinates {(6,1) (8,1) (10, 1) (12,1) (14,0) (16,6) (18,63) (20,286)};
+        \addplot[color={rgb:red,31;green,120;blue,180}, mark=diamond*] coordinates {(10, 1) (12,1) (14,0) (16,6) (18,63) (20,286)};
         \addlegendentry{Chuffed - random + Luby}
         % Solver 2 (5 strategies) - red shades
-        \addplot[color={rgb:red,227;green,26;blue,28}, mark=o] coordinates {(6,0) (8,0) (10, 0) (12,1) (14,109)};
+        \addplot[color={rgb:red,227;green,26;blue,28}, mark=o] coordinates {(10, 0) (12,1) (14,109)};
         \addlegendentry{Gecode - Base}
 
-        \addplot[color={rgb:red,251;green,154;blue,153}, mark=triangle*] coordinates {(6,0) (8,0) (10, 0) (12,0) (14,0)};
+        \addplot[color={rgb:red,251;green,154;blue,153}, mark=triangle*] coordinates {(10, 0) (12,0) (14,0)};
         \addlegendentry{Gecode - SB}
 
-        \addplot[color={rgb:red,255;green,127;blue,0}, mark=square*] coordinates {(6,0) (8,0) (10, 0) (12,1) (14,22) (16,12)};
+        \addplot[color={rgb:red,255;green,127;blue,0}, mark=square*] coordinates {(10, 0) (12,1) (14,22) (16,12)};
         \addlegendentry{Gecode - dwd + random}
 
-        \addplot[color={rgb:red,255;green,178;blue,102}, mark=diamond*] coordinates {(6,0) (8,0) (10, 0) (12,0) (14,2)};
+        \addplot[color={rgb:red,255;green,178;blue,102}, mark=diamond*] coordinates {(10, 0) (12,0) (14,2)};
         \addlegendentry{Gecode - dwd + r + luby}
 
         \end{axis}
@@ -184,6 +176,6 @@ Overall, Chuffed consistently outperformed Gecode, producing better results acro
 \bottomrule
 \end{tabular}
 }
-\caption{Optimization version: runtime in seconds and found objective value for different combinations of models, solvers and search strategies. Smaller instances ($6,8$) are left out because all configurations solved them instantly.}
+\caption{Optimization version: runtime in seconds and found objective value for different combinations of models, solvers and search strategies.}
 \label{cp-opt-results}
 \end{table}
