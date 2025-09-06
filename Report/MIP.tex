@@ -5,10 +5,7 @@ The MIP formulation was developed with Pyomo, a Python library for writing solve
 Two models were developed: a base version composed of a 4d array with symmetry breaking and implied constraints, and a better one, optimizing the number of variables featuring circle matching.
 
 \subsection{Variables}
-Let $n$ be the number of teams. We define the sets of teams, weeks, and periods per week as
-\[
-T = \{0, \dots, n-1\}, \quad W = \{0, \dots, n-2\}, \quad P = \left\{0, \dots, \frac{n}{2} - 1\right\}.
-\]
+Other than the costants defined in \ref{sec:intro}, the MIP formulation needs two more.
 Let $wp = (w,p)$ be the week/period slot $w,p$;
 let $m_{i,j} = (i,j)$ be the match played by team $i,j$ with $i<j$:
 \[
@@ -16,13 +13,20 @@ WP = (\{0, \dots, n-2\},\{0, \dots, \frac{n}{2} - 1\}), \quad M = (\{0, \dots, n
 \]
 
 \subsubsection*{Decision Variables}
-To encode the STS problem, two variables were used:
+To encode the STS problem we define:
 \begin{enumerate}
-\item $\text{\textbf{Y}}[wp,m] \in \{0,1\}$ \quad $\forall wp \in (W,P)$, $\forall m_{i,j} \in \{T,T\}$ with $i<j$.
-\item $\text{\textbf{H}}[i]$ $\in \{0,1\}$ \quad $\forall i \in T$. \\ 
+    \item $\mathbf{Y}[wp,m] \in \{0,1\}$ \quad $\forall wp \in WP, \; \forall m=(i,j) \in M$ with $i<j$. \\
+    $\mathbf{Y}[wp,m] = 1$ if and only if match $m$ is scheduled in slot $wp$.
+    \item $\mathbf{H}[i,j] \in \{0,1\}$ \quad $\forall (i,j) \in M, \; i<j$. \\
+    $\mathbf{H}[i,j] = 1$ if team $i$ plays at home against $j$, $0$ otherwise.
 \end{enumerate}
-\subsubsection*{Implied Variables}
-The implied constraint needs a variable \textbf{Q}$[i,p] \in [0,1]$ that keeps track of which team played on which period.
+
+\subsubsection*{Other Variables}
+For the efficiency constraints, we also track whether a team plays in a given period:
+\[
+\mathbf{Q}[i,p] \in \{0,1\}, \quad \forall i \in T, \; p \in P,
+\]
+where $\mathbf{Q}[i,p] = 1$ if team $i$ has at least one match in period $p$.
 
 \subsection{Objective Function}
 \paragraph{Variables}
@@ -30,10 +34,22 @@ In order to minimize the maximum imbalance, we need 3 extra variables:
 \begin{enumerate}
 \item \textbf{Home}$[i]$ $\in [0,n-1]$: the number of home matches played by team i
 \item \textbf{Away}$[i]$ $\in [0,n-1]$: the number of away matches played by team i
-\item \textbf{Z} $ \in [0,n-1]$: the maximum imbalance
+\item \textbf{Z} $ \in [0,n-1]$: the maximum imbalance across teams
 \end{enumerate}
 
 \paragraph{Constraints}
+\begin{enumerate}
+    \item \textbf{Home games}: 
+\[\forall i \in T: \quad \textbf{Home}[i] = \sum_{j \in T}^{j} \textbf{H}[(i,j)] + \sum_{j \in T}^{j} (1- \textbf{H}[(j,i)]) \quad \text{with $i < j$}\]
+    \item \textbf{Away games}: 
+\[\forall i \in T: \quad \textbf{Away}[i] = \sum_{j \in T}^{j} (1- \textbf{H}[(i,j)]) + \sum_{j \in T}^{j} \textbf{H}[(j,i)] \quad \text{with $i < j$}\]
+    \item \textbf{Maximum imbalance}: 
+\[
+\forall i \in T: \quad |\text{Home}[i] - \text{Away}[i]| \leq Z.
+\]
+\end{enumerate}
+
+\subsection{Constraints}
 With circle matching we get a matrix:
 \[
 \text{presolved[w,i,j] = }
@@ -45,16 +61,13 @@ With circle matching we get a matrix:
 To take advantage of the precomputed matching schedule, we enforce:
 \[\forall w \in W, \forall p \in P, \forall m \in M, m = (i,j): \textbf{Y}[(w,p),m] \leq \text{presolved}[w,i,j]\]
 
-
-\subsection{Constraints}
-In this particular model the addition of symmetry breaking constraints did not improve the results, as circle matching already breaks most of the symmetries, and the addition of other constraints only increased the model weight.
-
+Circle matching already takes care of some of the problem constraints, but we have to enforce:
 \begin{enumerate}
-\item \textbf{one match per w/p slot}: 
+\item \textbf{One match per w/p slot}: 
 \[\forall wp \in WP: \quad\sum_{m \in M}^{m} \textbf{Y}[wp, m] = 1\]
-\item \textbf{one w/p slot per match}: 
+\item \textbf{One w/p slot per match}: 
 \[\forall m \in M: \quad\sum_{wp \in WP}^{wp} \textbf{Y}[wp, m] = 1\]
-\item \textbf{at most 2 matches in the same period}: 
+\item \textbf{At most 2 matches in the same period}: 
 \[
 \forall p \in P, \forall k \in T:
 \sum_{w \in W}^{w}\sum_{j \in \{k+1\dots n\}}^{j} \textbf{Y}[(w,p), (k,j)] + 
@@ -72,26 +85,14 @@ Especially useful in an optimization environment, this constraint aims to spread
 \[
     \forall i \in T: \quad \sum{p \in P}^p \textbf{Q}[i,p] \geq ceil((n-1)/2)
 \]
-
-\subsubsection*{Objective constraints}
-\begin{enumerate}
-    \item \textbf{home games}: 
-\[\forall i \in T: \quad Home[i] = \sum_{j \in T}^{j} \textbf{H}[(i,j)] + \sum_{j \in T}^{j} (1- \textbf{H}[(j,i)]) \quad \text{with $i < j$}\]
-    \item \textbf{away games}: 
-\[\forall i \in T: \quad Home[i] = \sum_{j \in T}^{j} (1- \textbf{H}[(i,j)]) + \sum_{j \in T}^{j} \textbf{H}[(j,i)] \quad \text{with $i < j$}\]
-    \item \textbf{max imbalance}:
-\[\forall i \in T: \quad  \textbf{Home}[i] - \textbf{Away}[i] \leq \textbf{Z} \bigwedge
-\forall i \in T: \quad  \textbf{Away}[i] - \textbf{Home}[i] \leq \textbf{Z} \]
-
-\end{enumerate}
+\subsubsection*{Symmetry breaking constraints}
+In this particular model the addition of symmetry breaking constraints did not improve the results, as circle matching already breaks most of the symmetries, and the addition of other constraints only increased the model weight.
 
 \subsection{4d array model}
 The simplest possible implementation of the STS problem, developed only for comparison as it is not nearly as efficient as the previous one.
-The only decision variable is X, a 4d array n-1 x n/2 x n x n of binary values, where each cell represents a match, described as a combination of week, period, team1 and team2. The first team is the one playing home.
+The only decision variable is X, a 4d array $(n-1 \times n/2 \times n \times n)$ of binary values, where each cell represents a match, described as a combination of week, period, team1 and team2. The first team is the one playing home.
 The constraints, apart from the necessary ones, include two symmetry-breaking constraints and two implied constraints.
 The optimization is performed in the same way as in the previous model.
-
-The results were obtained by running the models for 3 different solvers: Cbc, Glpk and Guroby. Cbc and Glpk are open source solvers while Gurobi is proprietary, used under an academic license.
 
 \subsection{Validation}
 The model was implemented in Python using Pyomo 6.9.2. 
@@ -103,8 +104,10 @@ The results were obtained by running the models for 3 different solvers:
 \end{enumerate}
 
 \subsubsection{Experimental Results}
-We tested the MIP formulation in all the combinations allowed by the model. Here are some of the most interesting results, for a more complete list see the $/res$ folder of the project work.
-It might by newsworthy to point out that 
+We tested the MIP formulations on different configurations, using all solvers and both model variants (4D array and Circle Matching, CM). 
+For reproducibility, a more complete set of experiments is available in the \texttt{/res} folder of the project work. 
+Since circle matching inherently reduces symmetries, additional symmetry-breaking constraints were not applied.
+
 
 \begin{figure}[H]
     \label{fig:mip1}
@@ -117,8 +120,10 @@ It might by newsworthy to point out that
 \end{figure}
 
 \paragraph{Decision version}
-The decision version of the problem, counterintuitively, required on average more time to solve, as shown in figure \ref{fig:mip1}. This fact is explained by the nature of the search in MIP, that focus on the objective more that the constraints.
-The constraints added for the sole purpose of efficiency were not only useless, but even detrimental.
+Somewhat counterintuitively, the decision version required on average \emph{more time} to solve (see Figure~\ref{fig:mip1}). 
+This behavior can be explained by the branch-and-bound exploration of MIP solvers: once the objective is removed, the search tends to focus on constraint satisfaction, which often leads to a larger feasible space and slower convergence.
+Moreover, efficiency-oriented constraints, designed to balance the schedule, turned out to be detrimental in this setting.
+
 
 \begin{table}[H]
     \centering
@@ -154,15 +159,18 @@ The constraints added for the sole purpose of efficiency were not only useless, 
 \end{table}
 
 \paragraph{Optimization version}
-In both versions of the problem the simpler model it significantly outperformed by the circle matching approach, as expected.
-The results obtained by the different solvers are not surprising either: for both models and versions, Glpk was the worse performing while Gurobi was the best, followed by Cbc with with a short lead.
+As expected, the CM model consistently outperformed the 4D array formulation in both solution quality and runtime. 
+For example, with $n=12$, the CM model solved optimally in a few seconds with all solvers, while the 4D array version either timed out or required several minutes without guaranteeing optimality.
+This highlights the benefit of a stricter model, with a smaller associated search space.
 
-%table2
+Table~\ref{tab:mip2} shows how solver performance followed the usual hierarchy: \textbf{Gurobi} was the most efficient, followed closely by \textbf{Cbc}, while \textbf{Glpk} struggled with scalability and often reached the time limit for larger instances. 
+Interestingly, though, for some smaller instances Glpk performs better than Cbc.
+
 \begin{table}[H]
     \centering
     \begin{tabular}{|c|c|c|c|c|}
     \hline
-        \textbf{n} &  \textbf{Model} & \textbf{Solver} & \textbf{Time} & \textbf{Opt} \\
+        \textbf{n} &  \textbf{M.} & \textbf{Solver} & \textbf{Time} & \textbf{Opt} \\
     \hline
          10 & 4D & Cbc & 298s & no \\
          10 & 4D & Glpk & 44s & yes \\
@@ -174,7 +182,7 @@ The results obtained by the different solvers are not surprising either: for bot
     \end{tabular}
     \begin{tabular}{|c|c|c|c|c|}
     \hline
-        \textbf{n} &  \textbf{Model} & \textbf{Solver} & \textbf{Time} & \textbf{Opt} \\
+        \textbf{n} &  \textbf{M.} & \textbf{Solver} & \textbf{Time} & \textbf{Opt} \\
     \hline
          12 & CM & Gurobi & 5s & yes \\
          14 & CM & Cbc & 5s & yes \\
@@ -186,5 +194,5 @@ The results obtained by the different solvers are not surprising either: for bot
     \end{tabular}
     \caption{Results for the optimization problem}
     \text{\small{All with efficiency constraints on}}
-    \label{tab:mip1}
+    \label{tab:mip2}
 \end{table}
