@@ -41,7 +41,6 @@ def handle_gurobi_license():
 def build_command(model_path: str, n_teams: int | str, extra_args: str, specific_args: str, default_range: str) -> str:
     """Builds the full command string for a given model."""
     n_arg = f"-n {n_teams}" if n_teams != 'all' else f"-n {default_range}"
-    #print(f"python3 {model_path} {specific_args} {n_arg} {extra_args}".strip())
     return f"python3 {model_path} {specific_args} {n_arg} {extra_args}".strip()
 
 def run_cp(n_teams: int | str, extra_args_str: str, config: dict):
@@ -78,6 +77,7 @@ def run_cp(n_teams: int | str, extra_args_str: str, config: dict):
         if run_optimal or run_both:
             command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_optimization", config['default_range'])
             os.system(command)
+    return
 
 def run_sat(n_teams: int | str, extra_args_str: str, config: dict):
     os.system(f"echo '--- running SAT models ---'")
@@ -112,6 +112,7 @@ def run_sat(n_teams: int | str, extra_args_str: str, config: dict):
         if run_optimal or run_both:
             command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_optimization", config['default_range'])
             os.system(command)
+    return
 
 def run_mip(n_teams: int | str, extra_args_str: str, config: dict):
     os.system(f"echo '--- running MIP models ---'")
@@ -135,8 +136,12 @@ def run_mip(n_teams: int | str, extra_args_str: str, config: dict):
         if run_decisional or run_both:
             command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all --run_decisional", config['default_range'])
             os.system(command)
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all --run_decisional --ic false", config['default_range'])
+            os.system(command)
         if run_optimal or run_both:
             command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all --run_optimization", config['default_range'])
+            os.system(command)
+            command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--all --run_optimization --ic true", config['default_range'])
             os.system(command)
     else:
         if run_decisional or run_both:
@@ -146,6 +151,8 @@ def run_mip(n_teams: int | str, extra_args_str: str, config: dict):
         if run_optimal or run_both:
             command = build_command(config['main_file'], n_teams, solver_args_str_filtered, "--run_optimization", config['default_range'])
             os.system(command)
+    
+    return
 
 def run_smt(n_teams: int | str, extra_args_str: str, config: dict):
     os.system(f"echo '--- running SMT models ---'")
@@ -162,24 +169,28 @@ def run_smt(n_teams: int | str, extra_args_str: str, config: dict):
     run_optimal = '--run_optimization' in extra_args_list
     run_both = not run_decisional and not run_optimal
     
+    n_teams = n_teams if n_teams != 'all' else parse_n_teams(config['default_range'])
+    
     solver_args_filtered = [arg for arg in extra_args_list if arg not in ['--run_decisional', '--run_optimization', '--all']]
     solver_args_str_filtered = " ".join(solver_args_filtered)
     
     if run_all:
-        if run_decisional or run_both:
-            command = build_command(config['main_file_dec'], n_teams, solver_args_str_filtered, "--approach_base z3_decisional", config['default_range'])
-            os.system(command)
-        if run_optimal or run_both:
-            command = build_command(config['main_file_opt'], n_teams, solver_args_str_filtered, "--approach_base z3_optimal", config['default_range'])
-            os.system(command)
+        for n in n_teams:
+            if run_decisional or run_both:
+                command = build_command(config['main_file_dec'], n, solver_args_str_filtered, "--approach_base z3_decisional", config['default_range'])
+                os.system(command)
+            if run_optimal or run_both:
+                command = build_command(config['main_file_opt'], n, solver_args_str_filtered, "--approach_base z3_optimal", config['default_range'])
+                os.system(command)
     else:
-        if run_decisional or run_both:
-            command = build_command(config['main_file_dec'], n_teams, solver_args_str_filtered, "--approach_base z3_decisional", config['default_range'])
-            os.system(command)
-        
-        if run_optimal or run_both:
-            command = build_command(config['main_file_opt'], n_teams, solver_args_str_filtered, "--approach_base z3_optimal", config['default_range'])
-            os.system(command)
+        for n in n_teams:
+            if run_decisional or run_both:
+                command = build_command(config['main_file_dec'], n, solver_args_str_filtered, "--approach_base z3_decisional", config['default_range'])
+                os.system(command)
+            if run_optimal or run_both:
+                command = build_command(config['main_file_opt'], n, solver_args_str_filtered, "--approach_base z3_optimal", config['default_range'])
+                os.system(command)
+    return
     
    
 
@@ -225,6 +236,7 @@ def main():
         
         config = models[args.f]
         config['run_func'](n_to_run, extra_args_str, config)
+    return
 
 if __name__ == '__main__':
     main()

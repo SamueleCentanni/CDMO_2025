@@ -117,8 +117,7 @@ def run4dArray(n, timeout=300, ic=True, optimization=True, verbose=False, save=T
     solvers = ['cbc','glpk']
     if os.path.exists('/opt/gurobi/gurobi.lic') or os.path.exists('./gurobi.lic'):
         solvers.append('gurobi')
-    if solvers == []:
-        raise ValueError("No solver available")
+        
     outputs = []
     for solver in solvers:
         try:
