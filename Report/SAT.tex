@@ -25,14 +25,12 @@ H_t = \sum_{\substack{(i,j) \in \text{pair\_to\_week} \\ p \in P}}
 \end{cases}
 \]
 
-To enforce that the home-away imbalance for each team $t$ does not exceed $k$, we use two pseudo-boolean constraints. Let $\text{NUM\_GAMES} = n-1$. For a given $k$, the constraints are:
+To enforce that the home-away imbalance for each team $t$ does not exceed $k$, we use two pseudo-boolean constraints. For a given $k$, the constraints are:
 \begin{enumerate}
-    \item $H_t \ge \text{lower\_bound}$, where $\text{lower\_bound} = \left\lceil \frac{\text{NUM\_GAMES} - k}{2} \right\rceil$,
-    \item $H_t \le \text{upper\_bound}$, where $\text{upper\_bound} = \left\lfloor \frac{\text{NUM\_GAMES} + k}{2} \right\rfloor$.
+    \item $H_t \ge \text{lower\_bound}$, where $\text{lower\_bound} = \left\lceil \frac{\text{w} - k}{2} \right\rceil$,
+    \item $H_t \le \text{upper\_bound}$, where $\text{upper\_bound} = \left\lfloor \frac{\text{w} + k}{2} \right\rfloor$.
 \end{enumerate}
-These bounds ensure that the number of home games for each team respects the maximum imbalance $k$. Since the maximum number of matches a team can play is $|W|$, which is odd, then the optimal value we want to achieve is exactly $k=1$.
-
-For other details, see section~\ref{validation}.
+These bounds ensure that the number of home games for each team respects the maximum imbalance $k$. Since the maximum number of matches a team can play is $|W|$, which is odd, then the optimal value we want to achieve is exactly $k=1$. For other details, see section~\ref{validation}.
 
 
 \subsection{Constraints}
@@ -63,25 +61,11 @@ To reduce redundant search caused by symmetric solutions, we experimented with s
 \]
 This fixes the match between the pivot team $n-1$ and team 0 in period 0, breaking rotational symmetry.
 
-We also investigated two further constraints, which are commented in the code and reported here only for completeness, as they did not yield improvements in practice. Since they introduced additional complexity that outweighed any potential benefits, they were not considered in the final results.
+We also investigated two further constraints, which are commented in the code and reported here only for completeness. Since they introduced additional complexity that outweighed any potential benefits, they were not considered in the final results.
 
-\textbf{SB2: Team 0's home/away pattern is fixed:}
-\[
-\forall (i,j) \in \text{pair\_to\_week} \text{ with } 0 \in \{i,j\}:
-\begin{cases}
-\text{home\_vars}_{i,j} & \text{if } w(i,j) \text{ is even and } i=0 \\
-\neg \text{home\_vars}_{i,j} & \text{if } w(i,j) \text{ is even and } j=0 \\
-\neg \text{home\_vars}_{i,j} & \text{if } w(i,j) \text{ is odd and } i=0 \\
-\text{home\_vars}_{i,j} & \text{if } w(i,j) \text{ is odd and } j=0
-\end{cases}
-\]
-This enforces a fixed home/away assignment for team 0, removing the global symmetry of flipping all home/away statuses.
+\textbf{SB2: Team 0's home/away pattern is fixed:} This enforces a fixed home/away assignment for team 0.
 
-\textbf{SB3: Lexicographical ordering of matches in week 0:}
-\[
-\forall a \in \{0, \dots, |\mathcal{M}_0| - 2\}: \quad \text{lex\_less}(V_a, V_{a+1})
-\]
-This constraint enforces a lexicographical order on the period assignments of matches in week 0, preventing symmetric permutations.
+\textbf{SB3: Lexicographical ordering of matches in week 0:} This constraint enforces a lexicographical order on the period assignments of matches in week 0.
 
 
 \subsubsection*{Encoding Methods}
@@ -96,15 +80,15 @@ Additionally, we employed the \textbf{Totalizer encoding}~\cite{bailleux2003} to
 
 \subsection{Validation}
 \label{validation}
-The model was implemented in Python using Z3's API. All experiments were conducted respecting the given timeout of $300\,\mathrm{s}$ and with an increasing number of instances (i.e., number of teams, $n$). 
+The model was implemented in Python using Z3's API. 
 
 
 In the following, we present tables and plots to compare the Z3 model using different encoding techniques (used for both optimization and decision versions), both with and without symmetry breaking constraints:
 
 \begin{enumerate}
-\item Pairwise + Pairwise encodings
-\item Heule + Sequential encodings
-\item Heule + Totalizer encodings
+\item Pairwise + Pairwise encodings  (p-p in the Table)
+\item Heule + Sequential encodings   (h-s in the Table)
+\item Heule + Totalizer encodings    (h-t in the Table)
 \end{enumerate}
 
 
@@ -119,7 +103,7 @@ As shown in Table~\ref{tab:sat-results-dec}, even a simple symmetry breaking (SB
     \centerline{
     \begin{tabular}{ccccccc}
         \toprule
-        \textbf{N} & \textbf{np-np + SB} & \textbf{np-np w/out SB} & \textbf{heule-seq + SB} & \textbf{heule-seq w/out SB} & \textbf{heule-tot + SB} & \textbf{heule-tot w/out SB} \\ 
+        \textbf{N} & \textbf{p-p + SB} & \textbf{p-p w/out SB} & \textbf{h-s + SB} & \textbf{h-s w/out SB} & \textbf{h-t + SB} & \textbf{h-t w/out SB} \\ 
         \midrule
         12 & 1.0 & 1.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
         14 & 3.0 & 2.0 & 0.0 & 0.0 & 1.0 & 0.0 \\
@@ -133,8 +117,6 @@ As shown in Table~\ref{tab:sat-results-dec}, even a simple symmetry breaking (SB
 
 
 \subsubsection{Experimental Results (Optimization version)}
-The optimization version of the Sports Tournament Scheduling (STS) problem was solved using a binary search approach on the objective function value. 
-
 As shown in Table \ref{tab:sat_results_opt}, the results confirm the expected performance of the encodings. The Heule + Totalizer combination generally proved to be very efficient, particularly for larger instances. Conversely, the Pairwise + Pairwise approach, known for its larger number of clauses, was the slowest.
 
 Generally, except for some rare cases, the SB constraint proved effective at guiding the solver to an optimal solution faster, significantly reducing the search space.
@@ -149,7 +131,7 @@ The table also shows that all tested configurations successfully found an \textb
     \centerline{
     \begin{tabular}{ccccccc}
         \toprule
-        \textbf{N} & \textbf{np-np + SB} & \textbf{np-np w/out SB} & \textbf{heule-seq + SB} & \textbf{heule-seq w/out SB} & \textbf{heule-tot + SB} & \textbf{heule-tot w/out SB} \\ 
+        \textbf{N} & \textbf{p-p + SB} & \textbf{p-p w/out SB} & \textbf{h-s + SB} & \textbf{h-s w/out SB} & \textbf{h-t + SB} & \textbf{h-t w/out SB} \\ 
         \midrule
         10  & 1\textbar\textbf{1}  & 1\textbar\textbf{1}  & 0\textbar\textbf{1}  & 0\textbar\textbf{1}  & 0\textbar\textbf{1}  & 0\textbar\textbf{1}  \\ 
         12  & 2\textbar\textbf{1} & 3\textbar\textbf{1} & 0\textbar\textbf{1} & 1\textbar\textbf{1} & 1\textbar\textbf{1} & 1\textbar\textbf{1} \\ 
@@ -165,7 +147,7 @@ The table also shows that all tested configurations successfully found an \textb
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}{0.49\linewidth}
+    \begin{subfigure}{0.75\linewidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/output.png}
         \caption{Resolution time}
