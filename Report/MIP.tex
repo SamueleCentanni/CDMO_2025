@@ -15,75 +15,75 @@ WP = (\{0, \dots, n-2\},\{0, \dots, \frac{n}{2} - 1\}), \quad M = (\{0, \dots, n
 \subsubsection*{Decision Variables}
 To encode the STS problem we define:
 \begin{enumerate}
-    \item $\mathbf{Y}[wp,m] \in \{0,1\}$ \quad $\forall wp \in WP, \; \forall m=(i,j) \in M$ with $i<j$. \\
-    $\mathbf{Y}[wp,m] = 1$ if and only if match $m$ is scheduled in slot $wp$.
-    \item $\mathbf{H}[i,j] \in \{0,1\}$ \quad $\forall (i,j) \in M, \; i<j$. \\
-    $\mathbf{H}[i,j] = 1$ if team $i$ plays at home against $j$, $0$ otherwise.
+    \item $\mathbf{Y}_{wp,m} \in \{0,1\}$ \quad $\forall wp \in WP, \; \forall m=(i,j) \in M$ with $i<j$. \\
+    $\mathbf{Y}_{wp,m} = 1$ if and only if match $m$ is scheduled in slot $wp$.
+    \item $\mathbf{H}_{i,j} \in \{0,1\}$ \quad $\forall (i,j) \in M, \; i<j$. \\
+    $\mathbf{H}_{i,j} = 1$ if team $i$ plays at home against $j$, $0$ otherwise.
 \end{enumerate}
 
 \subsubsection*{Other Variables}
 For the efficiency constraints, we also track whether a team plays in a given period:
 \[
-\mathbf{Q}[i,p] \in \{0,1\}, \quad \forall i \in T, \; p \in P,
+\mathbf{Q}_{i,p} \in \{0,1\}, \quad \forall i \in T, \; p \in P,
 \]
-where $\mathbf{Q}[i,p] = 1$ if team $i$ has at least one match in period $p$.
+where $\mathbf{Q}_{i,p} = 1$ if team $i$ has at least one match in period $p$.
 
 \subsection{Objective Function}
 \paragraph{Variables}
 In order to minimize the maximum imbalance, we need 3 extra variables:
 \begin{enumerate}
-\item \textbf{Home}$[i]$ $\in [0,n-1]$: the number of home matches played by team i
-\item \textbf{Away}$[i]$ $\in [0,n-1]$: the number of away matches played by team i
+\item $\textbf{Home}_{i} \in [0,n-1]$: the number of home matches played by team i
+\item $\textbf{Away}_{i} \in [0,n-1]$: the number of away matches played by team i
 \item \textbf{Z} $ \in [0,n-1]$: the maximum imbalance across teams
 \end{enumerate}
 
 \paragraph{Constraints}
 \begin{enumerate}
     \item \textbf{Home games}: 
-\[\forall i \in T: \quad \textbf{Home}[i] = \sum_{j \in T}^{j} \textbf{H}[(i,j)] + \sum_{j \in T}^{j} (1- \textbf{H}[(j,i)]) \quad \text{with $i < j$}\]
+\[\forall i \in T: \quad \textbf{Home}_{i} = \sum_{j \in T}^{j} \textbf{H}{i,j} + \sum_{j \in T}^{j} (1- \textbf{H}_{j,i}) \quad \text{with $i < j$}\]
     \item \textbf{Away games}: 
-\[\forall i \in T: \quad \textbf{Away}[i] = \sum_{j \in T}^{j} (1- \textbf{H}[(i,j)]) + \sum_{j \in T}^{j} \textbf{H}[(j,i)] \quad \text{with $i < j$}\]
+\[\forall i \in T: \quad \textbf{Away}_{i} = \sum_{j \in T}^{j} (1- \textbf{H}_{i,j}) + \sum_{j \in T}^{j} \textbf{H}_{j,i} \quad \text{with $i < j$}\]
     \item \textbf{Maximum imbalance}: 
 \[
-\forall i \in T: \quad |\text{Home}[i] - \text{Away}[i]| \leq Z.
+\forall i \in T: \quad |\text{Home}_{i} - \text{Away}_{i}| \leq Z.
 \]
 \end{enumerate}
 
 \subsection{Constraints}
 With circle matching we get a matrix:
 \[
-\text{presolved[w,i,j] = }
+\text{presolved}_{w,i,j} = 
 \begin{cases}
     \text{1 \quad if the match (i,j) is scheduled for week w}\\
     \text{0 \quad o.w.}
 \end{cases}
 \]
 To take advantage of the precomputed matching schedule, we enforce:
-\[\forall w \in W, \forall p \in P, \forall m \in M, m = (i,j): \textbf{Y}[(w,p),m] \leq \text{presolved}[w,i,j]\]
+\[\forall w \in W, \forall p \in P, \forall m \in M, m = (i,j): \textbf{Y}_{(w,p),m} \leq \text{presolved}_{w,i,j}\]
 
 Circle matching already takes care of some of the problem constraints, but we have to enforce:
 \begin{enumerate}
 \item \textbf{One match per w/p slot}: 
-\[\forall wp \in WP: \quad\sum_{m \in M}^{m} \textbf{Y}[wp, m] = 1\]
+\[\forall wp \in WP: \quad\sum_{m \in M}^{m} \textbf{Y}_{wp, m} = 1\]
 \item \textbf{One w/p slot per match}: 
-\[\forall m \in M: \quad\sum_{wp \in WP}^{wp} \textbf{Y}[wp, m] = 1\]
+\[\forall m \in M: \quad\sum_{wp \in WP}^{wp} \textbf{Y}_{wp, m} = 1\]
 \item \textbf{At most 2 matches in the same period}: 
 \[
 \forall p \in P, \forall k \in T:
-\sum_{w \in W}^{w}\sum_{j \in \{k+1\dots n\}}^{j} \textbf{Y}[(w,p), (k,j)] + 
-\sum_{w \in W}^{w}\sum_{i \in \{0\dots k\}}^{i} \textbf{Y}[(w,p), (i,k)] <= 2
+\sum_{w \in W}^{w}\sum_{j \in \{k+1\dots n\}}^{j} \textbf{Y}_{(w,p), (k,j)} + 
+\sum_{w \in W}^{w}\sum_{i \in \{0\dots k\}}^{i} \textbf{Y}_{(w,p), (i,k)} <= 2
 \]
 \end{enumerate}
 
 \subsubsection*{Constraints for efficiency}
 Especially useful in an optimization environment, this constraint aims to spread the matches of a team in different periods over the scheduling, to get a more balanced result. It also help with symmetry breaking.
 \[
-    \forall p \in P, \forall i \in T: \quad 2 \textbf{Q}[i,p] \geq 
-    \sum_{w \in W}^{w}\sum_{j \in \{i+1\dots n\}}^{j} \textbf{Y}[(w,p), (i,j)] + 
-    \sum_{w \in W}^{w}\sum_{j \in \{0\dots i\}}^{j} \textbf{Y}[(w,p), (j,i)]
+    \forall p \in P, \forall i \in T: \quad 2 \cdot \textbf{Q}_{i,p} \geq 
+    \sum_{w \in W}^{w}\sum_{j \in \{i+1\dots n\}}^{j} \textbf{Y}_{(w,p), (i,j)} + 
+    \sum_{w \in W}^{w}\sum_{j \in \{0\dots i\}}^{j} \textbf{Y}_{(w,p), (j,i)}
 \]
 \[
-    \forall i \in T: \quad \sum{p \in P}^p \textbf{Q}[i,p] \geq ceil((n-1)/2)
+    \forall i \in T: \quad \sum_{p \in P}^p \textbf{Q}_{i,p} \geq ceil((n-1)/2)
 \]
 \subsubsection*{Symmetry breaking constraints}
 In this particular model the addition of symmetry breaking constraints did not improve the results, as circle matching already breaks most of the symmetries, and the addition of other constraints only increased the model weight.
@@ -154,7 +154,7 @@ Moreover, efficiency-oriented constraints, designed to balance the schedule, tur
     \hline
     \end{tabular}
     \caption{Results for the decision problem}
-    \text{\small{All with efficiency constraints off}}
+    \text{\small{Efficiency constraints off. Results with $time=0$ or $time=300$ were not considered}}
     \label{tab:mip1}
 \end{table}
 
@@ -170,29 +170,29 @@ Interestingly, though, for some smaller instances Glpk performs better than Cbc.
     \centering
     \begin{tabular}{|c|c|c|c|c|}
     \hline
-        \textbf{n} &  \textbf{M.} & \textbf{Solver} & \textbf{Time} & \textbf{Opt} \\
+        \textbf{n} &  \textbf{Model} & \textbf{Solver} & \textbf{Time\textbar Obj} \\
     \hline
-         10 & 4D & Cbc & 298s & no \\
-         10 & 4D & Glpk & 44s & yes \\
-         10 & 4D & Gurobi & 5s & yes \\
-         12 & 4D & Cbc/Glpk & 300s & no \\
-         12 & CM & Cbc & 3s & yes \\
-         12 & CM & Glpk & 9s & yes \\
+         10 & 4D & Cbc & 298\textbar? \\
+         10 & 4D & Glpk & 44\textbar1 \\
+         10 & 4D & Gurobi & 5\textbar1 \\
+         12 & 4D & Cbc & 300\textbar N/A \\
+         12 & CM & Cbc & 3\textbar1 \\
+         12 & CM & Glpk & 9\textbar1 \\
     \hline
     \end{tabular}
     \begin{tabular}{|c|c|c|c|c|}
     \hline
-        \textbf{n} &  \textbf{M.} & \textbf{Solver} & \textbf{Time} & \textbf{Opt} \\
+        \textbf{n} &  \textbf{Model} & \textbf{Solver} & \textbf{Time\textbar Obj} \\
     \hline
-         12 & CM & Gurobi & 5s & yes \\
-         14 & CM & Cbc & 5s & yes \\
-         14 & CM & Glpk & 300s & no \\
-         14 & CM & Gurobi & 26s & yes \\
-         16 & CM & Cbc & 300s & no \\
-         16 & CM & Gurobi & 16s & yes \\
+         12 & CM & Gurobi & 5\textbar1 \\
+         14 & CM & Cbc & 5\textbar1 \\
+         14 & CM & Glpk & 300\textbar N/A \\
+         14 & CM & Gurobi & 26\textbar1 \\
+         16 & CM & Cbc & 300\textbar N/A \\
+         16 & CM & Gurobi & 16\textbar1 \\
     \hline
     \end{tabular}
     \caption{Results for the optimization problem}
-    \text{\small{All with efficiency constraints on}}
-    \label{tab:mip2}
+    \text{\small{Efficiency constraints on. Results with $time=0$ or $time=300$ were not considered}}
+    \label{tab:mip2} 
 \end{table}
