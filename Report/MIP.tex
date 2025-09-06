@@ -110,17 +110,17 @@ Since circle matching inherently reduces symmetries, additional symmetry-breakin
 
 
 \begin{figure}[H]
-    \label{fig:mip1}
     \centering
     \begin{subfigure}{\linewidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/plot1.png}
         \caption{Decision vs Optimization}
+        \label{fig:mip1}
     \end{subfigure}
 \end{figure}
 
 \paragraph{Decision version}
-Somewhat counterintuitively, the decision version required on average \emph{more time} to solve (see Figure~\ref{fig:mip1}). 
+Somewhat counterintuitively, the decision version required on average \emph{more time} to solve (see Figure \ref{fig:mip1}). 
 This behavior can be explained by the branch-and-bound exploration of MIP solvers: once the objective is removed, the search tends to focus on constraint satisfaction, which often leads to a larger feasible space and slower convergence.
 Moreover, efficiency-oriented constraints, designed to balance the schedule, turned out to be detrimental in this setting.
 
