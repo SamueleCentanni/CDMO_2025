@@ -14,7 +14,12 @@ def saveSol(n, outputs, optimization=True, output_dir='/res/MIP', filename='data
         result, solution, time, name = o
 
         try:
-            if result == {} or not int(np.sum(solution)) == n*(n - 1)//2 or solution == []:
+            if result == {} \
+                or not int(np.sum(solution)) == n*(n - 1)//2 \
+                or solution == [] \
+                or (not optimization and result.Solver.termination_condition == 'aborted') \
+                or (optimization and result.Problem.Upper_bound > n) \
+                or solution.shape != (n-1, n//2, n, n):
                 output[name] = {
                     "sol": [],
                     "time": 300,
@@ -36,16 +41,9 @@ def saveSol(n, outputs, optimization=True, output_dir='/res/MIP', filename='data
             formatted_sol.append(row)
 
         time  = math.floor(time) if time <= 300 else 300
-        obj = result.Problem.Upper_bound if optimization and result.Solver.termination_condition == 'optimal' else None
+        obj = int(result.Problem.Upper_bound) if optimization and result.Problem.Upper_bound < n else None
         optimal = (not optimization and time < 300) or (optimization and obj == 1 and time < 300)
-        formatted_sol = formatted_sol if time < 300 else []
-
-        try:
-            if formatted_sol == []  or formatted_sol[0] == [] or result.Solver.status == 'aborted':
-                time = 300
-                obj = None
-        except:
-            pass
+        formatted_sol = formatted_sol if (not optimization and time < 300) or (not obj == None) else []
 
         output[name] = {
             "sol": formatted_sol,
@@ -58,3 +56,4 @@ def saveSol(n, outputs, optimization=True, output_dir='/res/MIP', filename='data
     with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=4)
     return
+

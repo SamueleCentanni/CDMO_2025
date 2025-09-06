@@ -1,5 +1,4 @@
 {
-    
     "decision_cbc_4dArray_no_ic": {
         "sol": [
             [
@@ -193,7 +192,7 @@
                 ]
             ]
         ],
-        "time": 5,
+        "time": 4,
         "optimal": true,
         "obj": null
     },
@@ -396,7 +395,7 @@
                 ]
             ]
         ],
-        "time": 11,
+        "time": 9,
         "optimal": true,
         "obj": null
     },
@@ -599,9 +598,9 @@
                 ]
             ]
         ],
-        "time": 298,
-        "optimal": false,
-        "obj": null
+        "time": 299,
+        "optimal": true,
+        "obj": 1
     },
     "optimization_glpk_4dArray_no_ic": {
         "sol": [],
@@ -803,8 +802,8 @@
             ]
         ],
         "time": 298,
-        "optimal": false,
-        "obj": null
+        "optimal": true,
+        "obj": 1
     },
     "optimization_glpk_4dArray_ic": {
         "sol": [
@@ -999,9 +998,9 @@
                 ]
             ]
         ],
-        "time": 44,
+        "time": 35,
         "optimal": true,
-        "obj": 1.0
+        "obj": 1
     },
     "decision_cbc_circleMatching_no_ic": {
         "sol": [
@@ -1986,7 +1985,7 @@
         ],
         "time": 0,
         "optimal": true,
-        "obj": 1.0
+        "obj": 1
     },
     "optimization_glpk_circleMatching_no_ic": {
         "sol": [
@@ -2183,7 +2182,7 @@
         ],
         "time": 0,
         "optimal": true,
-        "obj": 1.0
+        "obj": 1
     },
     "optimization_cbc_circleMatching_ic": {
         "sol": [
@@ -2378,9 +2377,9 @@
                 ]
             ]
         ],
-        "time": 0,
+        "time": 1,
         "optimal": true,
-        "obj": 1.0
+        "obj": 1
     },
     "optimization_glpk_circleMatching_ic": {
         "sol": [
@@ -2577,7 +2576,7 @@
         ],
         "time": 1,
         "optimal": true,
-        "obj": 1.0
+        "obj": 1
     },
     "decision_gurobi_circleMatching_no_ic": {
         "sol": [
