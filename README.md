@@ -50,18 +50,18 @@ Available Formulations:
 
 - mip (Mixed-Integer Programming)
 
-_Example_: Run the SAT solver for 12 teams.
+_Example_: Run the SAT solver for 12 teams for all possible encoding combinations.
 
 ```bash
-docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f sat -n 12
+docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f sat -n 12 --all
 ```
 
 You can also specify a range of teams. The script will automatically test all even numbers within that range.
 
-_Example_: Run the CP solver for a range from 6 to 18 teams.
+_Example_: Run the CP solver for a range from 6 to 18 teams for all possible solvers.
 
 ```bash
-docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f cp -n 6-18
+docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f cp -n 6-18 --all
 ```
 
 To run all pre-configured n values for a specific formulation, use the `--run_all_sizes` flag.
@@ -69,7 +69,7 @@ To run all pre-configured n values for a specific formulation, use the `--run_al
 _Example_: Run all pre-configured n values for the MIP solver.
 
 ```bash
-docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f mip --run_all_sizes
+docker run -v "$PWD/res:/res" cdmo python3 /src/main.py -f mip --run_all_sizes --all
 ```
 
 ### Customize the Run with Specific Flags
@@ -92,5 +92,5 @@ Example for the SAT solver
 
 ```bash
 cd src/SAT
-python3 main.py -n 12 --run_decisional
+python3 main.py -n 12 --run_decisional --all
 ```
