@@ -11,11 +11,7 @@ To encode the Sports Tournament Scheduling (STS) problem, we define the followin
 \end{enumerate}
 
 \subsection{Objective Function}
-The goal of the STS problem is to minimize the maximum home-away imbalance among all teams:
-\[
-\min \max_{t \in T} |H_t - A_t|,
-\]
-where $H_t$ is the number of home games for team $t$, and $A_t$ is the number of away games for team $t$.
+The implemented objective function is defined in Section~\ref{obj_var}.
 
 Since SAT solvers handle only boolean variables, we solve this optimization problem via a \emph{binary search} on the maximum allowed imbalance $k$.
 
@@ -36,15 +32,11 @@ To enforce that the home-away imbalance for each team $t$ does not exceed $k$, w
 \end{enumerate}
 These bounds ensure that the number of home games for each team respects the maximum imbalance $k$. Since the maximum number of matches a team can play is $|W|$, which is odd, then the optimal value we want to achieve is exactly $k=1$.
 
-For other details, see section \ref{validation}.
+For other details, see section~\ref{validation}.
 
 
 \subsection{Constraints}
-Thanks to the \emph{circle method}, some constraints are inherently satisfied:
-\begin{enumerate}
-    \item Each team plays every other team exactly once.
-    \item Each team plays exactly once every week.
-\end{enumerate}
+Thanks to the \emph{circle method}, some constraints are inherently satisfied (see Section~\ref{CircleMatching}).
 This reduces the constraints needed, leaving the solver to decide only the specific period for each match $(i,j)$. In particular, we implemented the following constraints:
 
 \textbf{Each match is assigned to exactly one period:}

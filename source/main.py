@@ -41,7 +41,7 @@ def handle_gurobi_license():
 def build_command(model_path: str, n_teams: int | str, extra_args: str, specific_args: str, default_range: str) -> str:
     """Builds the full command string for a given model."""
     n_arg = f"-n {n_teams}" if n_teams != 'all' else f"-n {default_range}"
-    print(f"python3 {model_path} {specific_args} {n_arg} {extra_args}".strip())
+    #print(f"python3 {model_path} {specific_args} {n_arg} {extra_args}".strip())
     return f"python3 {model_path} {specific_args} {n_arg} {extra_args}".strip()
 
 def run_cp(n_teams: int | str, extra_args_str: str, config: dict):
