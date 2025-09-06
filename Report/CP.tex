@@ -11,7 +11,7 @@ The CP model relies on the following decision variables:
 Moreover, using the previously described \emph{circle method}, all week assignments are precomputed and passed to the model in the variables $\text{\textbf{week}}_{i,j} \in W$, where $\text{week}_{i,j} = w$ means that $i$ plays against $j$ in week $w$.
 
 \subsection{Objective Function}
-To implement the objective function in the CP model, the number of games each team plays at home and away are stored in two arrays:
+To implement the objective function described in Section~\ref{obj_var} in the CP model, the number of games each team plays at home and away are stored in two arrays:
 \[
 \forall t \in T \quad \mathtt{home\_count[t]} \in \{1, \dots, n-1\}, 
 \qquad
@@ -22,8 +22,6 @@ The imbalance for each team is stored in
 \mathtt{imbalance[t]} = \lvert \mathtt{home\_count[t]} - \mathtt{away\_count[t]} \rvert
 \]
 and the optimization variable is taken as the $\text{max}$ over the array.
-
-A final consideration regarding the objective function is that the CP models performed significantly better when switching from minimizing the sum of home–away imbalances to minimizing the maximum imbalance.
 
 \subsection{Constraints}
 Thanks to the previously described \emph{circle method} only two constraints had to be implemented to solve the problem in a consistent way:
@@ -42,9 +40,8 @@ We implemented this constraint using the global constraint \texttt{count\_geq}, 
 \sum_{\substack{(i,j) \in M}}
 \chi_{\{\,\text{week}_{i,j} = w \,\wedge\, \text{period}_{i,j} = p\,\}} = 1,
 \]
-where $M$ is the set of all the possible matches: \[
-M \;=\; \bigl\{\,(i,j) \;:\; i,j \in T,\; i<j \,\bigr\}.
-\]
+where $M$ is the set of all matches $M \;=\; \bigl\{\,(i,j) \;:\; i,j \in T,\; i<j \,\bigr\}.$
+
 We tried to tackle this constraint using the global constraint \texttt{alldifferent} but it weakened the performance on basically all instances, which is why we didn't implement this constraint using the available global one.
 
 Additional constraints were required due to the way we defined the decision variables. Specifically, we allowed the slot variable to take the value $0$, even though it does not correspond to a valid slot in which teams can play. Furthermore, the slot matrix must be symmetric, and the home team assignment also exhibits a particular structure by design:
@@ -73,23 +70,15 @@ This constraint ensures that the slots assigned to the first team are strictly i
 \forall\, w \in W:\quad
 \text{home}_{1,\, w+1} =
 \begin{cases}
-1, & 1 \le w \le \lfloor \tfrac{\text{num\_teams}}{2} \rfloor,\\[2mm]
-0, & \lfloor \tfrac{\text{num\_teams}}{2} \rfloor + 1 \le w \le \text{num\_teams}-1
+1, & 1 \le w \le \lfloor \tfrac{\text{n}}{2} \rfloor,\\[2mm]
+0, & \lfloor \tfrac{\text{n}}{2} \rfloor + 1 \le w \le \text{n}-1
 \end{cases}
 \]
 
 This constraint eliminates symmetries that come from flipping home-away status forcing the first team to play the first half of the season at home and the second away.
 
-\textbf{SB3: Imbalance ordering:}  
-
-\[
-\forall\, t \in T:\quad \text{imbalance}_t \ge \text{imbalance}_{t+1}
-\]
-
-This last symmetry breaking constraint binds the imbalance array to be decreasing and was of course tested only on the optimization version of the problem.
-
 \subsection{Validation}
-The models were implemented in MiniZinc and coupled with a Python script that takes the input parameters, determines week assignments, and subsequently executes the corresponding MiniZinc model. We used \textbf{Gecode} and \textbf{Chuffed} with different search strategies. All experiments were conducted respecting the given timeout of $300\,\mathrm{s}$, with the solvers in their sequential version and using $42$ as \texttt{random\_seed}.
+The models were implemented in MiniZinc and coupled with a Python script that takes the input parameters, determines week assignments, and subsequently executes the corresponding MiniZinc model. We used \textbf{Gecode} and \textbf{Chuffed} with different search strategies. 
 
 \subsubsection{Experimental Results (Decision version)}
 
@@ -100,7 +89,7 @@ In Figure~\ref{fig:solver_strategies}, we present the results for the decision v
     \begin{tikzpicture}
         \begin{axis}[
             xlabel={Number of Teams},
-            ylabel={Scheduling Time (s)},
+            ylabel={Solving Time (s)},
             grid=major,
             width=8cm,
             height=5cm,
@@ -137,25 +126,25 @@ In Figure~\ref{fig:solver_strategies}, we present the results for the decision v
 
         \end{axis}
     \end{tikzpicture}
-    \caption{Decision version: runtime in seconds for different solving configurations.}
+    \caption{Runtime in seconds for the decision version.}
     \label{fig:solver_strategies}
 \end{figure}
 
 \subsubsection{Experimental Results (Optimization version)}
 
-Our first objective was to evaluate the impact of the proposed symmetry-breaking constraints. As shown in Table~\ref{cp-opt-results}, the inclusion of symmetry breaking yields clear benefits for both Gecode and Chuffed. In particular, Chuffed was able to solve the case $n=16$ to optimality, which was not possible without symmetry breaking and it found a better solution for $n=18$. Similarly, Gecode, when combined with symmetry breaking, successfully solved the case $n=14$ to optimality. Among the three symmetry-breaking strategies described before, the best performance was obtained using the first two, while the third did not lead to any improvement, which is why we did not use it.
+Our first objective was to evaluate the impact of the proposed symmetry-breaking constraints. As shown in Table~\ref{cp-opt-results}, the inclusion of symmetry breaking yields clear benefits for both Gecode and Chuffed. 
 
 Having established the advantages of symmetry breaking, we next investigated alternative search strategies to further enhance performance of both solvers. All subsequent experiments were conducted with symmetry breaking enabled.
 
-For the optimization version with Chuffed, we were not able to identify search strategies that improved the model’s solutions, highlighting the effectiveness of Lazy Clause Generation. Among the tested configurations, the best was \texttt{random\_order} for variable selection combined with a \texttt{Luby$(50)$} restart strategy. We also experimented with \texttt{first\_fail}, but regardless of the chosen value-assignment heuristic, no improvement was observed, although \texttt{indomain\_split} performed slightly better than the others.
+For the optimization version with Chuffed, we were not able to identify search strategies that improved the model’s solutions, highlighting the effectiveness of Lazy   Generation. Among the tested configurations, the best was \texttt{random\_order} for variable selection combined with a \texttt{Luby$(50)$} restart strategy. We also experimented with \texttt{first\_fail}, but regardless of the chosen value-assignment heuristic, no improvement was observed, although \texttt{indomain\_split} performed slightly better than the others.
 
-We additionally tested enabling free search, allowing the solver to switch between the specified search annotations and its default search. However, this significantly degraded performance: in fact, the models were unable to solve even the case $n=16$ to optimality.
+We additionally tested enabling free search, allowing the solver to switch between the specified search annotations and its default search. However, this significantly degraded performance.
 
-For Gecode, we initially experimented with the \texttt{first\_fail} variable selection heuristic, but it did not yield any performance improvement. Switching to the domain over weighted degree heuristic, combined with random value assignment, we obtained a significant improvement. Using this approach, Gecode was able to solve instances up to $n=16$ optimally, although, the time required to solve $n=14$ increased noticeably.
+For Gecode, we initially experimented with the \texttt{first\_fail} variable selection heuristic, but it did not yield any performance improvement. Switching to the domain over weighted degree heuristic, combined with random value assignment, we obtained a significant improvement.
 
 We also attempted to combine this strategy with restarts, specifically \texttt{Luby}, but the results weakened. This trend was consistent across several restart scales arbitrarily chosen within $[20,150]$.
 
-Additionally, we evaluated the large neighborhood search (LNS) strategy; however, it provided no benefit regardless of the retainment percentage. In fact the results were the same as without it. As to be expected, this approach was only tested for the optimization version of the problem.
+Additionally, we evaluated the large neighborhood search (LNS) strategy; however, it provided no benefit regardless of the retainment percentage. As to be expected, this approach was only tested for the optimization version of the problem.
 
 Overall, Chuffed consistently outperformed Gecode, producing better results across nearly all non-trivial instances, with the exception of some faster solutions that Gecode was able to find for $n=16$. 
 
@@ -176,6 +165,6 @@ Overall, Chuffed consistently outperformed Gecode, producing better results acro
 \bottomrule
 \end{tabular}
 }
-\caption{Optimization version: runtime in seconds and found objective value for different combinations of models, solvers and search strategies.}
+\caption{Optimization version: runtime in seconds and found objective value.}
 \label{cp-opt-results}
 \end{table}
