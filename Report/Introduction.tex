@@ -1,11 +1,11 @@
 \section{Introduction} \label{sec:intro}
 
-The problem addressed in this project is the the Sports Tournament Scheduling (STS). We approach it using Constraint Programming (CP), SAT solvers, Satisfiability Modulo Theory (SMT), and Mixed Integer Linear Programming (MILP). All the developed models share a common formalization, described in this section.
+The problem addressed in this project is the the Sports Tournament Scheduling (STS). We approach it using Constraint Programming (CP), SAT solvers, Satisfiability Modulo Theory (SMT), and Mixed Integer Programming (MIP). All the developed models share a common formalization, described in this section.
 All experiments were conducted respecting the given timeout of $300\,\mathrm{s}$, with the solvers in their sequential version and fixed random seeds.
 
 \subsection{Input Parameters.}
 
-The main input parameter of the model is the number of teams (an even integer) $n.$ Moreover we define other parameters defined from $n,$ which are: 
+The main input parameter of the model is the number of teams (an even integer) $n.$ From it, we define the following quantities used throughout the project and this report:
 \begin{enumerate*}[label=(\roman*)]
     \item number of weeks $w = n-1$
     \item number of periods $p = \frac{n}{2}$  
@@ -19,20 +19,20 @@ The main input parameter of the model is the number of teams (an even integer) $
 \label{obj_var}
 The objective function is the same across all proposed approaches. Specifically, we aim to minimize the maximum absolute difference between the number of home and away matches played by any team:
 \[
-M = \max_{t \in T} |H_t - A_t|
+O = \max_{t \in T} |H_t - A_t|,
 \]
 
 where \(H_t\) denotes the number of home games of team \(t\), \(A_t\) denotes the number of away games of team \(t\). The objective variable is bounded between a lower limit of $1$ and an upper limit of $n-1$.
 
 Moreover, initially, we considered an alternative formulation: 
 \[
-M = \sum_{t \in T} |H_t - A_t|,
+O = \sum_{t \in T} |H_t - A_t|,
 \]
 but empirical evaluation showed that minimizing the maximum imbalance consistently produced significantly better results across all the techniques used.
 
 \subsection{Pre-solving with the Circle Method.}
 \label{CircleMatching}
-In each of the four approaches addressed in this report we used a pre-processing step, \emph{circle method}, that helped improving the quality of the found solutions and avoid additional decision variables  \cite{dewerra1999}.
+In each of the four approaches addressed in this report we used a pre-processing step, \emph{circle method}, that helped improving the quality of the found solutions avoiding additional decision variables  \cite{dewerra1999}.
 
 The circle method generates round-robin schedules by fixing one team as a pivot and rotating after every round, or week, the others around it in a circle. In each week, the teams are paired according to their positions in the circle, where each team plays against the team directly opposite to it. By construction two core constraints of the problem are satisfied:
 \begin{itemize}

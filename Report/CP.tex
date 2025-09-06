@@ -24,13 +24,14 @@ The imbalance for each team is stored in
 and the optimization variable is taken as the $\text{max}$ over the array.
 
 \subsection{Constraints}
-Thanks to the previously described \emph{circle method} only two constraints had to be implemented to solve the problem in a consistent way:
+Thanks to the previously described \emph{circle method} only two constraints had to be implemented to solve the problem in a correct way:
 
 \textbf{Each team plays at most twice in the same period:}
 \[
 \forall\, t \in T,\; \forall\, p \in P:\quad 
-\sum_{j \in T \setminus \{t\}} \chi_{\{\text{period}_{t,j} = p\}} \;\leq\; 2
+\sum_{j \in T \setminus \{t\}} \chi_{\{\text{period}_{t,j} = p\}} \;\leq\; 2, 
 \]
+with $\chi$ being the characteristic function.
 We implemented this constraint using the global constraint \texttt{count\_geq}, which yielded better results than both the intuitive formulation and the alternative global constraint \texttt{global\_cardinality}.
 
 \textbf{Each period in each week contains exactly one match:}
@@ -56,7 +57,7 @@ Additional constraints were required due to the way we defined the decision vari
 \end{itemize}
 
 \subsubsection*{Symmetry Breaking Constraints}
-We identified some symmetries in the problem that, if left unaddressed,  enlarged the search space explored by the solver. To reduce redundant exploration, we introduced symmetry-breaking constraints:
+We identified symmetries that enlarge the solver’s search space, so we added symmetry-breaking constraints to avoid redundant exploration:
 
 \textbf{SB1: Fixing the slots of the first team:}
 \[
@@ -78,11 +79,11 @@ This constraint ensures that the slots assigned to the first team are strictly i
 This constraint eliminates symmetries that come from flipping home-away status forcing the first team to play the first half of the season at home and the second away.
 
 \subsection{Validation}
-The models were implemented in MiniZinc and coupled with a Python script that takes the input parameters, determines week assignments, and subsequently executes the corresponding MiniZinc model. We used \textbf{Gecode} and \textbf{Chuffed} with different search strategies. 
+The models were implemented in MiniZinc and coupled with a Python script that determines week assignments and executes the MiniZinc model. We used \textbf{Gecode} and \textbf{Chuffed} with different search strategies. 
 
 \subsubsection{Experimental Results (Decision version)}
 
-In Figure~\ref{fig:solver_strategies}, we present the results for the decision version of the problem. The best configuration combines Chuffed with the random-order variable selection heuristic and Luby restarts, using a restart scale of $50$. Another clear observation is that Chuffed consistently outperforms Gecode. Overall, the results are very similar to those of the optimization version, which is why the discussion of the chosen approaches is deferred to the following section. In both sections smaller instances ($4,6,8$) are left as all the approaches solved them instantly.
+In Figure~\ref{fig:solver_strategies}, we present the results for the decision version of the problem. The best configuration combines Chuffed with the random-order variable selection heuristic and Luby restarts, using a restart scale of $50$. Overall, the results are very similar to those of the optimization version, which is why the discussion of the chosen approaches is deferred to the following section. In both sections smaller instances ($4,6,8$) are left out as all the approaches solved them instantly.
 
 \begin{figure}[h!]
     \centering
@@ -136,7 +137,7 @@ Our first objective was to evaluate the impact of the proposed symmetry-breaking
 
 Having established the advantages of symmetry breaking, we next investigated alternative search strategies to further enhance performance of both solvers. All subsequent experiments were conducted with symmetry breaking enabled.
 
-For the optimization version with Chuffed, we were not able to identify search strategies that improved the model’s solutions, highlighting the effectiveness of Lazy   Generation. Among the tested configurations, the best was \texttt{random\_order} for variable selection combined with a \texttt{Luby$(50)$} restart strategy. We also experimented with \texttt{first\_fail}, but regardless of the chosen value-assignment heuristic, no improvement was observed, although \texttt{indomain\_split} performed slightly better than the others.
+For the optimization version with Chuffed, we were not able to identify search strategies that improved the model’s solutions, highlighting the effectiveness of Lazy Clause Generation. Among the tested configurations, the best was \texttt{random\_order} for variable selection combined with a \texttt{Luby$(50)$} restart strategy. We also experimented with \texttt{first\_fail}, but regardless of the chosen value-assignment heuristic, no improvement was observed, although \texttt{indomain\_split} performed slightly better than the others.
 
 We additionally tested enabling free search, allowing the solver to switch between the specified search annotations and its default search. However, this significantly degraded performance.
 
