@@ -12,14 +12,9 @@ We define an integer decision variable:
 p_{w,i,j} \in \{1, \dots, n/2\}
 \]
 for each match between any pair of teams $(i,j)$, where $(i,j) \in \mathcal{M}_w$, indicating the period during which this match takes place in week $w$.
+We avoid additional decision variables by precomputing which teams $(i, j)$ play in each week $w$ using the fast and classical \emph{circle method} for round-robin tournaments \cite{dewerra1999}, which was already explained above in \ref{CircleMatching}.
 
 The model is encoded using the theory of Linear Integer Arithmetic (LIA), extended with pseudo-Boolean constraints for cardinality.
-
-\subsubsection{Pre-solving with the Circle Method}
-\label{CircleMatching}
-
-We avoid additional decision variables by precomputing which teams $(i, j)$ play in each week $w$ using the fast and classical \emph{circle method} for round-robin tournaments \cite{dewerra1999}, which was already explained above.
-In practice, this greatly reduces the number of SMT variables and constraints. Thanks to pre-solving, we can solve instances with up to $n=20$ teams—and usually even $n=22$ sometimes — within the 5-minute limit. This is $2$ to $4$ teams more than our first SMT models that generated all possible matches as decision variables.
 
 %One team (the pivot) is fixed, and the other $n - 1$ teams are placed in a circle. Each week, the pivot plays a rotating team, while the remaining teams are paired by connecting opposite positions in the circle. This rotation continues for $n - 1$ weeks. The construction guarantees:
 %\begin{itemize}
@@ -51,40 +46,43 @@ j,&d\ge\tfrac n2,
 % \quad
 % \text{away}(i,j)=\text{the other vertex.}
 \]
-By construction, it achieves an absolute disbalance of home/away games equal to 1 per each team. In total, the sum of the absolute disbalance values will be n.
+By construction, it achieves an absolute imbalance of home/away games equal to 1 per each team. In total, the sum of the absolute imbalance values will be n.
 Theoretically, it is minimal for even n.
 
 We use this mathematical approach in the decisional version, so the json results for the decisional version are also home/away optimal.
 
 But to study the solver overhead of enforcing this balance via optimization, we performed a dedicated experiment. 
-We define for team t - absolute difference between home and away games as:
-\[
-\mathit{abs\_diff}_t \;=\;\bigl\lvert (n-1)\;-\;2\cdot\mathit{away\_count}_t\bigr\rvert
-\]
+We used the same $\max_{t}\mathit{abs\_diff}_t$ objective function, as it was found to be the best performing in other parts of our report too.
+
+%We define for team t - absolute difference between home and away games as:
+%\[
+%\mathit{abs\_diff}_t \;=\;\bigl\lvert (n-1)\;-\;2\cdot\mathit{away\_count}_t\bigr\rvert
+%\]
 % equals 1 for every team, so that
 % \[
 % \sum_{t=1}^{n}\mathit{abs\_diff}_t \;=\;n,
 % \]
 
- We introduced the global imbalance metric
-\[
-\texttt{sumDif} \;=\;\sum_{t=1}^{n}\mathit{abs\_diff}_t
-\]
-as our first attempt to construct an objective function.  Also, we added the constraint
-\[
-\texttt{sumDif} \;\ge\; n
-\]
+% We introduced the global imbalance metric
+%\[
+%\texttt{sumDif} \;=\;\sum_{t=1}^{n}\mathit{abs\_diff}_t
+%\]
+%as our first attempt to construct an objective function.  Also, we added the constraint
+%\[
+%\texttt{sumDif} \;\ge\; n
+%\]
 
-We added following additional symmetry‑breaking constraint (w.r.t to team numbering) on the per‑team imbalances:
-\[
-\mathit{abs\_diff}_{t_1}\;\ge\;\mathit{abs\_diff}_{t_2}\;\ge\;\cdots\ge\;\mathit{abs\_diff}_{t_n},
-\]
-and then instructed Z3 to minimize
-\[
-\max_{t}\mathit{abs\_diff}_t = abs\_diff_{0}
-\]
+%We added following additional symmetry‑breaking constraint (w.r.t to team numbering) on the per‑team imbalances:
+%\[
+%\mathit{abs\_diff}_{t_1}\;\ge\;\mathit{abs\_diff}_{t_2}\;\ge\;\cdots\ge\;\mathit{abs\_diff}_{t_n},
+%\]
+%and then instructed Z3 to minimize
+%\[
+%\max_{t}\mathit{abs\_diff}_t = abs\_diff_{0}
+%\]
 
-In our experiments, it appeared that instead of minimizing $\texttt{sumDif}$, it is better to minimize $\max_{t}\mathit{abs\_diff}_t$ objective, as the optimization becomes almost an order of magnitude faster. 
+%In our experiments, it appeared that instead of minimizing $\texttt{sumDif}$, it is better to minimize $\max_{t}\mathit{abs\_diff}_t$ objective, as the optimization becomes almost an order of magnitude faster. 
+
 \subsection{Constraints}
 
 \paragraph{Domain Constraints.}
@@ -116,6 +114,11 @@ where $(i_k, j_k)$ is the $k$-th match in a lexicographically sorted list of mat
 
 In our SMT tests more complicated constraints - like lexicographical constraints on period assignment vectors for chosen pairs of teams - did not bring any noticeable additional improvements, as well as adding redundant constraints. 
 
+For optimization version, we added following additional symmetry‑breaking constraint (w.r.t to team numbering) on the per‑team imbalances:
+\[
+\mathit{abs\_diff}_{t_1}\;\ge\;\mathit{abs\_diff}_{t_2}\;\ge\;\cdots\ge\;\mathit{abs\_diff}_{t_n},
+\]
+
 % \paragraph{Lexicographic Team Schedule Ordering.}
 % Let $T_1$ and $T_2$ be the last two teams in lexicographic order. Let $\vec{v}_1$ and $\vec{v}_2$ be the sequences of period variables corresponding to matches involving $T_1$ and $T_2$, respectively. Then, we enforce:
 % \[
@@ -133,7 +136,8 @@ The model was implemented in Python using the Z3 SMT solver. A custom tactic pip
 
 \subsection*{Experimental Results (Decision version, SMT in Z3)}
 
-We tested the SMT model (without home-away optimization) using Z3 on increasing values of $n$, with and without symmetry breaking. All runs were limited to 300 seconds. The results in Table~\ref{tab:smt-results} show that enabling symmetry breaking significantly improves performance, especially for larger instances.
+We tested the SMT model (without home-away optimization) using Z3 on increasing values of $n$, with and without symmetry breaking. The results in Table~\ref{tab:smt-results} show that enabling symmetry breaking significantly improves performance, especially for larger instances.
+Since all times were zero for $n < 12$, these cases are not shown in both of the tables here.
 
 \begin{table}[h!]
 \centering
@@ -143,9 +147,6 @@ We tested the SMT model (without home-away optimization) using Z3 on increasing 
 \hline
 \textbf{Number of Teams} & \textbf{SB Enabled} & \textbf{SB Disabled} \\
 \hline
-6  & 0 & 0 \\
-8  & 0 & 0 \\
-10 & 0 & 0 \\
 12 & 0 & 1 \\
 14 & 0 & 0 \\
 16 & 0 & 2 \\
@@ -154,10 +155,10 @@ We tested the SMT model (without home-away optimization) using Z3 on increasing 
 \hline
 \end{tabular}
 \end{table}
-
 For our SMT model, we observed that the simple version (first week periods were fixed) of symmetry breaking consistently reduced runtime for bigger $n$, especially beyond $n = 16$. Without SB, solving $n=20$ takes $8$ times longer.
 
 Though we need to mention that for a fixed $n$ there is still some variation between runs - due to the solver's heuristic choices adding some randomness. In some cases $n = 22$ gets solved on our hardware, while often it times out, so it was not included in the final table.
+Thanks to circular matching pre-solving, we could always solve those instances with up to including $n=20$ teams. This is $2$ to $4$ teams more than our first SMT models that generated all possible matches as decision variables.
 
 \subsection*{Experimental Results (Optimization version, SMT in Z3)}
 
@@ -175,9 +176,6 @@ Table~\ref{tab:smt-opt-results} reports the total solving time (in seconds) for 
 \hline
 \textbf{Number of Teams} & \textbf{SB Enabled} & \textbf{SB Disabled} \\
 \hline
-6  & 0.00\textbar\textbf{1} & 0.00\textbar\textbf{1} \\
-8  & 0.00\textbar\textbf{1} & 0.00\textbar\textbf{1} \\
-10 & 0.00\textbar\textbf{1} & 0.00\textbar\textbf{1} \\
 12 & 3.00\textbar\textbf{1} & 6.00\textbar\textbf{1} \\
 14 & 4.00\textbar\textbf{1} & 11.00\textbar\textbf{1} \\
 16 & 127.00\textbar\textbf{1} & 44.00\textbar\textbf{1} \\
@@ -191,7 +189,6 @@ We observe that for the SMT optimization version, symmetry breaking has no such 
 though it helped in every case except for $n = 16$. For $n = 12$ and $n = 14$, SB yields a $2$ times and $3$ times improvement.
 
 Though there is a noticeable variance due to solver heuristic choices, the observations made above are true for the majority of the re-runs, if made. 
-
 % \subsection*{Experimental Results (Optimization version, SMT in Z3)}
 
 % We tested the SMT model (without home-away optimization) using Z3 on increasing values of $n$, with and without symmetry breaking. All runs were limited to 300 seconds. The results in Table~\ref{tab:smt-results} show that enabling symmetry breaking significantly improves performance, especially for larger instances.

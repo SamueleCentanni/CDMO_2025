@@ -1,0 +1,26 @@
+{
+  "z3_decisional_sb_disabled": {
+    "time": 300,
+    "optimal": false,
+    "obj": null,
+    "sol": []
+  },
+  "z3_decisional_sb_enabled": {
+    "time": 300,
+    "optimal": false,
+    "obj": null,
+    "sol": []
+  },
+  "z3_optimal_sb_disabled": {
+    "time": 300,
+    "optimal": false,
+    "obj": null,
+    "sol": []
+  },
+  "z3_optimal_sb_enabled": {
+    "time": 300,
+    "optimal": false,
+    "obj": null,
+    "sol": []
+  }
+}

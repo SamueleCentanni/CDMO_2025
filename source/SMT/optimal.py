@@ -141,6 +141,9 @@ def main():
     total_time = min(int(t2 - t0), 300)
     optimal = timetable is not None
 
+    if not optimal:
+        total_time = 300
+
     # Transpose timetable to periods x weeks, ordering teams by home_away indicator
     sol_periods = []
     try:

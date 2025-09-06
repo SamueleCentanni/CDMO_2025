@@ -48,18 +48,21 @@ def z3_label_periods(matches_per_week, periods, max_per_team=2, sb_enabled=True,
 
     # solve
     solver.check()
-    m = solver.model()
 
     # build as weeks x periods
     sol = []
-    for w in weeks:
-        row = []
-        for k in range(1, periods+1):
-            for (a,b) in matches_per_week[w]:
-                if m[p[w,a,b]].as_long() == k:
-                    row.append([a, b])
-                    break
-        sol.append(row)
+    try:
+        m = solver.model()
+        for w in weeks:
+            row = []
+            for k in range(1, periods+1):
+                for (a,b) in matches_per_week[w]:
+                    if m[p[w,a,b]].as_long() == k:
+                        row.append([a, b])
+                        break
+            sol.append(row)
+    except:
+        sol = None
     return sol
 
 # presolve: matching and balancing
@@ -124,8 +127,12 @@ def main():
         pass
     
     total_time = min(int(t2 - t0), 300)
-    optimal = sol_periods is not None
+
+    optimal = sol_weeks is not None
     obj = None
+
+    if not optimal:
+        total_time = 300
 
     # write json
     folder = '/res/SMT'
